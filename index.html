@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeDasher — Professional Home Cleaning</title>
+  <meta name="description" content="Book a professional home cleaning in minutes. Tell us about your home and we'll create a custom cleaning plan just for you." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #0891b2;
+      --teal-dark: #0e7490;
+      --teal-deep: #164e63;
+      --teal-light: #cffafe;
+      --teal-pale: #f0fdff;
+      --cream: #fafaf8;
+      --stone: #f5f4f0;
+      --ink: #1a1a2e;
+      --slate: #334155;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --white: #ffffff;
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+      --radius: 14px;
+      --shadow: 0 4px 24px rgba(8,145,178,0.08);
+      --shadow-lg: 0 12px 48px rgba(8,145,178,0.14);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(250,250,248,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo {
+      font-family: var(--serif);
+      font-size: 22px;
+      color: var(--teal-deep);
+      letter-spacing: -0.3px;
+    }
+    .logo span { color: var(--teal); font-style: italic; }
+    .nav-link {
+      font-size: 14px; font-weight: 500; color: var(--muted);
+      background: none; border: none; cursor: pointer;
+      padding: 8px 16px; border-radius: 8px;
+      transition: all 0.2s;
+      font-family: var(--sans);
+    }
+    .nav-link:hover { color: var(--teal); background: var(--teal-pale); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 100px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(8,145,178,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 90% 80%, rgba(14,116,144,0.07) 0%, transparent 60%),
+        var(--cream);
+    }
+    .hero-content { position: relative; z-index: 1; text-align: center; max-width: 680px; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--teal-pale); border: 1px solid var(--teal-light);
+      color: var(--teal-dark); font-size: 12px; font-weight: 500;
+      padding: 6px 14px; border-radius: 100px; margin-bottom: 28px;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .hero-eyebrow::before { content: '✦'; font-size: 10px; }
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 6vw, 68px);
+      line-height: 1.1;
+      color: var(--ink);
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+    h1 em { color: var(--teal); font-style: italic; }
+    .hero-sub {
+      font-size: 18px; font-weight: 300; color: var(--slate);
+      line-height: 1.6; margin-bottom: 40px; max-width: 500px; margin-left: auto; margin-right: auto;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: white; font-family: var(--sans); font-size: 16px; font-weight: 500;
+      padding: 16px 32px; border-radius: 100px; border: none; cursor: pointer;
+      box-shadow: 0 8px 24px rgba(8,145,178,0.3);
+      transition: all 0.25s; letter-spacing: 0.01em;
+    }
+    .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(8,145,178,0.4); }
+    .hero-cta:active { transform: translateY(0); }
+    .hero-cta-arrow { font-size: 18px; transition: transform 0.2s; }
+    .hero-cta:hover .hero-cta-arrow { transform: translateX(4px); }
+    .hero-returning {
+      margin-top: 16px; font-size: 14px; color: var(--muted);
+    }
+    .hero-returning button {
+      color: var(--teal); background: none; border: none; cursor: pointer;
+      font-family: var(--sans); font-size: 14px; font-weight: 500;
+      text-decoration: underline; text-underline-offset: 3px;
+    }
+
+    /* ── TRUST BADGES ── */
+    .trust-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 32px; margin-top: 56px; flex-wrap: wrap;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--muted); font-weight: 400;
+    }
+    .trust-icon { font-size: 16px; }
+
+    /* ── MAIN CONTAINER ── */
+    .main { max-width: 720px; margin: 0 auto; padding: 0 24px 80px; }
+
+    /* ── SECTION CARDS ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.4s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .card-title {
+      font-family: var(--serif);
+      font-size: 22px; color: var(--teal-deep);
+      margin-bottom: 4px;
+    }
+    .card-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+
+    /* ── CHAT ── */
+    .chat-messages {
+      min-height: 280px; max-height: 420px;
+      overflow-y: auto; padding: 8px 0;
+      display: flex; flex-direction: column; gap: 16px;
+      scroll-behavior: smooth;
+    }
+    .msg { display: flex; gap: 12px; animation: fadeUp 0.3s ease both; }
+    .msg-avatar {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .msg-ai .msg-avatar { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; }
+    .msg-user { flex-direction: row-reverse; }
+    .msg-user .msg-avatar { background: var(--stone); }
+    .msg-bubble {
+      max-width: 80%; padding: 12px 16px;
+      border-radius: 16px; font-size: 15px; line-height: 1.55;
+    }
+    .msg-ai .msg-bubble {
+      background: var(--teal-pale); color: var(--slate);
+      border-radius: 4px 16px 16px 16px;
+      border: 1px solid var(--teal-light);
+      white-space: pre-wrap;
+    }
+    .msg-user .msg-bubble {
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: white; border-radius: 16px 4px 16px 16px;
+    }
+    .typing-indicator {
+      display: flex; gap: 4px; padding: 14px 16px;
+      background: var(--teal-pale); border: 1px solid var(--teal-light);
+      border-radius: 4px 16px 16px 16px; width: fit-content;
+    }
+    .typing-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--teal); animation: bounce 1.2s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+    .chat-input-row {
+      display: flex; gap: 10px; margin-top: 16px;
+      border-top: 1px solid var(--border); padding-top: 16px;
+    }
+    .chat-input {
+      flex: 1; padding: 12px 16px; border: 1px solid var(--border);
+      border-radius: 100px; font-family: var(--sans); font-size: 15px;
+      color: var(--ink); background: var(--stone);
+      outline: none; transition: border-color 0.2s;
+    }
+    .chat-input:focus { border-color: var(--teal); background: white; }
+    .chat-send {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      border: none; cursor: pointer; color: white; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .chat-send:hover { transform: scale(1.08); box-shadow: 0 4px 12px rgba(8,145,178,0.3); }
+    .chat-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Chore list display */
+    .chore-preview {
+      background: var(--teal-pale); border: 1px solid var(--teal-light);
+      border-radius: 10px; padding: 16px 20px; margin-top: 12px;
+      font-size: 14px; color: var(--slate); line-height: 1.7;
+      white-space: pre-wrap;
+    }
+    .proceed-btn {
+      width: 100%; margin-top: 16px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: white; font-family: var(--sans); font-size: 16px; font-weight: 500;
+      padding: 15px; border-radius: 100px; border: none; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(8,145,178,0.25); transition: all 0.25s;
+    }
+    .proceed-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(8,145,178,0.35); }
+
+    /* ── FORMS ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid.full { grid-template-columns: 1fr; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field.span2 { grid-column: span 2; }
+    label { font-size: 13px; font-weight: 500; color: var(--slate); letter-spacing: 0.02em; }
+    input, textarea, select {
+      padding: 12px 14px; border: 1px solid var(--border);
+      border-radius: 10px; font-family: var(--sans); font-size: 15px;
+      color: var(--ink); background: var(--stone);
+      outline: none; transition: all 0.2s; width: 100%;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--teal); background: white;
+      box-shadow: 0 0 0 3px rgba(8,145,178,0.08);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* Contact preference toggle */
+    .pref-toggle { display: flex; gap: 10px; }
+    .pref-btn {
+      flex: 1; padding: 11px; border-radius: 10px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--stone);
+      font-family: var(--sans); font-size: 14px; font-weight: 500;
+      color: var(--muted); transition: all 0.2s; text-align: center;
+    }
+    .pref-btn.active {
+      border-color: var(--teal); background: var(--teal-pale);
+      color: var(--teal-dark);
+    }
+
+    /* Duration selector */
+    .duration-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .dur-btn {
+      padding: 10px 6px; border-radius: 10px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--stone);
+      font-family: var(--sans); font-size: 14px; font-weight: 500;
+      color: var(--muted); transition: all 0.2s; text-align: center;
+    }
+    .dur-btn.active {
+      border-color: var(--teal); background: var(--teal-pale); color: var(--teal-dark);
+    }
+    .dur-btn small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+    .dur-btn.active small { color: var(--teal); }
+
+    /* Price display */
+    .price-display {
+      background: linear-gradient(135deg, var(--teal-pale), white);
+      border: 1px solid var(--teal-light); border-radius: 12px;
+      padding: 16px 20px; margin-top: 16px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .price-label { font-size: 14px; color: var(--muted); }
+    .price-amount { font-family: var(--serif); font-size: 28px; color: var(--teal-deep); }
+    .price-note { font-size: 12px; color: var(--teal); margin-top: 2px; }
+
+    /* Divider */
+    .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+    /* ── STRIPE ── */
+    #stripe-card-element {
+      padding: 13px 14px; border: 1px solid var(--border);
+      border-radius: 10px; background: var(--stone);
+      transition: all 0.2s;
+    }
+    #stripe-card-element.focused { border-color: var(--teal); background: white; }
+
+    /* Promo code row */
+    .promo-row { display: flex; gap: 10px; }
+    .promo-row input { flex: 1; }
+    .promo-apply {
+      padding: 12px 20px; border-radius: 10px;
+      background: var(--stone); border: 1px solid var(--border);
+      font-family: var(--sans); font-size: 14px; font-weight: 500;
+      color: var(--slate); cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .promo-apply:hover { border-color: var(--teal); color: var(--teal); }
+    .promo-success { font-size: 13px; color: #16a34a; margin-top: 6px; }
+    .promo-error { font-size: 13px; color: #dc2626; margin-top: 6px; }
+
+    /* Submit button */
+    .submit-btn {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: white; font-family: var(--sans); font-size: 17px; font-weight: 500;
+      border: none; border-radius: 100px; cursor: pointer;
+      box-shadow: 0 8px 24px rgba(8,145,178,0.3);
+      transition: all 0.25s; margin-top: 20px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(8,145,178,0.4); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ── SUCCESS ── */
+    .success-card {
+      text-align: center; padding: 48px 36px;
+    }
+    .success-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: white; font-size: 32px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 8px 24px rgba(8,145,178,0.3);
+    }
+    .success-title { font-family: var(--serif); font-size: 30px; color: var(--ink); margin-bottom: 8px; }
+    .success-sub { font-size: 16px; color: var(--muted); line-height: 1.6; margin-bottom: 32px; }
+    .success-detail {
+      background: var(--teal-pale); border: 1px solid var(--teal-light);
+      border-radius: 12px; padding: 20px 24px; text-align: left; margin-bottom: 24px;
+    }
+    .success-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+    .success-row-label { color: var(--muted); }
+    .success-row-val { color: var(--teal-deep); font-weight: 500; }
+
+    /* Rating */
+    .stars { display: flex; gap: 8px; justify-content: center; margin: 16px 0; }
+    .star {
+      font-size: 36px; cursor: pointer;
+      transition: transform 0.15s; filter: grayscale(1) opacity(0.4);
+    }
+    .star.active { filter: none; transform: scale(1.15); }
+    .star:hover { transform: scale(1.2); }
+
+    /* ── MAGIC LINK ── */
+    .magic-card { max-width: 440px; margin: 0 auto; }
+
+    /* ── ERROR ── */
+    .error-msg {
+      background: #fef2f2; border: 1px solid #fecaca;
+      color: #dc2626; border-radius: 10px; padding: 12px 16px;
+      font-size: 14px; margin-top: 12px;
+    }
+
+    /* ── STEP INDICATOR ── */
+    .steps {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; margin-bottom: 32px; padding-top: 88px;
+    }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .step-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid var(--border); background: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      transition: all 0.3s;
+    }
+    .step.active .step-dot { border-color: var(--teal); background: var(--teal); color: white; }
+    .step.done .step-dot { border-color: var(--teal); background: var(--teal-pale); color: var(--teal); }
+    .step-label { font-size: 11px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+    .step.active .step-label { color: var(--teal); }
+    .step-line { width: 48px; height: 2px; background: var(--border); margin-bottom: 18px; transition: background 0.3s; }
+    .step-line.done { background: var(--teal-light); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .field.span2 { grid-column: span 1; }
+      .card { padding: 24px; }
+      .duration-grid { grid-template-columns: repeat(2, 1fr); }
+      .trust-row { gap: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Home<span>Dasher</span></div>
+  <button class="nav-link" onclick="showMagicLink()">Returning customer</button>
+</header>
+
+<div id="app"></div>
+
+<script type="module">
+// ── STATE ──
+const state = {
+  screen: 'hero', // hero | chat | book | payment | success | magic | verify | rate
+  messages: [],
+  choreList: null,
+  customer: null,
+  booking: null,
+  duration: 2,
+  contactPref: 'email',
+  promoCode: '',
+  promoApplied: null,
+  rating: 0,
+  referralCode: new URLSearchParams(window.location.search).get('ref') || '',
+};
+
+// ── STRIPE ──
+const stripe = Stripe('pk_test_REPLACE_WITH_YOUR_STRIPE_PUBLISHABLE_KEY');
+let cardElement = null;
+
+// ── RENDER ──
+function render() {
+  const app = document.getElementById('app');
+  switch (state.screen) {
+    case 'hero':     app.innerHTML = renderHero(); break;
+    case 'chat':     app.innerHTML = renderChat(); setupChat(); break;
+    case 'book':     app.innerHTML = renderBook(); break;
+    case 'payment':  app.innerHTML = renderPayment(); setupStripe(); break;
+    case 'success':  app.innerHTML = renderSuccess(); break;
+    case 'magic':    app.innerHTML = renderMagicLink(); break;
+    case 'rate':     app.innerHTML = renderRate(); break;
+  }
+}
+
+// ── HERO ──
+function renderHero() {
+  return `
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">Professional Home Cleaning</div>
+        <h1>A cleaner home,<br><em>thoughtfully done</em></h1>
+        <p class="hero-sub">Tell us about your home and we'll create a custom cleaning plan — then book your first appointment in minutes.</p>
+        <button class="hero-cta" onclick="startChat()">
+          Build my cleaning plan
+          <span class="hero-cta-arrow">→</span>
+        </button>
+        <p class="hero-returning">Already a customer? <button onclick="showMagicLink()">Load your saved plan</button></p>
+        <div class="trust-row">
+          <div class="trust-item"><span class="trust-icon">✓</span> Fully insured & licensed</div>
+          <div class="trust-item"><span class="trust-icon">✓</span> Background-checked staff</div>
+          <div class="trust-item"><span class="trust-icon">✓</span> $50/hr · No hidden fees</div>
+          <div class="trust-item"><span class="trust-icon">✓</span> Free cancellation</div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+// ── CHAT ──
+function renderChat() {
+  const messagesHtml = state.messages.map(m => `
+    <div class="msg msg-${m.role === 'assistant' ? 'ai' : 'user'}">
+      <div class="msg-avatar">${m.role === 'assistant' ? '✦' : '👤'}</div>
+      <div class="msg-bubble">${m.content}</div>
+    </div>
+  `).join('');
+
+  const showProceed = state.choreList !== null;
+
+  return `
+    <div class="steps">
+      <div class="step active">
+        <div class="step-dot">1</div>
+        <div class="step-label">Plan</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-dot">2</div>
+        <div class="step-label">Details</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-dot">3</div>
+        <div class="step-label">Pay</div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="card">
+        <div class="card-title">Build your cleaning plan</div>
+        <div class="card-sub">Our AI will create a custom checklist based on your home.</div>
+        <div class="chat-messages" id="chat-messages">${messagesHtml}
+          ${state.typing ? '<div class="msg msg-ai"><div class="msg-avatar">✦</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>' : ''}
+        </div>
+        ${showProceed ? `<button class="proceed-btn" onclick="goToBook()">Looks good — book my clean →</button>` : `
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" type="text" placeholder="Tell me about your home…" onkeydown="handleChatKey(event)" />
+          <button class="chat-send" id="chat-send" onclick="sendMessage()">→</button>
+        </div>`}
+      </div>
+    </div>
+  `;
+}
+
+function setupChat() {
+  scrollChat();
+  if (state.messages.length === 0) {
+    sendToAI([]);
+  }
+  const input = document.getElementById('chat-input');
+  if (input) input.focus();
+}
+
+function scrollChat() {
+  setTimeout(() => {
+    const el = document.getElementById('chat-messages');
+    if (el) el.scrollTop = el.scrollHeight;
+  }, 50);
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+
+  state.messages.push({ role: 'user', content: text });
+  state.typing = true;
+  render();
+
+  await sendToAI(state.messages);
+}
+
+async function sendToAI(messages) {
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages }),
+    });
+    const data = await res.json();
+    state.typing = false;
+    state.messages.push({ role: 'assistant', content: data.message });
+
+    // Detect if chore list is in the response
+    if (data.message.includes('Your Custom Cleaning Plan') || data.message.includes('Looks good?')) {
+      state.choreList = data.message;
+    }
+
+    render();
+  } catch (err) {
+    state.typing = false;
+    state.messages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' });
+    render();
+  }
+}
+
+// ── BOOKING DETAILS ──
+function renderBook() {
+  const durations = [1, 1.5, 2, 2.5, 3, 3.5, 4, 5];
+  const price = state.duration * 50;
+
+  return `
+    <div class="steps">
+      <div class="step done"><div class="step-dot">✓</div><div class="step-label">Plan</div></div>
+      <div class="step-line done"></div>
+      <div class="step active"><div class="step-dot">2</div><div class="step-label">Details</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">3</div><div class="step-label">Pay</div></div>
+    </div>
+    <div class="main">
+      <div class="card">
+        <div class="card-title">Your details</div>
+        <div class="card-sub">Tell us where to go and when to show up.</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>First & last name</label>
+            <input type="text" id="name" placeholder="Jane Smith" value="${state.customer?.name || ''}" />
+          </div>
+          <div class="field">
+            <label>Email address</label>
+            <input type="email" id="email" placeholder="jane@example.com" value="${state.customer?.email || ''}" />
+          </div>
+          <div class="field">
+            <label>Phone number</label>
+            <input type="tel" id="phone" placeholder="(555) 000-0000" value="${state.customer?.phone || ''}" />
+          </div>
+          <div class="field">
+            <label>Service address</label>
+            <input type="text" id="address" placeholder="123 Main St, City, State" value="${state.customer?.address || ''}" />
+          </div>
+          <div class="field span2">
+            <label>Preferred contact method</label>
+            <div class="pref-toggle">
+              <button class="pref-btn ${state.contactPref === 'email' ? 'active' : ''}" onclick="setPref('email')">📧 Email</button>
+              <button class="pref-btn ${state.contactPref === 'sms' ? 'active' : ''}" onclick="setPref('sms')">💬 Text message</button>
+            </div>
+          </div>
+          <div class="field span2">
+            <label>Date</label>
+            <input type="date" id="date" min="${new Date().toISOString().split('T')[0]}" value="${state.date || ''}" />
+          </div>
+          <div class="field span2">
+            <label>Preferred start time</label>
+            <input type="time" id="time" value="${state.time || '09:00'}" />
+          </div>
+          <div class="field span2">
+            <label>How long do you need? <span style="color:var(--muted);font-weight:400">($50/hr)</span></label>
+            <div class="duration-grid">
+              ${durations.map(d => `
+                <button class="dur-btn ${state.duration === d ? 'active' : ''}" onclick="setDuration(${d})">
+                  ${d} hr${d !== 1 ? 's' : ''}
+                  <small>$${d * 50}</small>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+          <div class="field span2">
+            <label>Additional notes <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+            <textarea id="notes" placeholder="Pets, access codes, anything we should know…">${state.notes || ''}</textarea>
+          </div>
+          ${state.referralCode ? `
+          <div class="field span2">
+            <label>Referral code</label>
+            <input type="text" id="referralCode" value="${state.referralCode}" readonly style="color:var(--teal);background:var(--teal-pale)" />
+          </div>` : ''}
+        </div>
+
+        <div class="price-display">
+          <div>
+            <div class="price-label">${state.duration} hr${state.duration !== 1 ? 's' : ''} × $50/hr</div>
+            <div class="price-note">Free cancellation anytime before your appointment</div>
+          </div>
+          <div style="text-align:right">
+            <div class="price-amount">$${price}</div>
+          </div>
+        </div>
+
+        <button class="submit-btn" onclick="goToPayment()">Continue to payment →</button>
+        <div id="book-error"></div>
+      </div>
+    </div>
+  `;
+}
+
+// ── PAYMENT ──
+function renderPayment() {
+  const price = state.duration * 50;
+  return `
+    <div class="steps">
+      <div class="step done"><div class="step-dot">✓</div><div class="step-label">Plan</div></div>
+      <div class="step-line done"></div>
+      <div class="step done"><div class="step-dot">✓</div><div class="step-label">Details</div></div>
+      <div class="step-line done"></div>
+      <div class="step active"><div class="step-dot">3</div><div class="step-label">Pay</div></div>
+    </div>
+    <div class="main">
+      <div class="card">
+        <div class="card-title">Payment</div>
+        <div class="card-sub">Your card is charged now. Cancel anytime before your appointment for a full refund.</div>
+
+        <div class="field" style="margin-bottom:16px">
+          <label>Promo code</label>
+          <div class="promo-row">
+            <input type="text" id="promo-input" placeholder="Enter code" value="${state.promoCode}" oninput="state.promoCode=this.value" />
+            <button class="promo-apply" onclick="applyPromo()">Apply</button>
+          </div>
+          <div id="promo-msg"></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>Card details</label>
+          <div id="stripe-card-element"></div>
+          <div id="stripe-error" class="error-msg" style="display:none"></div>
+        </div>
+
+        <div class="price-display">
+          <div>
+            <div class="price-label">Total due today</div>
+            ${state.promoApplied ? `<div class="price-note" style="color:#16a34a">✓ Promo applied</div>` : ''}
+          </div>
+          <div style="text-align:right">
+            <div class="price-amount" id="final-price">$${price}</div>
+          </div>
+        </div>
+
+        <button class="submit-btn" id="pay-btn" onclick="submitPayment()">
+          <span id="pay-btn-text">Pay $${price} & confirm booking</span>
+        </button>
+        <div id="pay-error"></div>
+
+        <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:16px">
+          🔒 Secured by Stripe · Your card info is never stored on our servers
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function setupStripe() {
+  const elements = stripe.elements();
+  cardElement = elements.create('card', {
+    style: {
+      base: {
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '15px',
+        color: '#1a1a2e',
+        '::placeholder': { color: '#94a3b8' },
+      }
+    }
+  });
+  cardElement.mount('#stripe-card-element');
+  cardElement.on('focus', () => document.getElementById('stripe-card-element').classList.add('focused'));
+  cardElement.on('blur', () => document.getElementById('stripe-card-element').classList.remove('focused'));
+}
+
+async function applyPromo() {
+  const code = document.getElementById('promo-input').value.trim();
+  if (!code) return;
+  const msg = document.getElementById('promo-msg');
+  msg.innerHTML = '<span style="color:var(--muted);font-size:13px">Checking…</span>';
+  // Promo validation happens server-side at submit — just store it here
+  state.promoCode = code;
+  state.promoApplied = true;
+  msg.innerHTML = '<span class="promo-success">✓ Code saved — discount will apply at checkout</span>';
+}
+
+// ── SUCCESS ──
+function renderSuccess() {
+  const b = state.booking || {};
+  return `
+    <div class="main" style="padding-top:100px">
+      <div class="card success-card">
+        <div class="success-icon">✓</div>
+        <div class="success-title">You're all set!</div>
+        <p class="success-sub">Your cleaning is booked. We'll ${state.contactPref === 'sms' ? 'text' : 'email'} you when your cleaner is assigned.</p>
+        <div class="success-detail">
+          <div class="success-row"><span class="success-row-label">Date</span><span class="success-row-val">${formatDate(state.date, state.time)}</span></div>
+          <div class="success-row"><span class="success-row-label">Duration</span><span class="success-row-val">${state.duration} hours</span></div>
+          <div class="success-row"><span class="success-row-label">Address</span><span class="success-row-val">${state.bookingDetails?.address || ''}</span></div>
+          <div class="success-row"><span class="success-row-label">Total charged</span><span class="success-row-val">$${(b.amountCharged / 100 || state.duration * 50).toFixed(2)}</span></div>
+        </div>
+        <button class="proceed-btn" onclick="goToRate()">How did we do? Leave a rating</button>
+        <p style="font-size:13px;color:var(--muted);margin-top:12px">Or <button style="background:none;border:none;color:var(--teal);cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;text-decoration:underline" onclick="startChat()">book another clean</button></p>
+      </div>
+    </div>
+  `;
+}
+
+// ── RATING ──
+function renderRate() {
+  return `
+    <div class="main" style="padding-top:100px">
+      <div class="card" style="text-align:center">
+        <div class="card-title">How did we do?</div>
+        <p class="card-sub">Your feedback helps us improve.</p>
+        <div class="stars">
+          ${[1,2,3,4,5].map(n => `<span class="star ${state.rating >= n ? 'active' : ''}" onclick="setRating(${n})">★</span>`).join('')}
+        </div>
+        <textarea id="feedback" placeholder="Tell us more (optional)…" style="margin-top:16px;width:100%"></textarea>
+        <button class="submit-btn" onclick="submitRating()" ${state.rating === 0 ? 'disabled' : ''}>Submit rating</button>
+      </div>
+    </div>
+  `;
+}
+
+// ── MAGIC LINK ──
+function renderMagicLink() {
+  return `
+    <div class="main" style="padding-top:100px">
+      <div class="card magic-card">
+        <div class="card-title">Welcome back</div>
+        <p class="card-sub">Enter your email or phone and we'll send you a link to load your saved cleaning plan.</p>
+        <div class="field" style="margin-bottom:16px">
+          <label>Email address</label>
+          <input type="email" id="magic-email" placeholder="jane@example.com" />
+        </div>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:16px">or</p>
+        <div class="field" style="margin-bottom:20px">
+          <label>Phone number</label>
+          <input type="tel" id="magic-phone" placeholder="(555) 000-0000" />
+        </div>
+        <div class="pref-toggle" style="margin-bottom:20px">
+          <button class="pref-btn ${state.contactPref === 'email' ? 'active' : ''}" onclick="setPref('email')">📧 Send email link</button>
+          <button class="pref-btn ${state.contactPref === 'sms' ? 'active' : ''}" onclick="setPref('sms')">💬 Send text link</button>
+        </div>
+        <button class="submit-btn" onclick="sendMagicLink()">Send my login link</button>
+        <div id="magic-msg"></div>
+        <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:20px">New customer? <button style="background:none;border:none;color:var(--teal);cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;text-decoration:underline" onclick="startChat()">Build your first plan</button></p>
+      </div>
+    </div>
+  `;
+}
+
+// ── ACTIONS ──
+window.startChat = () => { state.screen = 'chat'; render(); };
+window.showMagicLink = () => { state.screen = 'magic'; render(); };
+window.goToBook = () => { state.screen = 'book'; render(); };
+window.setPref = (p) => { state.contactPref = p; render(); };
+window.setDuration = (d) => { state.duration = d; render(); };
+window.setRating = (r) => { state.rating = r; render(); };
+window.handleChatKey = handleChatKey;
+window.sendMessage = sendMessage;
+window.applyPromo = applyPromo;
+
+window.goToPayment = () => {
+  const name = document.getElementById('name')?.value.trim();
+  const email = document.getElementById('email')?.value.trim();
+  const phone = document.getElementById('phone')?.value.trim();
+  const address = document.getElementById('address')?.value.trim();
+  const date = document.getElementById('date')?.value;
+  const time = document.getElementById('time')?.value;
+  const notes = document.getElementById('notes')?.value.trim();
+
+  if (!name || !email || !address || !date || !time) {
+    document.getElementById('book-error').innerHTML = '<div class="error-msg">Please fill in all required fields.</div>';
+    return;
+  }
+
+  state.bookingDetails = { name, email, phone, address, date, time, notes };
+  state.date = date;
+  state.time = time;
+  state.screen = 'payment';
+  render();
+};
+
+window.submitPayment = async () => {
+  const btn = document.getElementById('pay-btn');
+  const btnText = document.getElementById('pay-btn-text');
+  const errEl = document.getElementById('pay-error');
+
+  btn.disabled = true;
+  btnText.textContent = 'Processing…';
+
+  try {
+    const { paymentMethod, error } = await stripe.createPaymentMethod({
+      type: 'card',
+      card: cardElement,
+      billing_details: { name: state.bookingDetails.name, email: state.bookingDetails.email },
+    });
+
+    if (error) {
+      document.getElementById('stripe-error').textContent = error.message;
+      document.getElementById('stripe-error').style.display = 'block';
+      btn.disabled = false;
+      btnText.textContent = `Pay $${state.duration * 50} & confirm booking`;
+      return;
+    }
+
+    const res = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...state.bookingDetails,
+        choreList: state.choreList,
+        contactPreference: state.contactPref,
+        duration: state.duration,
+        paymentMethodId: paymentMethod.id,
+        promoCode: state.promoCode || null,
+        referralCode: state.referralCode || null,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      errEl.innerHTML = `<div class="error-msg">${data.error || 'Payment failed. Please try again.'}</div>`;
+      btn.disabled = false;
+      btnText.textContent = `Pay $${state.duration * 50} & confirm booking`;
+      return;
+    }
+
+    state.booking = data;
+    state.screen = 'success';
+    render();
+
+  } catch (err) {
+    errEl.innerHTML = '<div class="error-msg">Something went wrong. Please try again.</div>';
+    btn.disabled = false;
+    btnText.textContent = `Pay $${state.duration * 50} & confirm booking`;
+  }
+};
+
+window.submitRating = async () => {
+  if (!state.rating) return;
+  const feedback = document.getElementById('feedback')?.value || '';
+  try {
+    await fetch('/api/rate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId: state.booking?.bookingId, rating: state.rating, feedback }),
+    });
+    // Show thank you
+    document.querySelector('.card').innerHTML = `
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:48px;margin-bottom:16px">${state.rating >= 4 ? '🌟' : '🙏'}</div>
+        <div class="card-title">${state.rating >= 4 ? 'Thank you so much!' : 'Thank you for the feedback'}</div>
+        <p style="color:var(--muted);margin-top:8px">${state.rating >= 4 ? 'We\'re so glad you had a great experience. We\'d love to see you again!' : 'We appreciate your honesty and will use this to improve.'}</p>
+        ${state.rating >= 4 ? `<a href="${window.GOOGLE_REVIEW_URL || '#'}" target="_blank" style="display:inline-block;margin-top:20px;padding:12px 24px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;border-radius:100px;text-decoration:none;font-weight:500">Leave a Google review ⭐</a>` : ''}
+        <br><button style="margin-top:16px;background:none;border:none;color:var(--teal);cursor:pointer;font-family:var(--sans);font-size:14px;font-weight:500;text-decoration:underline" onclick="startChat()">Book another clean</button>
+      </div>
+    `;
+  } catch(e) {}
+};
+
+window.sendMagicLink = async () => {
+  const email = document.getElementById('magic-email')?.value.trim();
+  const phone = document.getElementById('magic-phone')?.value.trim();
+  const msg = document.getElementById('magic-msg');
+
+  if (!email && !phone) {
+    msg.innerHTML = '<div class="error-msg">Please enter your email or phone number.</div>';
+    return;
+  }
+
+  try {
+    await fetch('/api/magic-link', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, phone, preference: state.contactPref }),
+    });
+    msg.innerHTML = `<div class="promo-success" style="margin-top:16px;font-size:15px">✓ Link sent! Check your ${state.contactPref === 'sms' ? 'texts' : 'email'}.</div>`;
+  } catch(e) {
+    msg.innerHTML = '<div class="error-msg">Something went wrong. Please try again.</div>';
+  }
+};
+
+window.goToRate = () => { state.screen = 'rate'; render(); };
+
+// Check for magic link token on load
+async function checkMagicToken() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  if (!token) return;
+
+  try {
+    const res = await fetch(`/api/verify?token=${token}`);
+    const data = await res.json();
+    if (data.customer) {
+      state.customer = data.customer;
+      if (data.choreList) state.choreList = data.choreList;
+      state.screen = 'chat';
+      // Clean URL
+      window.history.replaceState({}, '', '/');
+      render();
+    }
+  } catch(e) {}
+}
+
+function formatDate(date, time) {
+  if (!date) return '';
+  return new Date(`${date}T${time}`).toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit'
+  });
+}
+
+// ── INIT ──
+checkMagicToken();
+render();
+</script>
+</body>
+</html>

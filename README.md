@@ -1,6 +1,5 @@
 # HomeDasher Backend
 
-
 Node.js backend for homedasher.net — deployed on Vercel.
 
 ## API Endpoints
