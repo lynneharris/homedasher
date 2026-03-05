@@ -397,6 +397,132 @@
     .step-line { width: 48px; height: 2px; background: var(--border); margin-bottom: 18px; transition: background 0.3s; }
     .step-line.done { background: var(--teal-light); }
 
+    /* ── CONTENT SECTIONS ── */
+    .content-section { padding: 80px 24px; }
+    .alt-bg { background: var(--stone); }
+    .section-inner { max-width: 860px; margin: 0 auto; }
+    .section-inner.center-text { text-align: center; }
+    .section-eyebrow {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--serif); font-size: clamp(24px, 4vw, 36px);
+      color: var(--teal-deep); line-height: 1.25; margin-bottom: 20px;
+    }
+    .section-body {
+      font-size: 16px; color: var(--slate); line-height: 1.7;
+      margin-bottom: 16px; max-width: 680px;
+    }
+    .callout-row {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px; margin-top: 40px;
+    }
+    .callout-item {
+      background: white; border: 1px solid var(--border); border-radius: 16px;
+      padding: 24px; display: flex; flex-direction: column; gap: 12px;
+    }
+    .callout-icon { font-size: 28px; }
+    .callout-text { font-size: 14px; color: var(--slate); line-height: 1.6; }
+    .steps-list { display: flex; flex-direction: column; gap: 32px; margin-top: 40px; }
+    .step-item { display: flex; gap: 24px; align-items: flex-start; }
+    .step-num {
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: white; font-family: var(--serif); font-size: 20px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-content { padding-top: 6px; }
+    .step-heading { font-size: 18px; font-weight: 700; color: var(--teal-deep); margin-bottom: 8px; }
+    .step-desc { font-size: 15px; color: var(--slate); line-height: 1.65; }
+    .services-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px; margin-top: 32px;
+    }
+    .service-card {
+      background: white; border: 1px solid var(--border); border-radius: 16px;
+      padding: 20px; transition: all 0.2s;
+    }
+    .service-card:hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(8,145,178,0.1); }
+    .service-icon { font-size: 24px; margin-bottom: 10px; }
+    .service-name { font-size: 15px; font-weight: 700; color: var(--teal-deep); margin-bottom: 6px; }
+    .service-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .specialty-note {
+      margin-top: 28px; padding: 20px 24px; background: white;
+      border: 1px solid var(--border); border-radius: 14px;
+      font-size: 14px; color: var(--slate); line-height: 1.6;
+    }
+    .specialty-note a { color: var(--teal); text-decoration: none; font-weight: 600; }
+    .pricing-card {
+      max-width: 480px; margin: 40px auto 0;
+      background: white; border: 1px solid var(--border); border-radius: 24px;
+      padding: 40px; box-shadow: 0 8px 40px rgba(8,145,178,0.08);
+    }
+    .price-amount {
+      font-family: var(--serif); font-size: 64px; color: var(--teal-deep);
+      line-height: 1; margin-bottom: 12px;
+    }
+    .price-unit { font-size: 28px; color: var(--muted); }
+    .price-desc { font-size: 15px; color: var(--slate); margin-bottom: 24px; line-height: 1.5; }
+    .price-features { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+    .price-feature { font-size: 14px; color: var(--slate); display: flex; gap: 8px; }
+
+    /* ── CHAT WIDGETS ── */
+    .widget-block {
+      background: var(--stone); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px; margin-top: 12px;
+    }
+    .widget-label {
+      font-size: 14px; font-weight: 600; color: var(--slate);
+      margin-bottom: 14px; line-height: 1.4;
+    }
+    .check-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;
+    }
+    .check-item {
+      display: flex; align-items: center; gap: 10px;
+      background: white; border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 12px; cursor: pointer; font-size: 13px; font-weight: 500;
+      color: var(--slate); transition: all 0.15s; user-select: none;
+    }
+    .check-item:hover { border-color: var(--teal); color: var(--teal); }
+    .check-item.checked { border-color: var(--teal); background: var(--teal-pale); color: var(--teal-dark); }
+    .check-box {
+      width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0; color: var(--teal);
+      background: white; transition: all 0.15s;
+    }
+    .check-item.checked .check-box { background: var(--teal); border-color: var(--teal); color: white; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .opt-btn {
+      padding: 9px 16px; border-radius: 10px; border: 1px solid var(--border);
+      background: white; font-size: 14px; font-weight: 500; color: var(--muted);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .opt-btn:hover { border-color: var(--teal); color: var(--teal); }
+    .opt-btn.selected { border-color: var(--teal); background: var(--teal-pale); color: var(--teal-dark); }
+    .widget-next {
+      width: 100%; padding: 12px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: white; font-size: 15px; font-weight: 600; border: none;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .widget-next:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(8,145,178,0.3); }
+    .widget-next:disabled { opacity: 0.4; cursor: not-allowed; }
+    .widget-input {
+      width: 100%; padding: 10px 14px; border-radius: 10px;
+      border: 1px solid var(--border); font-size: 14px;
+      margin-bottom: 12px; box-sizing: border-box;
+    }
+    .skip-btn {
+      width: 100%; padding: 10px; margin-top: 8px;
+      background: none; border: none; color: var(--muted);
+      font-size: 13px; cursor: pointer; text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .skip-btn:hover { color: var(--slate); }
+
     /* ── CALENDAR ── */
     .cal-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -500,19 +626,144 @@ function renderHero() {
     <section class="hero">
       <div class="hero-bg"></div>
       <div class="hero-content">
-        <div class="hero-eyebrow">Household Help, Done Right</div>
-        <h1>Your household,<br><em>finally organized</em></h1>
-        <p class="hero-sub">Build a detailed task plan for your home, delegate work fairly across your household, and get expert help that arrives fully briefed and ready to go.</p>
+        <div class="hero-eyebrow">Household Help, By the Hour</div>
+        <h1>Your household manager,<br><em>without the full-time hire</em></h1>
+        <p class="hero-sub">HomeDasher sends a skilled helper to your home — someone who can clean, organize, do laundry, prep meals, handle research tasks, and tackle whatever's on the list. Our AI briefing tool means they arrive already knowing your home, so nothing gets lost in translation.</p>
         <button class="hero-cta" onclick="startChat()">
-          Build my household plan
+          Build my task list
           <span class="hero-cta-arrow">→</span>
         </button>
         <p class="hero-returning">Already a customer? <button onclick="showMagicLink()">Load your saved plan</button></p>
         <div class="trust-row">
           <div class="trust-item"><span class="trust-icon">✓</span> Fully insured & licensed</div>
           <div class="trust-item"><span class="trust-icon">✓</span> Background-checked staff</div>
-          <div class="trust-item"><span class="trust-icon">✓</span> $50/hr · Flexible scheduling</div>
+          <div class="trust-item"><span class="trust-icon">✓</span> $50/hr · No hidden fees</div>
           <div class="trust-item"><span class="trust-icon">✓</span> Free cancellation</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section alt-bg">
+      <div class="section-inner">
+        <div class="section-eyebrow">The problem we solve</div>
+        <h2 class="section-title">Concierge household support has always required a full-time hire. Until now.</h2>
+        <p class="section-body">A great housekeeper or household manager is invaluable — but training one takes months. You have to teach them where everything lives, how you like things done, your family's routines, your pets' needs. That investment only makes sense at 40 hours a week. It's why truly personalized household help has always been out of reach for most people.</p>
+        <p class="section-body">HomeDasher changes that. Our AI briefing tool captures everything about your home — your preferences, your routines, your task list — and hands it to your worker before they arrive. No training period. No explaining. No wasted time on the first visit. Every visit feels like a trusted, experienced helper who already knows your home.</p>
+        <div class="callout-row">
+          <div class="callout-item">
+            <div class="callout-icon">🧠</div>
+            <div class="callout-text"><strong>Make invisible work visible.</strong> Every task that lives in your head gets documented, prioritized, and delegated.</div>
+          </div>
+          <div class="callout-item">
+            <div class="callout-icon">⚡</div>
+            <div class="callout-text"><strong>Workers arrive briefed.</strong> No orientation, no questions, no half-finished tasks because they didn't know where the vacuum was.</div>
+          </div>
+          <div class="callout-item">
+            <div class="callout-icon">⚖️</div>
+            <div class="callout-text"><strong>Distribute work fairly.</strong> Assign tasks to your worker, yourself, and other household members — all in one organized plan.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <div class="section-inner">
+        <div class="section-eyebrow">How it works</div>
+        <h2 class="section-title">Three steps to a household that runs itself</h2>
+        <div class="steps-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-heading">Build your task list with AI</div>
+              <div class="step-desc">Tell our AI assistant what needs doing — cleaning, laundry, meal prep, research tasks, pet care, organizing, whatever's piling up. It helps you organize everything into a prioritized plan, assign time to each task, and delegate to your worker, yourself, or other household members.</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-heading">Book your appointment</div>
+              <div class="step-desc">Choose a time that works. We show you real availability so there's no back-and-forth. Pay securely upfront — cancel anytime before your appointment for a full refund.</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-heading">Your worker arrives ready</div>
+              <div class="step-desc">Your HomeDasher has your complete task list before they walk in the door. They know where things are, how you like things done, and exactly what to prioritize. No orientation. Just results.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section alt-bg">
+      <div class="section-inner">
+        <div class="section-eyebrow">What we do</div>
+        <h2 class="section-title">One hourly rate. Everything your household needs.</h2>
+        <p class="section-body">HomeDasher workers are skilled, background-checked helpers who can handle the full range of household tasks — not just cleaning. Think of them as a capable person you trust to handle whatever's on the list.</p>
+        <div class="services-grid">
+          <div class="service-card">
+            <div class="service-icon">🧹</div>
+            <div class="service-name">Light Housekeeping</div>
+            <div class="service-desc">Surface sanitizing, mirrors, quick toilet sanitize, dishes, fridge cleanout, trash & recycling, sweep/vacuum with your equipment</div>
+          </div>
+          <div class="service-card">
+            <div class="service-icon">👕</div>
+            <div class="service-name">Laundry & Linens</div>
+            <div class="service-desc">Wash, dry, fold, put away. Change and make beds. Organize the linen closet.</div>
+          </div>
+          <div class="service-card">
+            <div class="service-icon">🍽️</div>
+            <div class="service-name">Meal Prep & Kitchen</div>
+            <div class="service-desc">Grocery list building, ingredient prep, simple cooking from your recipes, pantry and fridge organization</div>
+          </div>
+          <div class="service-card">
+            <div class="service-icon">🗂️</div>
+            <div class="service-name">Tidying & Organizing</div>
+            <div class="service-desc">Any room, any area. Drawers, closets, shelves, kids' rooms. Decluttering, seasonal swaps, donation sorting.</div>
+          </div>
+          <div class="service-card">
+            <div class="service-icon">💻</div>
+            <div class="service-name">Research & Admin Tasks</div>
+            <div class="service-desc">Compile research, schedule appointments, make calls or send emails on your behalf, digital organization, form completion</div>
+          </div>
+          <div class="service-card">
+            <div class="service-icon">🏠</div>
+            <div class="service-name">Home Admin & Prep</div>
+            <div class="service-desc">Sort mail, guest or event prep, post-event cleanup, move-in unpacking and organizing</div>
+          </div>
+          <div class="service-card">
+            <div class="service-icon">🐾</div>
+            <div class="service-name">Pet Care</div>
+            <div class="service-desc">Feeding, water, medication, litter box, pet area cleanup. Rabies vaccination records required on file.</div>
+          </div>
+          <div class="service-card">
+            <div class="service-icon">🌿</div>
+            <div class="service-name">Plant Care</div>
+            <div class="service-desc">Watering, misting, and basic plant maintenance throughout your home</div>
+          </div>
+        </div>
+        <div class="specialty-note">
+          <strong>Need something more intensive?</strong> We can dispatch specialized providers for deep bathroom or kitchen cleans, carpet cleaning, junk hauling, pressure washing, roof cleaning, and move-out deep cleans. <a href="#" onclick="startChat()">Ask us when building your task list →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <div class="section-inner center-text">
+        <div class="section-eyebrow">Pricing</div>
+        <h2 class="section-title">Simple, transparent pricing</h2>
+        <div class="pricing-card">
+          <div class="price-amount">$50<span class="price-unit">/hr</span></div>
+          <div class="price-desc">One rate. Everything included. No hidden fees, no add-ons, no surprises.</div>
+          <div class="price-features">
+            <div class="price-feature">✓ All standard household tasks</div>
+            <div class="price-feature">✓ AI task briefing included</div>
+            <div class="price-feature">✓ Background-checked, insured workers</div>
+            <div class="price-feature">✓ Free cancellation before your appointment</div>
+            <div class="price-feature">✓ 1-hour minimum booking</div>
+          </div>
+          <button class="hero-cta" onclick="startChat()" style="margin-top:24px">Build my task list →</button>
         </div>
       </div>
     </section>
@@ -529,6 +780,49 @@ function renderChat() {
   `).join('');
 
   const showProceed = state.choreList !== null;
+  const chatStep = state.chatStep || 'scope'; // scope → hours → details → ready
+
+  // Render structured UI widgets based on chat step
+  function renderChatWidget() {
+    if (showProceed) return '';
+
+    if (chatStep === 'scope') {
+      const cats = ['Light housekeeping','Laundry & linens','Meal prep & kitchen','Tidying & organizing','Pet care','Plant care','Research & admin tasks','Home admin & prep','Something else'];
+      return `
+        <div class="widget-block">
+          <div class="widget-label">What do you need help with today? <span style="color:var(--muted);font-weight:400">(select all that apply)</span></div>
+          <div class="check-grid">
+            ${cats.map(c => `
+              <label class="check-item ${(state.selectedCats||[]).includes(c) ? 'checked' : ''}" onclick="toggleCat('${c}')">
+                <span class="check-box">${(state.selectedCats||[]).includes(c) ? '✓' : ''}</span>
+                ${c}
+              </label>`).join('')}
+          </div>
+          <button class="widget-next" onclick="submitScope()" ${!(state.selectedCats||[]).length ? 'disabled' : ''}>Next →</button>
+        </div>`;
+    }
+
+    if (chatStep === 'hours') {
+      const opts = ['1 hr','1.5 hrs','2 hrs','3 hrs','4 hrs','Other'];
+      return `
+        <div class="widget-block">
+          <div class="widget-label">How many hours are you booking?</div>
+          <div class="btn-row">
+            ${opts.map(o => `<button class="opt-btn ${state.hoursChoice === o ? 'selected' : ''}" onclick="selectHours('${o}')">${o}</button>`).join('')}
+          </div>
+          ${state.hoursChoice === 'Other' ? `<input class="widget-input" id="hours-other" type="number" min="1" max="8" step="0.5" placeholder="Enter hours" value="${state.duration||''}" oninput="state.duration=parseFloat(this.value)" />` : ''}
+          <button class="widget-next" onclick="submitHours()" ${!state.hoursChoice ? 'disabled' : ''}>Next →</button>
+        </div>`;
+    }
+
+    // details step — show open text + skip
+    return `
+      <div class="chat-input-row">
+        <input class="chat-input" id="chat-input" type="text" placeholder="Add details or ask a question…" onkeydown="handleChatKey(event)" />
+        <button class="chat-send" id="chat-send" onclick="sendMessage()">→</button>
+      </div>
+      <button class="skip-btn" onclick="goToBook()">Skip — just book now →</button>`;
+  }
 
   return `
     <div class="steps">
@@ -550,15 +844,11 @@ function renderChat() {
     <div class="main">
       <div class="card">
         <div class="card-title">Build your household plan</div>
-        <div class="card-sub">Tell us what needs doing — we'll organize it into a plan for your worker, yourself, and your household.</div>
+        <div class="card-sub">Tell us what needs doing — we'll build a detailed plan for your worker, yourself, and your household.</div>
         <div class="chat-messages" id="chat-messages">${messagesHtml}
           ${state.typing ? '<div class="msg msg-ai"><div class="msg-avatar">✦</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>' : ''}
         </div>
-        ${showProceed ? `<button class="proceed-btn" onclick="goToBook()">Looks good — confirm my booking →</button>` : `
-        <div class="chat-input-row">
-          <input class="chat-input" id="chat-input" type="text" placeholder="Tell me about your home…" onkeydown="handleChatKey(event)" />
-          <button class="chat-send" id="chat-send" onclick="sendMessage()">→</button>
-        </div>`}
+        ${showProceed ? `<button class="proceed-btn" onclick="goToBook()">Book my appointment →</button>` : renderChatWidget()}
       </div>
     </div>
   `;
@@ -566,8 +856,10 @@ function renderChat() {
 
 function setupChat() {
   scrollChat();
-  if (state.messages.length === 0) {
+  // Only auto-trigger AI greeting if we're past the scope/hours steps
+  if (state.chatStep === 'details' && state.messages.length === 0) {
     sendToAI([]);
+  }
   }
   const input = document.getElementById('chat-input');
   if (input) input.focus();
@@ -1035,6 +1327,41 @@ function formatDate(date, time) {
     weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit'
   });
 }
+
+// ── CHAT WIDGETS ──
+window.toggleCat = (cat) => {
+  if (!state.selectedCats) state.selectedCats = [];
+  const idx = state.selectedCats.indexOf(cat);
+  if (idx === -1) state.selectedCats.push(cat);
+  else state.selectedCats.splice(idx, 1);
+  render();
+};
+
+window.submitScope = () => {
+  if (!state.selectedCats || !state.selectedCats.length) return;
+  state.chatStep = 'hours';
+  render();
+};
+
+window.selectHours = (opt) => {
+  state.hoursChoice = opt;
+  if (opt !== 'Other') {
+    const map = { '1 hr': 1, '1.5 hrs': 1.5, '2 hrs': 2, '3 hrs': 3, '4 hrs': 4 };
+    state.duration = map[opt];
+  }
+  render();
+};
+
+window.submitHours = () => {
+  if (!state.hoursChoice) return;
+  if (state.hoursChoice === 'Other' && !state.duration) return;
+
+  // Build a summary message to kick off the AI conversation
+  const summary = `I need help with: ${state.selectedCats.join(', ')}. I'm booking ${state.duration} hour${state.duration !== 1 ? 's' : ''}.`;
+  state.chatStep = 'details';
+  state.messages = [];
+  sendToAI([{ role: 'user', content: summary }]);
+};
 
 // ── CALENDAR ──
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
