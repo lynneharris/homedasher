@@ -10,11 +10,5 @@
     { "src": "/api/referral", "dest": "/api/referral.js" },
     { "src": "/api/workers", "dest": "/api/workers.js" },
     { "src": "/(.*)", "dest": "/index.html" }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron",
-      "schedule": "*/15 * * * *"
-    }
   ]
 }
