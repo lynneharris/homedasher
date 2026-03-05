@@ -1,6 +1,6 @@
 -- =============================================
 -- HomeDasher Supabase Database Schema
--- Run this in your Supabase SQL editor
+-- Fixed order to resolve foreign key dependencies
 -- =============================================
 
 -- Customers table
@@ -20,7 +20,19 @@ CREATE TABLE customers (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Chore lists table (one per customer, upserted on each booking)
+-- Workers table (must come before bookings)
+CREATE TABLE workers (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  phone TEXT,
+  tier TEXT DEFAULT 'trial' CHECK (tier IN ('trial', 'vetted')),
+  jobber_worker_id TEXT,
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Chore lists table
 CREATE TABLE chore_lists (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   customer_email TEXT UNIQUE REFERENCES customers(email),
@@ -67,19 +79,7 @@ CREATE TABLE bookings (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Workers table
-CREATE TABLE workers (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  phone TEXT,
-  tier TEXT DEFAULT 'trial' CHECK (tier IN ('trial', 'vetted')),
-  jobber_worker_id TEXT,
-  active BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Job requests (trial workers requesting jobs, pending owner approval)
+-- Job requests
 CREATE TABLE job_requests (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   worker_id UUID REFERENCES workers(id),
@@ -112,7 +112,7 @@ CREATE TABLE referrals (
   credited_at TIMESTAMPTZ
 );
 
--- Indexes for common queries
+-- Indexes
 CREATE INDEX idx_customers_email ON customers(email);
 CREATE INDEX idx_customers_referral_code ON customers(referral_code);
 CREATE INDEX idx_bookings_status ON bookings(status);
@@ -120,9 +120,3 @@ CREATE INDEX idx_bookings_customer ON bookings(customer_email);
 CREATE INDEX idx_magic_tokens_token ON magic_tokens(token);
 CREATE INDEX idx_magic_tokens_expires ON magic_tokens(expires_at);
 CREATE INDEX idx_job_requests_status ON job_requests(status);
-
--- Auto-clean expired magic tokens daily (optional Supabase cron)
--- CREATE EXTENSION IF NOT EXISTS pg_cron;
--- SELECT cron.schedule('clean-expired-tokens', '0 0 * * *', $$
---   DELETE FROM magic_tokens WHERE expires_at < now();
--- $$);
