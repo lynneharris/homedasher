@@ -1,7 +1,4 @@
 // api/chat.js
-// Proxies AI chat requests to Anthropic
-// Keeps your API key secure on the server
-
 const Anthropic = require('@anthropic-ai/sdk');
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -33,20 +30,32 @@ After the list, end with: "Looks good? Click the button below to book your clean
 
 Stay warm, confident, and brief. No walls of text.`;
 
+const GREETING = `Hi! Welcome to HomeDasher 👋 I'm here to help build a custom cleaning plan for your home.
+
+To get started — how many bedrooms and bathrooms do you have?`;
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
     const { messages } = req.body;
-    if (!messages || !Array.isArray(messages)) {
-      return res.status(400).json({ error: 'messages array required' });
+
+    // If no messages or empty array, return the greeting directly without calling API
+    if (!messages || messages.length === 0) {
+      return res.status(200).json({ message: GREETING });
+    }
+
+    // Filter out any messages with empty content
+    const validMessages = messages.filter(m => m.content && m.content.trim() !== '');
+    if (validMessages.length === 0) {
+      return res.status(200).json({ message: GREETING });
     }
 
     const response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
-      messages,
+      messages: validMessages,
     });
 
     return res.status(200).json({
