@@ -9,6 +9,7 @@
     { "src": "/api/tip", "dest": "/api/tip.js" },
     { "src": "/api/referral", "dest": "/api/referral.js" },
     { "src": "/api/workers", "dest": "/api/workers.js" },
+    { "src": "/api/availability", "dest": "/api/availability.js" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
