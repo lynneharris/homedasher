@@ -397,6 +397,50 @@
     .step-line { width: 48px; height: 2px; background: var(--border); margin-bottom: 18px; transition: background 0.3s; }
     .step-line.done { background: var(--teal-light); }
 
+    /* ── CALENDAR ── */
+    .cal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .cal-month {
+      font-family: var(--serif); font-size: 17px; color: var(--teal-deep);
+    }
+    .cal-nav {
+      background: none; border: 1px solid var(--border); border-radius: 8px;
+      width: 32px; height: 32px; cursor: pointer; font-size: 14px;
+      color: var(--slate); display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .cal-nav:hover { border-color: var(--teal); color: var(--teal); }
+    .cal-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+    }
+    .cal-day-label {
+      text-align: center; font-size: 11px; font-weight: 600;
+      color: var(--muted); padding: 4px 0; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .cal-day {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      border-radius: 8px; font-size: 14px; cursor: pointer;
+      border: 1px solid transparent; transition: all 0.15s; color: var(--slate);
+    }
+    .cal-day:hover:not(.disabled):not(.empty) { border-color: var(--teal); color: var(--teal); background: var(--teal-pale); }
+    .cal-day.selected { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; border-color: transparent; }
+    .cal-day.today { font-weight: 700; color: var(--teal); }
+    .cal-day.today.selected { color: white; }
+    .cal-day.disabled { color: var(--border); cursor: not-allowed; }
+    .cal-day.empty { cursor: default; }
+    .time-slots-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+    .time-slot {
+      padding: 10px 6px; border-radius: 10px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--stone);
+      font-family: var(--sans); font-size: 14px; font-weight: 500;
+      color: var(--muted); transition: all 0.2s; text-align: center;
+    }
+    .time-slot:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-pale); }
+    .time-slot.selected { border-color: var(--teal); background: var(--teal-pale); color: var(--teal-dark); }
+    .no-slots { font-size: 14px; color: var(--muted); padding: 12px 0; }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       .form-grid { grid-template-columns: 1fr; }
@@ -626,11 +670,15 @@ function renderBook() {
           </div>
           <div class="field span2">
             <label>Date</label>
-            <input type="date" id="date" min="${new Date().toISOString().split('T')[0]}" value="${state.date || ''}" />
+            <div id="calendar-widget">
+              ${renderCalendar()}
+            </div>
           </div>
-          <div class="field span2">
-            <label>Preferred start time</label>
-            <input type="time" id="time" value="${state.time || '09:00'}" />
+          <div class="field span2" id="time-slots-field" style="${state.date ? '' : 'display:none'}">
+            <label>Available start times ${state.date ? `· <span style="color:var(--teal)">${formatDateShort(state.date)}</span>` : ''}</label>
+            <div id="time-slots">
+              ${state.date ? `<div style="color:var(--muted);font-size:14px">Loading times…</div>` : ''}
+            </div>
           </div>
           <div class="field span2">
             <label>How long do you need? <span style="color:var(--muted);font-weight:400">($50/hr)</span></label>
@@ -838,18 +886,22 @@ window.goToPayment = () => {
   const email = document.getElementById('email')?.value.trim();
   const phone = document.getElementById('phone')?.value.trim();
   const address = document.getElementById('address')?.value.trim();
-  const date = document.getElementById('date')?.value;
-  const time = document.getElementById('time')?.value;
   const notes = document.getElementById('notes')?.value.trim();
 
-  if (!name || !email || !address || !date || !time) {
-    document.getElementById('book-error').innerHTML = '<div class="error-msg">Please fill in all required fields.</div>';
+  if (!name || !email || !address) {
+    document.getElementById('book-error').innerHTML = '<div class="error-msg">Please fill in your name, email, and address.</div>';
+    return;
+  }
+  if (!state.date) {
+    document.getElementById('book-error').innerHTML = '<div class="error-msg">Please select a date.</div>';
+    return;
+  }
+  if (!state.time) {
+    document.getElementById('book-error').innerHTML = '<div class="error-msg">Please select a start time.</div>';
     return;
   }
 
-  state.bookingDetails = { name, email, phone, address, date, time, notes };
-  state.date = date;
-  state.time = time;
+  state.bookingDetails = { name, email, phone, address, date: state.date, time: state.time, notes };
   state.screen = 'payment';
   render();
 };
@@ -983,6 +1035,121 @@ function formatDate(date, time) {
     weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit'
   });
 }
+
+// ── CALENDAR ──
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+if (!state.calYear) {
+  const now = new Date();
+  state.calYear = now.getFullYear();
+  state.calMonth = now.getMonth();
+}
+
+function renderCalendar() {
+  const year = state.calYear;
+  const month = state.calMonth;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const dayLabels = DAYS.map(d => `<div class="cal-day-label">${d}</div>`).join('');
+
+  let cells = '';
+  for (let i = 0; i < firstDay; i++) cells += `<div class="cal-day empty"></div>`;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const thisDate = new Date(year, month, d);
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = thisDate.getTime() === today.getTime();
+    const isPast = thisDate < today;
+    const isWeekend = thisDate.getDay() === 0 || thisDate.getDay() === 6;
+    const isSelected = state.date === dateStr;
+    const disabled = isPast || isWeekend;
+
+    cells += `<div class="cal-day ${isToday ? 'today' : ''} ${disabled ? 'disabled' : ''} ${isSelected ? 'selected' : ''}"
+      ${!disabled ? `onclick="selectDate('${dateStr}')"` : ''}>${d}</div>`;
+  }
+
+  return `
+    <label style="font-size:13px;font-weight:500;color:var(--slate);letter-spacing:0.02em;display:block;margin-bottom:10px">Select a date</label>
+    <div style="background:var(--stone);border:1px solid var(--border);border-radius:12px;padding:16px">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="calNav(-1)">‹</button>
+        <div class="cal-month">${MONTHS[month]} ${year}</div>
+        <button class="cal-nav" onclick="calNav(1)">›</button>
+      </div>
+      <div class="cal-grid">
+        ${dayLabels}
+        ${cells}
+      </div>
+    </div>
+  `;
+}
+
+function formatDateShort(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+window.calNav = (dir) => {
+  state.calMonth += dir;
+  if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
+  if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; }
+  const widget = document.getElementById('calendar-widget');
+  if (widget) widget.innerHTML = renderCalendar();
+};
+
+window.selectDate = async (dateStr) => {
+  state.date = dateStr;
+  state.time = null;
+
+  // Re-render calendar to show selection
+  const widget = document.getElementById('calendar-widget');
+  if (widget) widget.innerHTML = renderCalendar();
+
+  // Show time slots section
+  const slotsField = document.getElementById('time-slots-field');
+  if (slotsField) {
+    slotsField.style.display = '';
+    slotsField.querySelector('label').innerHTML = `Available start times · <span style="color:var(--teal)">${formatDateShort(dateStr)}</span>`;
+    slotsField.querySelector('#time-slots').innerHTML = '<div style="color:var(--muted);font-size:14px">Loading available times…</div>';
+  }
+
+  // Fetch available slots
+  try {
+    const res = await fetch(`/api/availability?date=${dateStr}&duration=${state.duration}`);
+    const data = await res.json();
+    const slotsEl = document.getElementById('time-slots');
+    if (!slotsEl) return;
+
+    if (!data.slots || data.slots.length === 0) {
+      slotsEl.innerHTML = '<div class="no-slots">No available times on this date. Please try another day.</div>';
+      return;
+    }
+
+    slotsEl.innerHTML = `<div class="time-slots-grid">
+      ${data.slots.map(slot => `
+        <button class="time-slot ${state.time === slot.value ? 'selected' : ''}" onclick="selectTime('${slot.value}', '${slot.display}')">
+          ${slot.display}
+        </button>
+      `).join('')}
+    </div>`;
+  } catch (err) {
+    const slotsEl = document.getElementById('time-slots');
+    if (slotsEl) slotsEl.innerHTML = '<div class="no-slots">Couldn\'t load times. Please try again.</div>';
+  }
+};
+
+window.selectTime = (value, display) => {
+  state.time = value;
+  // Update slot UI
+  document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
+  event.target.classList.add('selected');
+};
 
 // ── INIT ──
 checkMagicToken();
