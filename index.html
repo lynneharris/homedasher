@@ -564,8 +564,15 @@ async function sendToAI(messages) {
     state.typing = false;
     state.messages.push({ role: 'assistant', content: data.message });
 
-    // Detect if chore list is in the response
-    if (data.message.includes('HOMEDASHER WORKER TASKS') || data.message.includes('Your Custom Cleaning Plan') || data.message.includes('confirm your booking') || data.message.includes('Looks good?')) {
+    // Detect if task list is in the response
+    if (
+      data.message.includes('HOMEDASHER WORKER TASKS') ||
+      data.message.includes('Your Custom Cleaning Plan') ||
+      data.message.includes('Click the button below to enter your details') ||
+      data.message.includes('confirm your booking') ||
+      data.message.includes('Looks good?')
+    ) {
+      state.choreList = data.message;
     }
 
     render();
