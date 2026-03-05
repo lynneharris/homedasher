@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HomeDasher — Professional Home Cleaning</title>
-  <meta name="description" content="Book a professional home cleaning in minutes. Tell us about your home and we'll create a custom cleaning plan just for you." />
+  <title>HomeDasher — Household Help, Done Right</title>
+  <meta name="description" content="HomeDasher helps households run more smoothly. Build a detailed task plan, delegate fairly, and get expert help that hits the ground running." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -456,18 +456,18 @@ function renderHero() {
     <section class="hero">
       <div class="hero-bg"></div>
       <div class="hero-content">
-        <div class="hero-eyebrow">Professional Home Cleaning</div>
-        <h1>A cleaner home,<br><em>thoughtfully done</em></h1>
-        <p class="hero-sub">Tell us about your home and we'll create a custom cleaning plan — then book your first appointment in minutes.</p>
+        <div class="hero-eyebrow">Household Help, Done Right</div>
+        <h1>Your household,<br><em>finally organized</em></h1>
+        <p class="hero-sub">Build a detailed task plan for your home, delegate work fairly across your household, and get expert help that arrives fully briefed and ready to go.</p>
         <button class="hero-cta" onclick="startChat()">
-          Build my cleaning plan
+          Build my household plan
           <span class="hero-cta-arrow">→</span>
         </button>
         <p class="hero-returning">Already a customer? <button onclick="showMagicLink()">Load your saved plan</button></p>
         <div class="trust-row">
           <div class="trust-item"><span class="trust-icon">✓</span> Fully insured & licensed</div>
           <div class="trust-item"><span class="trust-icon">✓</span> Background-checked staff</div>
-          <div class="trust-item"><span class="trust-icon">✓</span> $50/hr · No hidden fees</div>
+          <div class="trust-item"><span class="trust-icon">✓</span> $50/hr · Flexible scheduling</div>
           <div class="trust-item"><span class="trust-icon">✓</span> Free cancellation</div>
         </div>
       </div>
@@ -505,12 +505,12 @@ function renderChat() {
     </div>
     <div class="main">
       <div class="card">
-        <div class="card-title">Build your cleaning plan</div>
-        <div class="card-sub">Our AI will create a custom checklist based on your home.</div>
+        <div class="card-title">Build your household plan</div>
+        <div class="card-sub">Tell us what needs doing — we'll organize it into a plan for your worker, yourself, and your household.</div>
         <div class="chat-messages" id="chat-messages">${messagesHtml}
           ${state.typing ? '<div class="msg msg-ai"><div class="msg-avatar">✦</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>' : ''}
         </div>
-        ${showProceed ? `<button class="proceed-btn" onclick="goToBook()">Looks good — book my clean →</button>` : `
+        ${showProceed ? `<button class="proceed-btn" onclick="goToBook()">Looks good — confirm my booking →</button>` : `
         <div class="chat-input-row">
           <input class="chat-input" id="chat-input" type="text" placeholder="Tell me about your home…" onkeydown="handleChatKey(event)" />
           <button class="chat-send" id="chat-send" onclick="sendMessage()">→</button>
