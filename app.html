@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HomeDasher — Your Household Manager, By the Hour</title>
-  <meta name="description" content="HomeDasher sends a skilled helper to your home — cleaning, laundry, meal prep, research tasks, and whatever's on the list. Our AI briefing tool means they arrive knowing your home." />
+  <meta name="description" content="HomeDasher sends a skilled HomeDasher to your home — cleaning, laundry, meal prep, research tasks, and whatever's on the list. Our AI briefing tool means they arrive knowing your home." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -13,7 +13,6 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* Brand palette — calm spa + superhero wink */
       --teal: #3A707F;
       --teal-dark: #2d5a67;
       --teal-deep: #1e3d45;
@@ -21,7 +20,7 @@
       --teal-pale: #f0f8fa;
       --yellow: #FED807;
       --yellow-dark: #e6c000;
-      --red: #E02529;        /* logo only */
+      --red: #E02529;
       --cream: #fefefe;
       --stone: #f7f8f6;
       --ink: #1a2426;
@@ -62,17 +61,70 @@
       letter-spacing: 2px;
       line-height: 1;
       color: var(--teal);
+      text-decoration: none;
     }
     .logo .home { color: var(--teal); }
     .logo .dasher { color: var(--teal-deep); }
+
+    /* ── NAV ── */
+    .nav-links {
+      display: flex; align-items: center; gap: 4px;
+    }
     .nav-link {
       font-size: 14px; font-weight: 500; color: var(--muted);
       background: none; border: none; cursor: pointer;
       padding: 8px 16px; border-radius: 8px;
       transition: all 0.2s;
       font-family: var(--sans);
+      text-decoration: none;
+      display: inline-block;
     }
     .nav-link:hover { color: var(--teal); background: var(--teal-pale); }
+    .nav-cta {
+      font-size: 14px; font-weight: 600;
+      background: var(--teal); color: white;
+      border: none; cursor: pointer;
+      padding: 9px 20px; border-radius: 100px;
+      font-family: var(--sans);
+      transition: all 0.2s;
+      margin-left: 8px;
+      text-decoration: none;
+    }
+    .nav-cta:hover { background: var(--teal-dark); transform: translateY(-1px); }
+    .nav-login {
+      font-size: 13px; font-weight: 500; color: var(--muted);
+      background: none; border: 1px solid var(--border); cursor: pointer;
+      padding: 7px 14px; border-radius: 8px;
+      transition: all 0.2s;
+      font-family: var(--sans);
+      margin-left: 4px;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .nav-login:hover { color: var(--teal); border-color: var(--teal); background: var(--teal-pale); }
+    .nav-hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .nav-hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--teal); border-radius: 2px;
+      transition: all 0.2s;
+    }
+    @media (max-width: 720px) {
+      .nav-links {
+        display: none; position: fixed; top: 64px; left: 0; right: 0;
+        background: rgba(250,250,248,0.98); backdrop-filter: blur(12px);
+        flex-direction: column; align-items: stretch; gap: 0;
+        border-bottom: 1px solid var(--border);
+        padding: 12px 16px 20px;
+        z-index: 99;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links .nav-link { padding: 12px 16px; border-radius: 8px; }
+      .nav-links .nav-cta { margin: 8px 0 4px; padding: 12px; border-radius: 10px; text-align: center; display: block; }
+      .nav-links .nav-login { margin: 4px 0; padding: 11px 16px; border-radius: 8px; justify-content: center; }
+      .nav-hamburger { display: flex; }
+    }
 
     /* ── HERO ── */
     .hero {
@@ -136,14 +188,6 @@
     .hero-cta:active { transform: translateY(0); }
     .hero-cta-arrow { font-size: 18px; transition: transform 0.2s; }
     .hero-cta:hover .hero-cta-arrow { transform: translateX(4px); }
-    .hero-returning {
-      margin-top: 16px; font-size: 14px; color: var(--muted);
-    }
-    .hero-returning button {
-      color: var(--teal); background: none; border: none; cursor: pointer;
-      font-family: var(--sans); font-size: 14px; font-weight: 500;
-      text-decoration: underline; text-underline-offset: 3px;
-    }
 
     /* ── TRUST BADGES ── */
     .trust-row {
@@ -246,7 +290,6 @@
     .chat-send:hover { transform: scale(1.08); box-shadow: 0 4px 12px rgba(58,112,127,0.3); }
     .chat-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-    /* Chore list display */
     .chore-preview {
       background: var(--teal-pale); border: 1px solid var(--teal-light);
       border-radius: 10px; padding: 16px 20px; margin-top: 12px;
@@ -281,7 +324,6 @@
     }
     textarea { resize: vertical; min-height: 80px; }
 
-    /* Contact preference toggle */
     .pref-toggle { display: flex; gap: 10px; }
     .pref-btn {
       flex: 1; padding: 11px; border-radius: 10px; cursor: pointer;
@@ -294,7 +336,6 @@
       color: var(--teal-dark);
     }
 
-    /* Duration selector */
     .duration-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .dur-btn {
       padding: 10px 6px; border-radius: 10px; cursor: pointer;
@@ -308,7 +349,6 @@
     .dur-btn small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); margin-top: 2px; }
     .dur-btn.active small { color: var(--teal); }
 
-    /* Price display */
     .price-display {
       background: linear-gradient(135deg, var(--teal-pale), white);
       border: 1px solid var(--teal-light); border-radius: 12px;
@@ -319,7 +359,6 @@
     .price-amount { font-family: var(--display); font-size: 28px; color: var(--teal-deep); }
     .price-note { font-size: 12px; color: var(--teal); margin-top: 2px; }
 
-    /* Divider */
     .divider { height: 1px; background: var(--border); margin: 24px 0; }
 
     /* ── STRIPE ── */
@@ -330,7 +369,6 @@
     }
     #stripe-card-element.focused { border-color: var(--teal); background: white; }
 
-    /* Promo code row */
     .promo-row { display: flex; gap: 10px; }
     .promo-row input { flex: 1; }
     .promo-apply {
@@ -343,7 +381,6 @@
     .promo-success { font-size: 13px; color: #16a34a; margin-top: 6px; }
     .promo-error { font-size: 13px; color: #dc2626; margin-top: 6px; }
 
-    /* Submit button */
     .submit-btn {
       width: 100%; padding: 16px;
       background: linear-gradient(135deg, var(--teal), var(--teal-dark));
@@ -357,9 +394,7 @@
     .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
     /* ── SUCCESS ── */
-    .success-card {
-      text-align: center; padding: 48px 36px;
-    }
+    .success-card { text-align: center; padding: 48px 36px; }
     .success-icon {
       width: 72px; height: 72px; border-radius: 50%;
       background: linear-gradient(135deg, var(--teal), var(--teal-dark));
@@ -378,7 +413,6 @@
     .success-row-label { color: var(--muted); }
     .success-row-val { color: var(--teal-deep); font-weight: 500; }
 
-    /* Rating */
     .stars { display: flex; gap: 8px; justify-content: center; margin: 16px 0; }
     .star {
       font-size: 36px; cursor: pointer;
@@ -387,10 +421,8 @@
     .star.active { filter: none; transform: scale(1.15); }
     .star:hover { transform: scale(1.2); }
 
-    /* ── MAGIC LINK ── */
     .magic-card { max-width: 440px; margin: 0 auto; }
 
-    /* ── ERROR ── */
     .error-msg {
       background: #fef2f2; border: 1px solid #fecaca;
       color: #dc2626; border-radius: 10px; padding: 12px 16px;
@@ -552,9 +584,7 @@
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 12px;
     }
-    .cal-month {
-      font-family: var(--display); font-size: 17px; color: var(--teal-deep);
-    }
+    .cal-month { font-family: var(--display); font-size: 17px; color: var(--teal-deep); }
     .cal-nav {
       background: none; border: 1px solid var(--border); border-radius: 8px;
       width: 32px; height: 32px; cursor: pointer; font-size: 14px;
@@ -562,9 +592,7 @@
       transition: all 0.2s;
     }
     .cal-nav:hover { border-color: var(--teal); color: var(--teal); }
-    .cal-grid {
-      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
-    }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
     .cal-day-label {
       text-align: center; font-size: 11px; font-weight: 600;
       color: var(--muted); padding: 4px 0; text-transform: uppercase; letter-spacing: 0.05em;
@@ -591,6 +619,19 @@
     .time-slot.selected { border-color: var(--teal); background: var(--teal-pale); color: var(--teal-dark); }
     .no-slots { font-size: 14px; color: var(--muted); padding: 12px 0; }
 
+    /* ── FOOTER ── */
+    footer {
+      background: var(--teal-deep); color: rgba(255,255,255,0.6);
+      padding: 40px 32px; text-align: center;
+      font-size: 13px; line-height: 2;
+    }
+    footer a { color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 12px; }
+    footer a:hover { color: white; }
+    .footer-logo {
+      font-family: var(--display); font-size: 22px; letter-spacing: 2px;
+      color: white; margin-bottom: 12px; display: block;
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       .form-grid { grid-template-columns: 1fr; }
@@ -604,16 +645,43 @@
 <body>
 
 <header>
-  <div class="logo"><span class="home">HOME</span><span class="dasher">DASHER</span></div>
-  <button class="nav-link" onclick="showMagicLink()">Returning customer</button>
+  <a href="/" class="logo"><span class="home">HOME</span><span class="dasher">DASHER</span></a>
+  <nav class="nav-links" id="main-nav">
+    <a class="nav-link" href="#services">Services</a>
+    <a class="nav-link" href="/faq">FAQ</a>
+    <a class="nav-link" href="/about">About</a>
+    <button class="nav-cta" onclick="startChat()">Book Now</button>
+    <button class="nav-login" onclick="showMagicLink()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Log in
+    </button>
+  </nav>
+  <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </header>
 
 <div id="app"></div>
 
+<footer id="site-footer">
+  <span class="footer-logo"><span style="color:#a8d4dc">HOME</span>DASHER</span>
+  <div>
+    <a href="/">Home</a>
+    <a href="#services">Services</a>
+    <a href="/faq">FAQ</a>
+    <a href="/about">About</a>
+  </div>
+  <div style="margin-top:8px">
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/terms">Terms of Service</a>
+  </div>
+  <div style="margin-top:16px;font-size:12px">© 2026 HomeDasher LLC. All rights reserved.</div>
+</footer>
+
 <script type="module">
 // ── STATE ──
 const state = {
-  screen: 'hero', // hero | chat | book | payment | success | magic | verify | rate
+  screen: 'hero',
   messages: [],
   choreList: null,
   customer: null,
@@ -630,6 +698,14 @@ const state = {
 const stripe = Stripe('pk_live_51T7havDsw5itGlEODEZ6ORQE3mi8EKdSDgJSVf9utoxeYOucn2hVye0o2rm8e6mPqt8FXFcbfyfui1M8WSStUdiN00x3ROaAFU');
 let cardElement = null;
 
+// ── FOOTER VISIBILITY ──
+function updateFooter() {
+  const footer = document.getElementById('site-footer');
+  if (footer) {
+    footer.style.display = state.screen === 'hero' ? 'block' : 'none';
+  }
+}
+
 // ── RENDER ──
 function render() {
   const app = document.getElementById('app');
@@ -642,6 +718,7 @@ function render() {
     case 'magic':    app.innerHTML = renderMagicLink(); break;
     case 'rate':     app.innerHTML = renderRate(); break;
   }
+  updateFooter();
 }
 
 // ── HERO ──
@@ -652,15 +729,14 @@ function renderHero() {
       <div class="hero-content">
         <div class="hero-eyebrow">Household Help, By the Hour</div>
         <h1>Your household manager,<br><em>without the full-time hire</em></h1>
-        <p class="hero-sub">HomeDasher sends a skilled helper to your home — someone who can clean, organize, do laundry, prep meals, handle research tasks, and tackle whatever's on the list. Our AI briefing tool means they arrive already knowing your home, so nothing gets lost in translation.</p>
+        <p class="hero-sub">HomeDasher sends a HomeDasher to your home — someone who can clean, organize, do laundry, prep meals, handle research tasks, and tackle whatever's on your custom to-do list. Our proprietary HomeDasher Planner means they arrive already knowing your home, so nothing gets lost in translation.</p>
         <button class="hero-cta" onclick="startChat()">
-          Build my task list
+          Build my to-do list
           <span class="hero-cta-arrow">→</span>
         </button>
-        <p class="hero-returning">Already a customer? <button onclick="showMagicLink()">Load your saved plan</button></p>
         <div class="trust-row">
           <div class="trust-item"><span class="trust-icon">✓</span> Fully insured & licensed</div>
-          <div class="trust-item"><span class="trust-icon">✓</span> Background-checked staff</div>
+          <div class="trust-item"><span class="trust-icon">✓</span> Background-checked HomeDashers</div>
           <div class="trust-item"><span class="trust-icon">✓</span> $50/hr · No hidden fees</div>
           <div class="trust-item"><span class="trust-icon">✓</span> Free cancellation</div>
         </div>
@@ -672,19 +748,19 @@ function renderHero() {
         <div class="section-eyebrow">The problem we solve</div>
         <h2 class="section-title">Concierge household support has always required a full-time hire. Until now.</h2>
         <p class="section-body">A great housekeeper or household manager is invaluable — but training one takes months. You have to teach them where everything lives, how you like things done, your family's routines, your pets' needs. That investment only makes sense at 40 hours a week. It's why truly personalized household help has always been out of reach for most people.</p>
-        <p class="section-body">HomeDasher changes that. Our AI briefing tool captures everything about your home — your preferences, your routines, your task list — and hands it to your worker before they arrive. No training period. No explaining. No wasted time on the first visit. Every visit feels like a trusted, experienced helper who already knows your home.</p>
+        <p class="section-body">HomeDasher changes that. The HomeDasher Planner — our proprietary task intake system — captures everything about your home and delivers a fully custom to-do list to your HomeDasher before they arrive. No training period. No explaining. No wasted time on the first visit. Every visit feels like a trusted, experienced helper who already knows your home.</p>
         <div class="callout-row">
           <div class="callout-item">
             <div class="callout-icon">🧠</div>
-            <div class="callout-text"><strong>Make invisible work visible.</strong> Every task that lives in your head gets documented, prioritized, and delegated.</div>
+            <div class="callout-text"><strong>Offload the mental load.</strong> Every task that lives in your head gets documented, prioritized, and delegated — in minutes.</div>
           </div>
           <div class="callout-item">
             <div class="callout-icon">⚡</div>
-            <div class="callout-text"><strong>Workers arrive briefed.</strong> No orientation, no questions, no half-finished tasks because they didn't know where the vacuum was.</div>
+            <div class="callout-text"><strong>HomeDashers arrive briefed.</strong> No orientation, no questions, no half-finished tasks because they didn't know where the vacuum was.</div>
           </div>
           <div class="callout-item">
             <div class="callout-icon">⚖️</div>
-            <div class="callout-text"><strong>Distribute work fairly.</strong> Assign tasks to your worker, yourself, and other household members — all in one organized plan.</div>
+            <div class="callout-text"><strong>Distribute work fairly.</strong> Assign tasks to your HomeDasher, yourself, and other household members — all in one organized plan.</div>
           </div>
         </div>
       </div>
@@ -698,8 +774,8 @@ function renderHero() {
           <div class="step-item">
             <div class="step-num">1</div>
             <div class="step-content">
-              <div class="step-heading">Build your task list with AI</div>
-              <div class="step-desc">Tell our AI assistant what needs doing — cleaning, laundry, meal prep, research tasks, pet care, organizing, whatever's piling up. It helps you organize everything into a prioritized plan, assign time to each task, and delegate to your worker, yourself, or other household members.</div>
+              <div class="step-heading">Build your custom to-do list</div>
+              <div class="step-desc">The HomeDasher Planner walks you through what needs doing — cleaning, laundry, meal prep, research tasks, pet care, organizing, whatever's piling up. It builds a fully custom to-do list in minutes, assigns time to each task, and delegates work to your HomeDasher, yourself, or other household members.</div>
             </div>
           </div>
           <div class="step-item">
@@ -712,19 +788,19 @@ function renderHero() {
           <div class="step-item">
             <div class="step-num">3</div>
             <div class="step-content">
-              <div class="step-heading">Your worker arrives ready</div>
-              <div class="step-desc">Your HomeDasher has your complete task list before they walk in the door. They know where things are, how you like things done, and exactly what to prioritize. No orientation. Just results.</div>
+              <div class="step-heading">Your HomeDasher arrives ready</div>
+              <div class="step-desc">Your HomeDasher has your complete custom to-do list before they walk in the door. They know where things are, how you like things done, and exactly what to prioritize. No orientation. Just results.</div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="content-section alt-bg">
+    <section class="content-section alt-bg" id="services">
       <div class="section-inner">
         <div class="section-eyebrow">What we do</div>
         <h2 class="section-title">One hourly rate. Everything your household needs.</h2>
-        <p class="section-body">HomeDasher workers are skilled, background-checked helpers who can handle the full range of household tasks — not just cleaning. Think of them as a capable person you trust to handle whatever's on the list.</p>
+        <p class="section-body">HomeDashers are skilled, background-checked helpers who can handle the full range of household tasks — not just cleaning. Think of your HomeDasher as a capable person you trust to handle whatever's on the list.</p>
         <div class="services-grid">
           <div class="service-card">
             <div class="service-icon">🧹</div>
@@ -768,12 +844,12 @@ function renderHero() {
           </div>
         </div>
         <div class="specialty-note">
-          <strong>Need something more intensive?</strong> We can dispatch specialized providers for deep bathroom or kitchen cleans, carpet cleaning, junk hauling, pressure washing, roof cleaning, and move-out deep cleans. <a href="#" onclick="startChat()">Ask us when building your task list →</a>
+          <strong>Need something more intensive?</strong> We can dispatch specialist HomeDashers for deep bathroom or kitchen cleans, carpet cleaning, junk hauling, pressure washing, roof cleaning, and move-out deep cleans. <a href="#" onclick="startChat()">Ask us when building your to-do list →</a>
         </div>
       </div>
     </section>
 
-    <section class="content-section">
+    <section class="content-section" id="pricing">
       <div class="section-inner center-text">
         <div class="section-eyebrow">Pricing</div>
         <h2 class="section-title">Simple, transparent pricing</h2>
@@ -782,12 +858,12 @@ function renderHero() {
           <div class="price-desc">One rate. Everything included. No hidden fees, no add-ons, no surprises.</div>
           <div class="price-features">
             <div class="price-feature">✓ All standard household tasks</div>
-            <div class="price-feature">✓ AI task briefing included</div>
-            <div class="price-feature">✓ Background-checked, insured workers</div>
+            <div class="price-feature">✓ HomeDasher Planner included</div>
+            <div class="price-feature">✓ Background-checked, insured HomeDashers</div>
             <div class="price-feature">✓ Free cancellation before your appointment</div>
             <div class="price-feature">✓ 1-hour minimum booking</div>
           </div>
-          <button class="hero-cta" onclick="startChat()" style="margin-top:24px">Build my task list →</button>
+          <button class="hero-cta" onclick="startChat()" style="margin-top:24px">Build my to-do list →</button>
         </div>
       </div>
     </section>
@@ -804,9 +880,8 @@ function renderChat() {
   `).join('');
 
   const showProceed = state.choreList !== null;
-  const chatStep = state.chatStep || 'scope'; // scope → hours → details → ready
+  const chatStep = state.chatStep || 'scope';
 
-  // Render structured UI widgets based on chat step
   function renderChatWidget() {
     if (showProceed) return '';
 
@@ -839,7 +914,6 @@ function renderChat() {
         </div>`;
     }
 
-    // details step — show open text + skip
     return `
       <div class="chat-input-row">
         <input class="chat-input" id="chat-input" type="text" placeholder="Add details or ask a question…" onkeydown="handleChatKey(event)" />
@@ -867,8 +941,8 @@ function renderChat() {
     </div>
     <div class="main">
       <div class="card">
-        <div class="card-title">Build your household plan</div>
-        <div class="card-sub">Tell us what needs doing — we'll build a detailed plan for your worker, yourself, and your household.</div>
+        <div class="card-title">Build your custom to-do list</div>
+        <div class="card-sub">Tell us what needs doing — we'll build a detailed plan for your HomeDasher, yourself, and your household.</div>
         <div class="chat-messages" id="chat-messages">${messagesHtml}
           ${state.typing ? '<div class="msg msg-ai"><div class="msg-avatar">✦</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>' : ''}
         </div>
@@ -880,7 +954,6 @@ function renderChat() {
 
 function setupChat() {
   scrollChat();
-  // Only auto-trigger AI greeting if we're past the scope/hours steps
   if (state.chatStep === 'details' && state.messages.length === 0) {
     sendToAI([]);
   }
@@ -923,7 +996,6 @@ async function sendToAI(messages) {
     state.typing = false;
     state.messages.push({ role: 'assistant', content: data.message });
 
-    // Detect if task list is in the response
     if (
       data.message.includes('HOMEDASHER WORKER TASKS') ||
       data.message.includes('Your Custom Cleaning Plan') ||
@@ -1112,7 +1184,6 @@ async function applyPromo() {
   if (!code) return;
   const msg = document.getElementById('promo-msg');
   msg.innerHTML = '<span style="color:var(--muted);font-size:13px">Checking…</span>';
-  // Promo validation happens server-side at submit — just store it here
   state.promoCode = code;
   state.promoApplied = true;
   msg.innerHTML = '<span class="promo-success">✓ Code saved — discount will apply at checkout</span>';
@@ -1126,7 +1197,7 @@ function renderSuccess() {
       <div class="card success-card">
         <div class="success-icon">✓</div>
         <div class="success-title">You're all set!</div>
-        <p class="success-sub">Your cleaning is booked. We'll ${state.contactPref === 'sms' ? 'text' : 'email'} you when your cleaner is assigned.</p>
+        <p class="success-sub">Your booking is confirmed. We'll ${state.contactPref === 'sms' ? 'text' : 'email'} you when your HomeDasher is assigned.</p>
         <div class="success-detail">
           <div class="success-row"><span class="success-row-label">Date</span><span class="success-row-val">${formatDate(state.date, state.time)}</span></div>
           <div class="success-row"><span class="success-row-label">Duration</span><span class="success-row-val">${state.duration} hours</span></div>
@@ -1134,7 +1205,7 @@ function renderSuccess() {
           <div class="success-row"><span class="success-row-label">Total charged</span><span class="success-row-val">$${(b.amountCharged / 100 || state.duration * 50).toFixed(2)}</span></div>
         </div>
         <button class="proceed-btn" onclick="goToRate()">How did we do? Leave a rating</button>
-        <p style="font-size:13px;color:var(--muted);margin-top:12px">Or <button style="background:none;border:none;color:var(--teal);cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;text-decoration:underline" onclick="startChat()">book another clean</button></p>
+        <p style="font-size:13px;color:var(--muted);margin-top:12px">Or <button style="background:none;border:none;color:var(--teal);cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;text-decoration:underline" onclick="startChat()">book again</button></p>
       </div>
     </div>
   `;
@@ -1157,13 +1228,13 @@ function renderRate() {
   `;
 }
 
-// ── MAGIC LINK ──
+// ── MAGIC LINK / LOGIN ──
 function renderMagicLink() {
   return `
     <div class="main" style="padding-top:100px">
       <div class="card magic-card">
         <div class="card-title">Welcome back</div>
-        <p class="card-sub">Enter your email or phone and we'll send you a link to load your saved cleaning plan.</p>
+        <p class="card-sub">Enter your email or phone and we'll send you a link to load your saved plan.</p>
         <div class="field" style="margin-bottom:16px">
           <label>Email address</label>
           <input type="email" id="magic-email" placeholder="jane@example.com" />
@@ -1179,7 +1250,7 @@ function renderMagicLink() {
         </div>
         <button class="submit-btn" onclick="sendMagicLink()">Send my login link</button>
         <div id="magic-msg"></div>
-        <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:20px">New customer? <button style="background:none;border:none;color:var(--teal);cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;text-decoration:underline" onclick="startChat()">Build your first plan</button></p>
+        <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:20px">New customer? <button style="background:none;border:none;color:var(--teal);cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;text-decoration:underline" onclick="startChat()">Build your first to-do list</button></p>
       </div>
     </div>
   `;
@@ -1287,14 +1358,13 @@ window.submitRating = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ bookingId: state.booking?.bookingId, rating: state.rating, feedback }),
     });
-    // Show thank you
     document.querySelector('.card').innerHTML = `
       <div style="text-align:center;padding:20px 0">
         <div style="font-size:48px;margin-bottom:16px">${state.rating >= 4 ? '🌟' : '🙏'}</div>
         <div class="card-title">${state.rating >= 4 ? 'Thank you so much!' : 'Thank you for the feedback'}</div>
         <p style="color:var(--muted);margin-top:8px">${state.rating >= 4 ? 'We\'re so glad you had a great experience. We\'d love to see you again!' : 'We appreciate your honesty and will use this to improve.'}</p>
         ${state.rating >= 4 ? `<a href="${window.GOOGLE_REVIEW_URL || '#'}" target="_blank" style="display:inline-block;margin-top:20px;padding:12px 24px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:white;border-radius:100px;text-decoration:none;font-weight:500">Leave a Google review ⭐</a>` : ''}
-        <br><button style="margin-top:16px;background:none;border:none;color:var(--teal);cursor:pointer;font-family:var(--sans);font-size:14px;font-weight:500;text-decoration:underline" onclick="startChat()">Book another clean</button>
+        <br><button style="margin-top:16px;background:none;border:none;color:var(--teal);cursor:pointer;font-family:var(--sans);font-size:14px;font-weight:500;text-decoration:underline" onclick="startChat()">Book again</button>
       </div>
     `;
   } catch(e) {}
@@ -1324,7 +1394,7 @@ window.sendMagicLink = async () => {
 
 window.goToRate = () => { state.screen = 'rate'; render(); };
 
-// Check for magic link token on load
+// ── MAGIC LINK TOKEN CHECK ──
 async function checkMagicToken() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token');
@@ -1337,8 +1407,7 @@ async function checkMagicToken() {
       state.customer = data.customer;
       if (data.choreList) state.choreList = data.choreList;
       state.screen = 'chat';
-      // Clean URL
-      window.history.replaceState({}, '', '/');
+      window.history.replaceState({}, '', '/app');
       render();
     }
   } catch(e) {}
@@ -1379,7 +1448,6 @@ window.submitHours = () => {
   if (!state.hoursChoice) return;
   if (state.hoursChoice === 'Other' && !state.duration) return;
 
-  // Build a summary message to kick off the AI conversation
   const summary = `I need help with: ${state.selectedCats.join(', ')}. I'm booking ${state.duration} hour${state.duration !== 1 ? 's' : ''}.`;
   state.chatStep = 'details';
   state.messages = [];
@@ -1457,11 +1525,9 @@ window.selectDate = async (dateStr) => {
   state.date = dateStr;
   state.time = null;
 
-  // Re-render calendar to show selection
   const widget = document.getElementById('calendar-widget');
   if (widget) widget.innerHTML = renderCalendar();
 
-  // Show time slots section
   const slotsField = document.getElementById('time-slots-field');
   if (slotsField) {
     slotsField.style.display = '';
@@ -1469,7 +1535,6 @@ window.selectDate = async (dateStr) => {
     slotsField.querySelector('#time-slots').innerHTML = '<div style="color:var(--muted);font-size:14px">Loading available times…</div>';
   }
 
-  // Fetch available slots
   try {
     const res = await fetch(`/api/availability?date=${dateStr}&duration=${state.duration}`);
     const data = await res.json();
@@ -1496,10 +1561,22 @@ window.selectDate = async (dateStr) => {
 
 window.selectTime = (value, display) => {
   state.time = value;
-  // Update slot UI
   document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
   event.target.classList.add('selected');
 };
+
+// ── MOBILE NAV ──
+window.toggleMobileNav = () => {
+  document.getElementById('main-nav')?.classList.toggle('open');
+};
+
+document.addEventListener('click', (e) => {
+  const nav = document.getElementById('main-nav');
+  const hamburger = document.getElementById('nav-hamburger');
+  if (nav && hamburger && !nav.contains(e.target) && !hamburger.contains(e.target)) {
+    nav.classList.remove('open');
+  }
+});
 
 // ── INIT ──
 checkMagicToken();
