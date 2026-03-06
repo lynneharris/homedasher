@@ -11,6 +11,8 @@
     { "src": "/api/workers", "dest": "/api/workers.js" },
     { "src": "/api/availability", "dest": "/api/availability.js" },
     { "src": "/app", "dest": "/app.html" },
+    { "src": "/privacy", "dest": "/privacy.html" },
+    { "src": "/terms", "dest": "/terms.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
