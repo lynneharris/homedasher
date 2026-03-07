@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apply — HomeDasher</title>
+  <meta name="description" content="Apply to become a HomeDasher in the Greater Seattle Area." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --teal: #3A707F; --teal-dark: #2d5a67; --teal-deep: #1e3d45;
+      --teal-light: #d4eaee; --teal-pale: #f0f8fa;
+      --yellow: #FED807; --cream: #fefefe; --stone: #f7f8f6;
+      --ink: #1a2426; --slate: #3d5259; --muted: #6b8289;
+      --border: #e0e8ea; --white: #ffffff;
+      --red: #c0392b;
+      --display: 'Bangers', cursive; --sans: 'Montserrat', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); background: var(--cream); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
+
+    header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(250,250,248,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--display); font-size: 28px; letter-spacing: 2px; line-height: 1; color: var(--teal); text-decoration: none; }
+    .logo .home { color: var(--teal); } .logo .dasher { color: var(--teal-deep); }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link { font-size: 14px; font-weight: 500; color: var(--muted); background: none; border: none; cursor: pointer; padding: 8px 16px; border-radius: 8px; transition: all 0.2s; font-family: var(--sans); text-decoration: none; display: inline-block; }
+    .nav-link:hover, .nav-link.active { color: var(--teal); background: var(--teal-pale); }
+    .nav-cta { font-size: 14px; font-weight: 600; background: var(--teal); color: white; border: none; cursor: pointer; padding: 9px 20px; border-radius: 100px; font-family: var(--sans); transition: all 0.2s; margin-left: 8px; text-decoration: none; }
+    .nav-cta:hover { background: var(--teal-dark); transform: translateY(-1px); }
+    .nav-login { font-size: 13px; font-weight: 500; color: var(--muted); background: none; border: 1px solid var(--border); cursor: pointer; padding: 7px 14px; border-radius: 8px; transition: all 0.2s; font-family: var(--sans); margin-left: 4px; display: inline-flex; align-items: center; gap: 6px; }
+    .nav-login:hover { color: var(--teal); border-color: var(--teal); background: var(--teal-pale); }
+    .nav-hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+    .nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--teal); border-radius: 2px; }
+
+    .page-hero { padding: 120px 24px 64px; text-align: center; background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(58,112,127,0.10) 0%, transparent 70%), var(--cream); }
+    .page-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: var(--teal-pale); border: 1px solid var(--teal-light); color: var(--teal-dark); font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 100px; margin-bottom: 20px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .page-eyebrow::before { content: '✦'; font-size: 10px; }
+    .page-title { font-family: var(--display); font-size: clamp(36px, 5vw, 60px); color: var(--ink); letter-spacing: 2px; margin-bottom: 16px; line-height: 1.1; }
+    .page-title em { color: var(--teal); font-style: normal; }
+    .page-sub { font-size: 17px; color: var(--slate); line-height: 1.7; max-width: 560px; margin: 0 auto; }
+
+    .apply-wrap { max-width: 680px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    .form-card { background: var(--white); border: 1px solid var(--border); border-radius: 20px; padding: 48px; box-shadow: 0 4px 24px rgba(58,112,127,0.08); }
+
+    .form-section { margin-bottom: 32px; }
+    .form-section-title { font-family: var(--display); font-size: 18px; color: var(--teal-deep); letter-spacing: 1px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--teal-light); }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+    label { font-size: 13px; font-weight: 600; color: var(--slate); letter-spacing: 0.02em; }
+    label .req { color: var(--teal); margin-left: 2px; }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    textarea,
+    select {
+      padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-family: var(--sans); font-size: 14px; color: var(--ink);
+      background: var(--cream); transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none; border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(58,112,127,0.1);
+    }
+    textarea { resize: vertical; min-height: 100px; }
+    select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b8289' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer; }
+
+    /* AVAILABILITY */
+    .avail-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .avail-check { display: none; }
+    .avail-label {
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 8px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      cursor: pointer; transition: all 0.15s; text-align: center; line-height: 1.3;
+    }
+    .avail-check:checked + .avail-label { background: var(--teal-pale); border-color: var(--teal); color: var(--teal-dark); }
+
+    /* CULTURE FIT */
+    .culture-box { background: var(--stone); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+    .culture-intro { font-size: 14px; color: var(--slate); margin-bottom: 16px; line-height: 1.6; font-weight: 600; }
+    .checkbox-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--white); margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s; }
+    .checkbox-item:last-child { margin-bottom: 0; }
+    .checkbox-item:hover { border-color: var(--teal); }
+    .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--teal); cursor: pointer; flex-shrink: 0; margin-top: 1px; }
+    .checkbox-text { font-size: 13px; color: var(--slate); line-height: 1.6; }
+
+    /* CONSENT */
+    .consent-area { display: flex; flex-direction: column; gap: 10px; }
+    .consent-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--white); cursor: pointer; transition: border-color 0.2s; }
+    .consent-item:hover { border-color: var(--teal); }
+    .consent-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--teal); flex-shrink: 0; margin-top: 2px; cursor: pointer; }
+    .consent-text { font-size: 13px; color: var(--slate); line-height: 1.6; }
+    .consent-text strong { color: var(--ink); }
+
+    /* SUBMIT */
+    .submit-btn {
+      width: 100%; padding: 16px; background: var(--teal); color: white;
+      font-family: var(--display); font-size: 22px; letter-spacing: 2px;
+      border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s;
+      margin-top: 24px;
+    }
+    .submit-btn:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(58,112,127,0.25); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* STATES */
+    .form-error { color: var(--red); font-size: 13px; margin-top: 4px; }
+    .alert { border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; font-size: 14px; line-height: 1.6; display: none; }
+    .alert.success { background: #e8f8f0; border: 1px solid #68c89a; color: #1a5e38; }
+    .alert.error { background: #fdf0ee; border: 1px solid #e8a89b; color: #7a1e15; }
+    .alert.show { display: block; }
+
+    footer { background: var(--teal-deep); color: rgba(255,255,255,0.6); padding: 40px 32px; text-align: center; font-size: 13px; line-height: 2; }
+    footer a { color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 12px; }
+    footer a:hover { color: white; }
+    .footer-logo { font-family: var(--display); font-size: 22px; letter-spacing: 2px; color: white; margin-bottom: 12px; display: block; }
+
+    @media (max-width: 720px) {
+      .nav-links { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(250,250,248,0.98); backdrop-filter: blur(12px); flex-direction: column; align-items: stretch; gap: 0; border-bottom: 1px solid var(--border); padding: 12px 16px 20px; z-index: 99; }
+      .nav-links.open { display: flex; }
+      .nav-links .nav-link { padding: 12px 16px; }
+      .nav-links .nav-cta { margin: 8px 0 4px; padding: 12px; border-radius: 10px; text-align: center; display: block; }
+      .nav-links .nav-login { margin: 4px 0; padding: 11px 16px; border-radius: 8px; justify-content: center; }
+      .nav-hamburger { display: flex; }
+      .form-card { padding: 28px 20px; }
+      .form-row { grid-template-columns: 1fr; }
+      .avail-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="logo"><span class="home">HOME</span><span class="dasher">DASHER</span></a>
+  <nav class="nav-links" id="main-nav">
+    <a class="nav-link" href="/app#services">Services</a>
+    <a class="nav-link" href="/faq">FAQ</a>
+    <a class="nav-link active" href="/careers">Careers</a>
+    <a class="nav-link" href="/about">About</a>
+    <a class="nav-cta" href="/app">Book Now</a>
+    <button class="nav-login" onclick="window.location.href='/app'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Log in
+    </button>
+  </nav>
+  <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<div class="page-hero">
+  <div class="page-eyebrow">Apply Now</div>
+  <h1 class="page-title">Join the <em>HomeDasher</em> Team</h1>
+  <p class="page-sub">Takes about 5 minutes. We review every application and will be in touch.</p>
+</div>
+
+<div class="apply-wrap">
+  <div id="alert-success" class="alert success">
+    <strong>Application received!</strong> Thanks for applying to HomeDasher. We'll review your application and reach out to you soon.
+  </div>
+  <div id="alert-error" class="alert error">
+    <strong>Something went wrong.</strong> Please try again or email us directly at <a href="mailto:lynneharris@outlook.com">lynneharris@outlook.com</a>.
+  </div>
+
+  <div class="form-card" id="application-form-card">
+
+    <!-- PERSONAL INFO -->
+    <div class="form-section">
+      <div class="form-section-title">Your Info</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="full_name">Full Name <span class="req">*</span></label>
+          <input type="text" id="full_name" name="full_name" placeholder="Jane Smith" required autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone <span class="req">*</span></label>
+          <input type="tel" id="phone" name="phone" placeholder="(206) 555-0123" required autocomplete="tel" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email">Email <span class="req">*</span></label>
+        <input type="email" id="email" name="email" placeholder="jane@example.com" required autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label for="neighborhood">City / Neighborhood <span class="req">*</span></label>
+        <input type="text" id="neighborhood" name="neighborhood" placeholder="e.g. Bellevue, Capitol Hill, Kirkland..." required />
+      </div>
+    </div>
+
+    <!-- AVAILABILITY -->
+    <div class="form-section">
+      <div class="form-section-title">Availability</div>
+      <div class="form-group">
+        <label>When are you generally available? <span class="req">*</span> <span style="font-weight:400;color:var(--muted)">(select all that apply)</span></label>
+        <div class="avail-grid">
+          <div><input class="avail-check" type="checkbox" id="avail_mon" name="availability" value="Monday" /><label class="avail-label" for="avail_mon">Mon</label></div>
+          <div><input class="avail-check" type="checkbox" id="avail_tue" name="availability" value="Tuesday" /><label class="avail-label" for="avail_tue">Tue</label></div>
+          <div><input class="avail-check" type="checkbox" id="avail_wed" name="availability" value="Wednesday" /><label class="avail-label" for="avail_wed">Wed</label></div>
+          <div><input class="avail-check" type="checkbox" id="avail_thu" name="availability" value="Thursday" /><label class="avail-label" for="avail_thu">Thu</label></div>
+          <div><input class="avail-check" type="checkbox" id="avail_fri" name="availability" value="Friday" /><label class="avail-label" for="avail_fri">Fri</label></div>
+          <div><input class="avail-check" type="checkbox" id="avail_sat" name="availability" value="Saturday" /><label class="avail-label" for="avail_sat">Sat</label></div>
+          <div><input class="avail-check" type="checkbox" id="avail_sun" name="availability" value="Sunday" /><label class="avail-label" for="avail_sun">Sun</label></div>
+          <div><input class="avail-check" type="checkbox" id="avail_flex" name="availability" value="Flexible" /><label class="avail-label" for="avail_flex">Flexible</label></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="hours">Preferred hours <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <select id="hours" name="hours">
+          <option value="">Select...</option>
+          <option value="mornings">Mornings (before noon)</option>
+          <option value="afternoons">Afternoons (noon–5pm)</option>
+          <option value="evenings">Evenings (after 5pm)</option>
+          <option value="any">Any time of day</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- EXPERIENCE -->
+    <div class="form-section">
+      <div class="form-section-title">Background</div>
+      <div class="form-group">
+        <label for="experience">Relevant experience <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <textarea id="experience" name="experience" placeholder="Any relevant background — housekeeping, home organization, personal assisting, admin, childcare, etc. No specific experience required."></textarea>
+      </div>
+      <div class="form-group">
+        <label for="why">Why do you want to be a HomeDasher? <span class="req">*</span></label>
+        <textarea id="why" name="why" placeholder="Tell us a bit about why this role appeals to you." required style="min-height:120px;"></textarea>
+      </div>
+    </div>
+
+    <!-- CULTURE FIT -->
+    <div class="form-section">
+      <div class="form-section-title">Before You Apply</div>
+      <div class="culture-box">
+        <div class="culture-intro">Please confirm you're on board with how we work — all five are required to submit:</div>
+
+        <label class="checkbox-item">
+          <input type="checkbox" id="culture_1" name="culture" value="fast_paced" required />
+          <span class="checkbox-text">I understand that HomeDasher is a fast-paced environment where no two jobs look alike — I'm comfortable adapting quickly and thinking on my feet</span>
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="culture_2" name="culture" value="problem_solving" required />
+          <span class="checkbox-text">I'm comfortable with on-the-job problem solving — if something unexpected comes up, I can figure it out independently without needing step-by-step guidance</span>
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="culture_3" name="culture" value="efficiency" required />
+          <span class="checkbox-text">I understand that providing value means working efficiently — I take pride in how much I can accomplish in a given timeframe</span>
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="culture_4" name="culture" value="physical_and_digital" required />
+          <span class="checkbox-text">I'm comfortable switching between hands-on tasks and digital ones within the same visit</span>
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="culture_5" name="culture" value="tech" required />
+          <span class="checkbox-text">I'm excited to learn and use new tools and technology as part of my role</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- CONSENT -->
+    <div class="form-section">
+      <div class="form-section-title">Agreements</div>
+      <div class="consent-area">
+        <label class="consent-item">
+          <input type="checkbox" id="consent_bg" required />
+          <span class="consent-text"><strong>Background check consent:</strong> I understand that employment is contingent on passing a background check, and I consent to HomeDasher conducting one.</span>
+        </label>
+        <label class="consent-item">
+          <input type="checkbox" id="consent_w2" required />
+          <span class="consent-text"><strong>W-2 employment acknowledgment:</strong> I understand that HomeDashers are W-2 employees, not independent contractors.</span>
+        </label>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitApplication()">Submit Application</button>
+  </div>
+</div>
+
+<footer>
+  <span class="footer-logo"><span style="color:#a8d4dc">HOME</span>DASHER</span>
+  <div>
+    <a href="/">Home</a>
+    <a href="/app#services">Services</a>
+    <a href="/faq">FAQ</a>
+    <a href="/careers">Careers</a>
+    <a href="/about">About</a>
+  </div>
+  <div style="margin-top:8px">
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/terms">Terms of Service</a>
+  </div>
+  <div style="margin-top:16px;font-size:12px">© 2026 HomeDasher LLC. All rights reserved.</div>
+</footer>
+
+<script>
+function toggleMobileNav() { document.getElementById('main-nav')?.classList.toggle('open'); }
+document.addEventListener('click', (e) => {
+  const nav = document.getElementById('main-nav');
+  const hamburger = document.getElementById('nav-hamburger');
+  if (nav && hamburger && !nav.contains(e.target) && !hamburger.contains(e.target)) nav.classList.remove('open');
+});
+
+function getVal(id) { return document.getElementById(id)?.value?.trim() || ''; }
+
+function submitApplication() {
+  // Hide previous alerts
+  document.getElementById('alert-success').classList.remove('show');
+  document.getElementById('alert-error').classList.remove('show');
+
+  // Validate required text fields
+  const required = [
+    { id: 'full_name', label: 'Full Name' },
+    { id: 'phone', label: 'Phone' },
+    { id: 'email', label: 'Email' },
+    { id: 'neighborhood', label: 'City / Neighborhood' },
+    { id: 'why', label: 'Why you want to be a HomeDasher' },
+  ];
+  for (const f of required) {
+    if (!getVal(f.id)) { alert(`Please fill in: ${f.label}`); document.getElementById(f.id)?.focus(); return; }
+  }
+
+  // Validate availability
+  const availChecked = [...document.querySelectorAll('input[name="availability"]:checked')];
+  if (availChecked.length === 0) { alert('Please select at least one availability option.'); return; }
+
+  // Validate culture checkboxes
+  const cultureBoxes = document.querySelectorAll('input[name="culture"]');
+  for (const cb of cultureBoxes) {
+    if (!cb.checked) { alert('Please confirm all five items in the "Before You Apply" section.'); cb.focus(); return; }
+  }
+
+  // Validate consent
+  if (!document.getElementById('consent_bg').checked) { alert('Please consent to the background check to continue.'); return; }
+  if (!document.getElementById('consent_w2').checked) { alert('Please acknowledge the W-2 employment terms to continue.'); return; }
+
+  // Build payload
+  const payload = {
+    full_name: getVal('full_name'),
+    email: getVal('email'),
+    phone: getVal('phone'),
+    neighborhood: getVal('neighborhood'),
+    availability: availChecked.map(c => c.value).join(', '),
+    hours: getVal('hours') || 'Not specified',
+    experience: getVal('experience') || 'Not provided',
+    why: getVal('why'),
+  };
+
+  // Disable button + show loading state
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  fetch('/api/apply', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(res => {
+    if (res.ok) {
+      document.getElementById('application-form-card').style.display = 'none';
+      document.getElementById('alert-success').classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      throw new Error('Server error');
+    }
+  })
+  .catch(() => {
+    document.getElementById('alert-error').classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'Submit Application';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+</script>
+</body>
+</html>

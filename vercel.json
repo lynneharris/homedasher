@@ -1,18 +1,12 @@
 {
-  "version": 2,
-  "routes": [
-    { "src": "/api/chat", "dest": "/api/chat.js" },
-    { "src": "/api/submit", "dest": "/api/submit.js" },
-    { "src": "/api/magic-link", "dest": "/api/magic-link.js" },
-    { "src": "/api/verify", "dest": "/api/verify.js" },
-    { "src": "/api/rate", "dest": "/api/rate.js" },
-    { "src": "/api/tip", "dest": "/api/tip.js" },
-    { "src": "/api/referral", "dest": "/api/referral.js" },
-    { "src": "/api/workers", "dest": "/api/workers.js" },
-    { "src": "/api/availability", "dest": "/api/availability.js" },
-    { "src": "/app", "dest": "/app.html" },
-    { "src": "/privacy", "dest": "/privacy.html" },
-    { "src": "/terms", "dest": "/terms.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/app", "destination": "/app.html" },
+    { "source": "/faq", "destination": "/faq.html" },
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/careers", "destination": "/careers.html" },
+    { "source": "/new-hire", "destination": "/new-hire.html" },
+    { "source": "/apply", "destination": "/apply.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/terms", "destination": "/terms.html" }
   ]
 }

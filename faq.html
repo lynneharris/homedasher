@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ — HomeDasher</title>
+  <meta name="description" content="Answers to common questions about HomeDasher — on-demand household help serving the Greater Seattle Area." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --teal: #3A707F; --teal-dark: #2d5a67; --teal-deep: #1e3d45;
+      --teal-light: #d4eaee; --teal-pale: #f0f8fa;
+      --yellow: #FED807; --cream: #fefefe; --stone: #f7f8f6;
+      --ink: #1a2426; --slate: #3d5259; --muted: #6b8289;
+      --border: #e0e8ea; --white: #ffffff;
+      --display: 'Bangers', cursive; --sans: 'Montserrat', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); background: var(--cream); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
+
+    /* HEADER */
+    header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(250,250,248,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--display); font-size: 28px; letter-spacing: 2px; line-height: 1; color: var(--teal); text-decoration: none; }
+    .logo .home { color: var(--teal); } .logo .dasher { color: var(--teal-deep); }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link { font-size: 14px; font-weight: 500; color: var(--muted); background: none; border: none; cursor: pointer; padding: 8px 16px; border-radius: 8px; transition: all 0.2s; font-family: var(--sans); text-decoration: none; display: inline-block; }
+    .nav-link:hover, .nav-link.active { color: var(--teal); background: var(--teal-pale); }
+    .nav-cta { font-size: 14px; font-weight: 600; background: var(--teal); color: white; border: none; cursor: pointer; padding: 9px 20px; border-radius: 100px; font-family: var(--sans); transition: all 0.2s; margin-left: 8px; text-decoration: none; }
+    .nav-cta:hover { background: var(--teal-dark); transform: translateY(-1px); }
+    .nav-login { font-size: 13px; font-weight: 500; color: var(--muted); background: none; border: 1px solid var(--border); cursor: pointer; padding: 7px 14px; border-radius: 8px; transition: all 0.2s; font-family: var(--sans); margin-left: 4px; display: inline-flex; align-items: center; gap: 6px; }
+    .nav-login:hover { color: var(--teal); border-color: var(--teal); background: var(--teal-pale); }
+    .nav-hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+    .nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--teal); border-radius: 2px; }
+
+    /* PAGE HERO */
+    .page-hero { padding: 120px 24px 60px; text-align: center; background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(58,112,127,0.10) 0%, transparent 70%), var(--cream); }
+    .page-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: var(--teal-pale); border: 1px solid var(--teal-light); color: var(--teal-dark); font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 100px; margin-bottom: 20px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .page-eyebrow::before { content: '✦'; font-size: 10px; }
+    .page-title { font-family: var(--display); font-size: clamp(36px, 5vw, 60px); color: var(--ink); letter-spacing: 2px; margin-bottom: 16px; line-height: 1.1; }
+    .page-title em { color: var(--teal); font-style: normal; }
+    .page-sub { font-size: 17px; color: var(--slate); line-height: 1.7; max-width: 560px; margin: 0 auto; }
+
+    /* FAQ CONTENT */
+    .faq-content { max-width: 800px; margin: 0 auto; padding: 60px 24px 80px; }
+
+    .faq-category { margin-bottom: 56px; }
+    .faq-category-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 24px; padding-bottom: 16px;
+      border-bottom: 2px solid var(--teal-light);
+    }
+    .faq-category-icon { font-size: 22px; }
+    .faq-category-title { font-family: var(--display); font-size: 24px; color: var(--teal-deep); letter-spacing: 1px; }
+
+    .faq-item { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; overflow: hidden; background: var(--white); transition: box-shadow 0.2s; }
+    .faq-item:hover { box-shadow: 0 4px 16px rgba(58,112,127,0.08); }
+    .faq-question { width: 100%; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; background: none; border: none; cursor: pointer; font-family: var(--sans); font-size: 15px; font-weight: 600; color: var(--ink); text-align: left; transition: background 0.2s; }
+    .faq-question:hover { background: var(--stone); }
+    .faq-question.open { background: var(--teal-pale); color: var(--teal-dark); }
+    .faq-chevron { font-size: 18px; color: var(--teal); flex-shrink: 0; transition: transform 0.25s; }
+    .faq-question.open .faq-chevron { transform: rotate(180deg); }
+    .faq-answer { display: none; padding: 0 24px 20px; font-size: 15px; color: var(--slate); line-height: 1.75; border-top: 1px solid var(--teal-light); padding-top: 16px; }
+    .faq-answer.open { display: block; }
+    .faq-answer p { margin-bottom: 12px; }
+    .faq-answer p:last-child { margin-bottom: 0; }
+    .faq-answer ul { margin: 8px 0 12px 20px; display: flex; flex-direction: column; gap: 6px; }
+    .faq-answer ul li { font-size: 14px; color: var(--slate); }
+    .faq-answer a { color: var(--teal); font-weight: 500; text-decoration: none; }
+    .faq-answer a:hover { text-decoration: underline; }
+    .faq-answer .highlight { background: var(--teal-pale); border: 1px solid var(--teal-light); border-radius: 8px; padding: 12px 16px; margin-top: 8px; font-size: 14px; }
+
+    /* CTA BAND */
+    .cta-band { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); padding: 60px 24px; text-align: center; }
+    .cta-band h2 { font-family: var(--display); font-size: 36px; color: white; letter-spacing: 2px; margin-bottom: 12px; }
+    .cta-band p { font-size: 16px; color: rgba(255,255,255,0.8); margin-bottom: 28px; }
+    .cta-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--yellow); color: var(--ink); font-family: var(--sans); font-size: 15px; font-weight: 700; padding: 16px 36px; border-radius: 100px; border: none; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+    .cta-btn:hover { background: #e6c000; transform: translateY(-2px); }
+
+    /* FOOTER */
+    footer { background: var(--teal-deep); color: rgba(255,255,255,0.6); padding: 40px 32px; text-align: center; font-size: 13px; line-height: 2; }
+    footer a { color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 12px; }
+    footer a:hover { color: white; }
+    .footer-logo { font-family: var(--display); font-size: 22px; letter-spacing: 2px; color: white; margin-bottom: 12px; display: block; }
+
+    @media (max-width: 720px) {
+      .nav-links { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(250,250,248,0.98); backdrop-filter: blur(12px); flex-direction: column; align-items: stretch; gap: 0; border-bottom: 1px solid var(--border); padding: 12px 16px 20px; z-index: 99; }
+      .nav-links.open { display: flex; }
+      .nav-links .nav-link { padding: 12px 16px; }
+      .nav-links .nav-cta { margin: 8px 0 4px; padding: 12px; border-radius: 10px; text-align: center; display: block; }
+      .nav-links .nav-login { margin: 4px 0; padding: 11px 16px; border-radius: 8px; justify-content: center; }
+      .nav-hamburger { display: flex; }
+      .faq-question { font-size: 14px; padding: 16px 18px; }
+      .faq-answer { padding: 0 18px 16px; padding-top: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="logo"><span class="home">HOME</span><span class="dasher">DASHER</span></a>
+  <nav class="nav-links" id="main-nav">
+    <a class="nav-link" href="/app#services">Services</a>
+    <a class="nav-link active" href="/faq">FAQ</a>
+    <a class="nav-link" href="/careers">Careers</a>
+    <a class="nav-link" href="/about">About</a>
+    <a class="nav-cta" href="/app">Book Now</a>
+    <button class="nav-login" onclick="window.location.href='/app'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Log in
+    </button>
+  </nav>
+  <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<div class="page-hero">
+  <div class="page-eyebrow">Got Questions?</div>
+  <h1 class="page-title">Frequently Asked <em>Questions</em></h1>
+  <p class="page-sub">Everything you need to know about HomeDasher — from how it works to what to expect on your first visit.</p>
+</div>
+
+<div class="faq-content">
+
+  <!-- ABOUT HOMEDASHER -->
+  <div class="faq-category">
+    <div class="faq-category-header">
+      <span class="faq-category-icon">📋</span>
+      <h2 class="faq-category-title">About HomeDasher</h2>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What is HomeDasher, and how does it work?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>HomeDasher is an on-demand household help service serving the Greater Seattle Area. We send a skilled HomeDasher to your home — someone who can handle cleaning, laundry, meal prep, home admin, pet and plant care, and virtually anything else on your household to-do list.</p>
+        <p>What makes us different is the <strong>HomeDasher Planner</strong> — our proprietary task intake system. Before your appointment, you tell the Planner what's piling up today. It builds a fully custom to-do list in minutes and delivers it directly to your HomeDasher before they arrive. They show up already knowing what to tackle, where things are, and how you like things done.</p>
+        <p>No orientation. No explaining. Working from your to-do list, not ours.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What areas do you serve?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>HomeDasher currently serves the Greater Seattle Area. Not sure if we cover your neighborhood? <a href="/app">Start a booking</a> and enter your address — we'll let you know right away.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Who are HomeDashers?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>HomeDashers are highly trained, fairly compensated W-2 employees — not gig workers. They're skilled helpers capable of jumping into every role needed to keep a household running smoothly, from cleaning and laundry to meal prep, virtual assistant tasks, and everything in between. Think of your HomeDasher as a second set of hands — someone who can clone the capable, organized version of you.</p>
+        <p>Most of our HomeDashers have extensive backgrounds as household managers, housekeepers, cleaning professionals, or experienced parents who've spent years keeping their own households running at an efficient clip. They're comfortable using their own devices to research and handle tasks quickly, managing complex to-do lists, and adapting to whatever your household needs that day.</p>
+        <p>Because HomeDashers are W-2 employees, they're fully insured, background-checked, and accountable to HomeDasher's quality standards — not just passing through on their way to the next gig.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Are HomeDashers employees or contractors?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>All HomeDashers are W-2 employees — never 1099 contractors. This means they're covered by HomeDasher's insurance, held to our quality and training standards, and treated as real members of our team. It's better for them, and better for you.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <div class="faq-category">
+    <div class="faq-category-header">
+      <span class="faq-category-icon">🧹</span>
+      <h2 class="faq-category-title">Services</h2>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What can a HomeDasher help with?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>HomeDashers can handle a wide range of household tasks — not just cleaning. Our standard services include:</p>
+        <ul>
+          <li><strong>Cleaning</strong> — surfaces, mirrors, toilets, dishes, fridge cleanout, trash, sweeping and vacuuming</li>
+          <li><strong>Laundry & Linens</strong> — wash, dry, fold, put away, change beds, organize linen closet</li>
+          <li><strong>Meal Prep & Planning</strong> — grocery lists, ingredient prep, simple cooking from your recipes, pantry organization</li>
+          <li><strong>Tidying & Organizing</strong> — any room, drawers, closets, decluttering, seasonal swaps, event prep, unpacking</li>
+          <li><strong>Home Admin</strong> — phone calls, research, scheduling, emails, form completion, digital organization, mail sorting</li>
+          <li><strong>Pet & Plant Care</strong> — feeding, water, medication, litter box, plant watering and maintenance</li>
+        </ul>
+        <p>Need something not on the list? Tell the HomeDasher Planner — chances are we can help.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What supplies do HomeDashers bring?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>Each HomeDasher arrives with a small professional cleaning kit including:</p>
+        <ul>
+          <li>Multi-purpose cleaning and sanitizing spray</li>
+          <li>Window and mirror cleaner</li>
+          <li>Stainless steel cleaner</li>
+          <li>Paper towels</li>
+          <li>Disposable toilet wands</li>
+        </ul>
+        <p>For everything else — vacuum, broom, additional cleaning products — your HomeDasher uses what's already in your home. For research, scheduling, and admin tasks, HomeDashers use their own devices. Your computer is never accessed. WiFi access is always appreciated to make sure admin tasks are completed quickly.</p>
+        <div class="highlight">💡 We especially love helping families going through overwhelming seasons — new babies, a household member recovering from illness, or just a period where the list has gotten longer than the hours in the day. HomeDashers are always happy to wear shoe covers, gloves, and masks (N95+ protection) on request.</div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What about deep cleaning or specialty services?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>Some tasks — like deep bathroom or kitchen cleans, carpet cleaning, junk hauling, pressure washing, and move-out deep cleans — require a specialist HomeDasher with the right equipment and products for your specific home.</p>
+        <p>When you use the HomeDasher Planner, simply mention what you need. We'll note your specialty request and someone will reach out to schedule it separately — so your specialist arrives already knowing about your home's surfaces and can bring exactly the right products. Your regular booking continues without interruption.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        How does pet care work?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>HomeDashers are happy to help with pet feeding, water, medication, litter box, and pet area cleanup. Just include it in your to-do list when booking.</p>
+        <p>Because we care about the safety of both your pets and our team, rabies vaccination records are required on file for pet care. After you book, we'll send you a separate link to upload your pet's records — it won't hold up your booking today.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKING & PRICING -->
+  <div class="faq-category">
+    <div class="faq-category-header">
+      <span class="faq-category-icon">📅</span>
+      <h2 class="faq-category-title">Booking & Pricing</h2>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        How do I book?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>Booking takes just a few minutes. Here's how it works:</p>
+        <ul>
+          <li><strong>Step 1:</strong> Use the HomeDasher Planner to build your custom to-do list — tell us what needs doing today</li>
+          <li><strong>Step 2:</strong> Enter your details, choose a date and time from real-time availability, and select how many hours you need</li>
+          <li><strong>Step 3:</strong> Pay securely — your HomeDasher is assigned and arrives with your complete to-do list already in hand</li>
+        </ul>
+        <p><a href="/app">Start building your to-do list →</a></p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        How much does it cost?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>HomeDasher charges a simple flat rate of <strong>$50/hour</strong> with a 1-hour minimum. That's it — no hidden fees, no add-ons, no surprises. The HomeDasher Planner and your custom to-do list are always included.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What's your cancellation policy?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>Cancel any time up to <strong>one hour before your appointment</strong> for a full refund, no questions asked. We know life happens.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        How far in advance do I need to book?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>Same-day bookings are welcome — all you need is at least <strong>one hour's notice</strong>. Availability is shown in real time when you book, so what you see is what's available.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAFETY & TRUST -->
+  <div class="faq-category">
+    <div class="faq-category-header">
+      <span class="faq-category-icon">🔒</span>
+      <h2 class="faq-category-title">Safety & Trust</h2>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        What if something goes wrong?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>HomeDasher is fully licensed, bonded, and insured. Every HomeDasher goes through a careful hiring process that includes a thorough background check, hands-on training, and an apprenticeship working alongside experienced HomeDasher managers before their first independent visit.</p>
+        <p>We hold our team to a high standard — so problems are rare. But if something doesn't meet your expectations, we want to know. Reach out and we'll make it right.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Illness prevention & clean home protocols
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>We take the health of your household seriously. Here's how we protect it:</p>
+        <ul>
+          <li>HomeDashers bring their own professional cleaning kit — no cross-contamination from other homes</li>
+          <li>Our multi-purpose spray uses hypochlorous acid — a hospital-grade sanitizer that's completely safe for babies, pets, and sensitive surfaces</li>
+          <li>HomeDashers wear shoe covers, gloves, and masks (N95+ protection) on request — just let us know when booking</li>
+          <li>HomeDashers stay home when sick — we'll arrange a substitute or reschedule at no penalty to you</li>
+        </ul>
+        <p>We especially love supporting families with newborns and households managing illness or recovery. Don't hesitate to let us know your needs when booking.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAREERS -->
+  <div class="faq-category">
+    <div class="faq-category-header">
+      <span class="faq-category-icon">💼</span>
+      <h2 class="faq-category-title">Careers</h2>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Interested in becoming a HomeDasher?
+        <span class="faq-chevron">▾</span>
+      </button>
+      <div class="faq-answer">
+        <p>We're always looking for reliable, skilled people who take pride in their work and love making a real difference in people's lives. HomeDashers are W-2 employees with flexible schedules — you choose the jobs that fit your life.</p>
+        <p><a href="/careers">Learn more and apply on our Careers page →</a></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="cta-band">
+  <h2>Ready to reclaim your evenings?</h2>
+  <p>Build your custom to-do list in minutes — your HomeDasher arrives ready to work.</p>
+  <a href="/app" class="cta-btn">Build my to-do list →</a>
+</div>
+
+<footer>
+  <span class="footer-logo"><span style="color:#a8d4dc">HOME</span>DASHER</span>
+  <div>
+    <a href="/">Home</a>
+    <a href="/app#services">Services</a>
+    <a href="/faq">FAQ</a>
+    <a href="/careers">Careers</a>
+    <a href="/about">About</a>
+  </div>
+  <div style="margin-top:8px">
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/terms">Terms of Service</a>
+  </div>
+  <div style="margin-top:16px;font-size:12px">© 2026 HomeDasher LLC. All rights reserved.</div>
+</footer>
+
+<script>
+function toggleFaq(btn) {
+  const answer = btn.nextElementSibling;
+  const isOpen = btn.classList.contains('open');
+  // Close all open items in the same category
+  btn.closest('.faq-category').querySelectorAll('.faq-question.open').forEach(q => {
+    q.classList.remove('open');
+    q.nextElementSibling.classList.remove('open');
+  });
+  if (!isOpen) {
+    btn.classList.add('open');
+    answer.classList.add('open');
+  }
+}
+function toggleMobileNav() {
+  document.getElementById('main-nav')?.classList.toggle('open');
+}
+document.addEventListener('click', (e) => {
+  const nav = document.getElementById('main-nav');
+  const hamburger = document.getElementById('nav-hamburger');
+  if (nav && hamburger && !nav.contains(e.target) && !hamburger.contains(e.target)) {
+    nav.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>
