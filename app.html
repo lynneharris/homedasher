@@ -684,6 +684,11 @@ const state = {
   screen: 'hero',
   messages: [],
   choreList: null,
+  accessMethod: null,
+  arrivalPreference: null,
+  accessDetails: '',
+  hasPets: null,
+  petNotes: '',
   customer: null,
   booking: null,
   duration: 2,
@@ -1080,8 +1085,50 @@ function renderBook() {
           </div>
           <div class="field span2">
             <label>Additional notes <span style="color:var(--muted);font-weight:400">(optional)</span></label>
-            <textarea id="notes" placeholder="Pets, access codes, anything we should know…">${state.notes || ''}</textarea>
+            <textarea id="notes" placeholder="Anything else we should know…">${state.notes || ''}</textarea>
           </div>
+
+          <!-- Home Access -->
+          <div class="field span2">
+            <label>Home access</label>
+            <div class="pref-toggle" style="flex-wrap:wrap;gap:8px">
+              <button class="pref-btn ${state.accessMethod === 'someone_home' ? 'active' : ''}" onclick="setAccess('someone_home')">🏠 Someone will be home</button>
+              <button class="pref-btn ${state.accessMethod === 'buzzer' ? 'active' : ''}" onclick="setAccess('buzzer')">🔔 Someone home + buzzer/gate</button>
+              <button class="pref-btn ${state.accessMethod === 'independent' ? 'active' : ''}" onclick="setAccess('independent')">🔑 I'll provide key/code</button>
+            </div>
+          </div>
+
+          ${state.accessMethod === 'someone_home' || state.accessMethod === 'buzzer' ? `
+          <div class="field span2" id="arrival-pref-field">
+            <label>On arrival, please —</label>
+            <div class="pref-toggle" style="flex-wrap:wrap;gap:8px">
+              <button class="pref-btn ${state.arrivalPreference === 'call' ? 'active' : ''}" onclick="setArrival('call')">📞 Call</button>
+              <button class="pref-btn ${state.arrivalPreference === 'text' ? 'active' : ''}" onclick="setArrival('text')">💬 Text</button>
+              <button class="pref-btn ${state.arrivalPreference === 'ring_bell' ? 'active' : ''}" onclick="setArrival('ring_bell')">🔔 Ring the bell</button>
+              <button class="pref-btn ${state.arrivalPreference === 'enter' ? 'active' : ''}" onclick="setArrival('enter')">🚪 Enter and start — door will be unlocked</button>
+            </div>
+          </div>` : ''}
+
+          ${state.accessMethod === 'buzzer' || state.accessMethod === 'independent' ? `
+          <div class="field span2" id="access-details-field">
+            <label>${state.accessMethod === 'buzzer' ? 'Buzzer or gate access details' : 'Key location or access code'}</label>
+            <textarea id="access-details" placeholder="${state.accessMethod === 'buzzer' ? 'e.g. Buzzer code is #204, gate pin is 1234' : 'e.g. Key is under the mat, door code is 4321'}" oninput="state.accessDetails=this.value">${state.accessDetails || ''}</textarea>
+          </div>` : ''}
+
+          <!-- Pets -->
+          <div class="field span2">
+            <label>Pets <span style="color:var(--muted);font-weight:400;font-size:13px">— We know some pets can be stealthy little escape artists!</span></label>
+            <div class="pref-toggle">
+              <button class="pref-btn ${state.hasPets === false ? 'active' : ''}" onclick="setPets(false)">No pets</button>
+              <button class="pref-btn ${state.hasPets === true ? 'active' : ''}" onclick="setPets(true)">Yes, I have pets</button>
+            </div>
+          </div>
+
+          ${state.hasPets === true ? `
+          <div class="field span2" id="pet-notes-field">
+            <label>Tell us about your pets</label>
+            <textarea id="pet-notes" placeholder="e.g. Two dogs — keep the back door closed. Cat hides under the bed, she's harmless!" oninput="state.petNotes=this.value">${state.petNotes || ''}</textarea>
+          </div>` : ''}
           ${state.referralCode ? `
           <div class="field span2">
             <label>Referral code</label>
@@ -1266,6 +1313,9 @@ window.setRating = (r) => { state.rating = r; render(); };
 window.handleChatKey = handleChatKey;
 window.sendMessage = sendMessage;
 window.applyPromo = applyPromo;
+window.setAccess = (method) => { state.accessMethod = method; state.arrivalPreference = null; render(); };
+window.setArrival = (pref) => { state.arrivalPreference = pref; render(); };
+window.setPets = (val) => { state.hasPets = val; render(); };
 
 window.goToPayment = () => {
   const name = document.getElementById('name')?.value.trim();
@@ -1286,6 +1336,24 @@ window.goToPayment = () => {
     document.getElementById('book-error').innerHTML = '<div class="error-msg">Please select a start time.</div>';
     return;
   }
+  if (!state.accessMethod) {
+    document.getElementById('book-error').innerHTML = '<div class="error-msg">Please let us know how your HomeDasher should access your home.</div>';
+    return;
+  }
+  if ((state.accessMethod === 'someone_home' || state.accessMethod === 'buzzer') && !state.arrivalPreference) {
+    document.getElementById('book-error').innerHTML = '<div class="error-msg">Please let us know how your HomeDasher should announce their arrival.</div>';
+    return;
+  }
+  if (state.hasPets === null) {
+    document.getElementById('book-error').innerHTML = '<div class="error-msg">Please let us know if you have any pets.</div>';
+    return;
+  }
+
+  // Collect access details from textarea if present
+  const accessDetails = document.getElementById('access-details')?.value.trim() || state.accessDetails;
+  const petNotes = document.getElementById('pet-notes')?.value.trim() || state.petNotes;
+  state.accessDetails = accessDetails;
+  state.petNotes = petNotes;
 
   state.bookingDetails = { name, email, phone, address, date: state.date, time: state.time, notes };
   state.screen = 'payment';
@@ -1326,6 +1394,13 @@ window.submitPayment = async () => {
         paymentMethodId: paymentMethod.id,
         promoCode: state.promoCode || null,
         referralCode: state.referralCode || null,
+        // Home access
+        accessMethod: state.accessMethod || null,
+        arrivalPreference: state.arrivalPreference || null,
+        accessDetails: state.accessDetails || null,
+        // Pets
+        hasPets: state.hasPets || false,
+        petNotes: state.petNotes || null,
       }),
     });
 

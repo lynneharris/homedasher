@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeDasher — My Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #3A707F;
+      --teal-dark: #2d5a67;
+      --teal-deep: #1e3d45;
+      --teal-light: #d4eaee;
+      --teal-pale: #f0f8fa;
+      --ink: #1a2426;
+      --slate: #3d5259;
+      --muted: #6b8289;
+      --border: #e0e8ea;
+      --white: #ffffff;
+      --sans: 'Montserrat', system-ui, sans-serif;
+      --display: 'Bangers', cursive;
+    }
+
+    body { font-family: var(--sans); background: #F0F8FA; color: var(--ink); min-height: 100vh; }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #0891b2, var(--teal-dark));
+      padding: 20px 20px 0;
+      position: relative; overflow: hidden;
+    }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .logo { font-family: var(--display); font-size: 22px; letter-spacing: 2px; color: rgba(255,255,255,0.85); }
+    .logout-btn { font-size: 12px; color: rgba(255,255,255,0.65); background: none; border: 1px solid rgba(255,255,255,0.25); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: var(--sans); }
+
+    /* ── LIST TABS ── */
+    .tabs { display: flex; gap: 0; overflow-x: auto; padding-bottom: 0; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex-shrink: 0; padding: 12px 18px; font-size: 13px; font-weight: 600;
+      color: rgba(255,255,255,0.6); background: none; border: none; cursor: pointer;
+      font-family: var(--sans); border-bottom: 3px solid transparent;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .tab.active { color: #fff; border-bottom-color: #fff; }
+    .tab-add { font-size: 18px; padding: 12px 16px; color: rgba(255,255,255,0.5); }
+
+    /* ── VISIT BANNER ── */
+    .visit-banner {
+      margin: 16px 16px 0;
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .visit-banner-left {}
+    .visit-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--teal); margin-bottom: 4px; }
+    .visit-date { font-size: 16px; font-weight: 700; color: var(--ink); }
+    .visit-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .book-btn {
+      background: var(--teal); color: #fff; border: none; border-radius: 10px;
+      padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+      font-family: var(--sans); white-space: nowrap;
+    }
+
+    /* ── SECTION HEADERS ── */
+    .section-header {
+      padding: 20px 16px 8px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); }
+    .section-count { font-size: 12px; color: var(--teal); font-weight: 600; }
+
+    /* ── TASK CARDS ── */
+    .task-card {
+      margin: 0 16px 8px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+      display: flex; align-items: flex-start; gap: 12px;
+      border-left: 4px solid transparent;
+    }
+    .task-card.priority-high { border-left-color: #EF4444; }
+    .task-card.priority-medium { border-left-color: #F59E0B; }
+    .task-card.priority-low { border-left-color: #10B981; }
+    .task-card.done { opacity: 0.45; }
+
+    .task-check {
+      width: 24px; height: 24px; border-radius: 7px;
+      border: 2px solid var(--border); display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; cursor: pointer;
+      transition: all 0.2s; font-size: 13px; margin-top: 1px;
+    }
+    .task-check.checked { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+    .task-body { flex: 1; min-width: 0; cursor: pointer; }
+    .task-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .task-card.done .task-title { text-decoration: line-through; color: var(--muted); }
+    .task-note { font-size: 12px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .task-actions { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+    .task-action-btn {
+      font-size: 11px; color: var(--muted); background: #F8FAFC;
+      border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px;
+      cursor: pointer; font-family: var(--sans); white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .task-action-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* ── ADD TASK ── */
+    .add-task-row {
+      margin: 4px 16px 0;
+      display: flex; gap: 8px;
+    }
+    .add-task-input {
+      flex: 1; border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 11px 14px; font-size: 14px; color: var(--ink);
+      outline: none; font-family: var(--sans); background: #fff;
+    }
+    .add-task-input:focus { border-color: var(--teal); }
+    .add-task-btn {
+      background: var(--teal); color: #fff; border: none; border-radius: 12px;
+      width: 44px; height: 44px; font-size: 22px; cursor: pointer;
+    }
+
+    /* ── BOTTOM SHEET ── */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0); pointer-events: none;
+      transition: background 0.3s; z-index: 10;
+    }
+    .overlay.open { background: rgba(0,0,0,0.4); pointer-events: all; }
+    .sheet {
+      position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto;
+      background: #fff; border-radius: 24px 24px 0 0;
+      transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+      z-index: 20; max-height: 85vh; overflow-y: auto;
+    }
+    .sheet.open { transform: translateY(0); }
+    .sheet-handle { display: flex; justify-content: center; padding: 14px 0 8px; }
+    .sheet-handle-bar { width: 36px; height: 4px; border-radius: 99px; background: var(--border); }
+    .sheet-body { padding: 8px 24px 40px; }
+    .sheet-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .sheet-priority { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+
+    .field-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 8px; }
+    .notes-input {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 12px 14px; font-size: 14px; color: var(--ink);
+      outline: none; resize: none; font-family: var(--sans); background: #F8FAFC;
+    }
+    .notes-input:focus { border-color: var(--teal); }
+
+    .sheet-actions { display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
+    .sheet-action {
+      flex: 1; min-width: 120px; background: #F1F5F9; border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 11px; font-size: 13px; color: var(--slate);
+      cursor: pointer; font-family: var(--sans); text-align: center;
+      transition: all 0.2s;
+    }
+    .sheet-action:hover { border-color: var(--teal); color: var(--teal); }
+    .sheet-action.danger:hover { border-color: #EF4444; color: #EF4444; }
+
+    .reassign-section { margin-top: 16px; }
+    .reassign-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .reassign-btn {
+      background: #F8FAFC; border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--slate);
+      cursor: pointer; font-family: var(--sans); display: flex; align-items: center; gap: 6px;
+      transition: all 0.2s;
+    }
+    .reassign-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+    .save-btn {
+      width: 100%; background: var(--teal); color: #fff; border: none;
+      border-radius: 14px; padding: 15px; font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: var(--sans); margin-top: 8px;
+    }
+
+    /* ── ADD MEMBER MODAL ── */
+    .modal-bg {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: none; align-items: center; justify-content: center;
+      z-index: 30; padding: 24px;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 20px; padding: 28px;
+      width: 100%; max-width: 360px;
+    }
+    .modal-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .modal-field { margin-bottom: 14px; }
+    .modal-label { font-size: 12px; font-weight: 600; color: var(--slate); margin-bottom: 6px; display: block; }
+    .modal-input {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 11px 14px; font-size: 14px; outline: none; font-family: var(--sans);
+    }
+    .emoji-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .emoji-opt {
+      width: 40px; height: 40px; border-radius: 10px; border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .emoji-opt.selected { border-color: var(--teal); background: var(--teal-pale); }
+    .modal-btns { display: flex; gap: 8px; margin-top: 20px; }
+    .modal-cancel { flex: 1; background: #F1F5F9; border: none; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--sans); color: var(--slate); }
+    .modal-save { flex: 2; background: var(--teal); color: #fff; border: none; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--sans); }
+
+    /* ── LOGIN SCREEN ── */
+    .login-screen {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 32px 24px;
+      background: linear-gradient(160deg, #0F172A 0%, #1E293B 60%, #0F4C4C 100%);
+    }
+    .login-logo { font-family: var(--display); font-size: 36px; letter-spacing: 3px; color: #F0FDFA; margin-bottom: 8px; }
+    .login-sub { font-size: 14px; color: #64748B; margin-bottom: 40px; }
+    .login-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 340px; }
+    .login-title { font-size: 16px; font-weight: 700; color: #F1F5F9; margin-bottom: 4px; }
+    .login-desc { font-size: 13px; color: #64748B; margin-bottom: 20px; }
+    .login-input { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 13px 16px; font-size: 15px; color: #F1F5F9; outline: none; font-family: var(--sans); margin-bottom: 12px; }
+    .login-input::placeholder { color: #475569; }
+    .login-btn { width: 100%; background: var(--teal); color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: var(--sans); }
+    .login-msg { font-size: 13px; color: #10B981; margin-top: 12px; text-align: center; }
+    .login-err { font-size: 13px; color: #EF4444; margin-top: 12px; text-align: center; }
+
+    .spacer { height: 32px; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .animate { animation: fadeUp 0.3s ease both; }
+  </style>
+</head>
+<body>
+
+<!-- Login screen (shown when not authenticated) -->
+<div id="login-screen" class="login-screen" style="display:none">
+  <div class="login-logo">HomeDasher</div>
+  <div class="login-sub">Your household, organized.</div>
+  <div class="login-card">
+    <div class="login-title">Welcome back</div>
+    <div class="login-desc">Enter your email and we'll send you a magic link to sign in.</div>
+    <input type="email" id="login-email" class="login-input" placeholder="your@email.com" />
+    <button class="login-btn" onclick="sendMagicLink()">Send login link →</button>
+    <div id="login-msg"></div>
+  </div>
+</div>
+
+<!-- Main dashboard (shown when authenticated) -->
+<div id="dashboard" style="display:none">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">HomeDasher</div>
+      <button class="logout-btn" onclick="signOut()">Sign out</button>
+    </div>
+    <div class="tabs" id="tabs-container">
+      <!-- Tabs rendered dynamically -->
+    </div>
+  </div>
+
+  <div id="main-content">
+    <!-- Content rendered dynamically -->
+  </div>
+
+</div>
+
+<!-- Bottom sheet for task detail -->
+<div class="overlay" id="overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="task-sheet">
+  <div class="sheet-handle"><div class="sheet-handle-bar"></div></div>
+  <div class="sheet-body" id="sheet-body"></div>
+</div>
+
+<!-- Add member modal -->
+<div class="modal-bg" id="add-member-modal">
+  <div class="modal">
+    <div class="modal-title">Add a household list</div>
+    <div class="modal-sub">Create a personal task list for another household member.</div>
+    <div class="modal-field">
+      <label class="modal-label">Name</label>
+      <input type="text" id="new-member-name" class="modal-input" placeholder="e.g. Jake, Mom, Kids" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Icon</label>
+      <div class="emoji-grid" id="emoji-grid">
+        ${['👩','👨','👦','👧','👴','👵','🧒','🐾'].map(e =>
+          `<div class="emoji-opt" onclick="selectEmoji('${e}')">${e}</div>`
+        ).join('')}
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeAddMember()">Cancel</button>
+      <button class="modal-save" onclick="saveNewMember()">Add list</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const { createClient } = supabase;
+  const sb = createClient('__SUPABASE_URL__', '__SUPABASE_ANON_KEY__');
+
+  // ── App state ──
+  let currentUser = null;
+  let customerData = null;
+  let activeTab = 'dasher'; // 'dasher' | member id
+  let upcomingVisit = null;
+  let allTasks = [];
+  let members = [];
+  let activeTask = null;
+  let newMemberEmoji = '👤';
+
+  const DASHER_TAB = { id: 'dasher', name: '🧹 HomeDasher', emoji: '🧹' };
+
+  // ── Init ──
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session?.user) {
+      currentUser = session.user;
+      await loadDashboard();
+    } else {
+      showLogin();
+    }
+
+    sb.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        currentUser = session.user;
+        await loadDashboard();
+      } else if (event === 'SIGNED_OUT') {
+        showLogin();
+      }
+    });
+  }
+
+  function showLogin() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+  }
+
+  async function sendMagicLink() {
+    const email = document.getElementById('login-email').value.trim();
+    const msgEl = document.getElementById('login-msg');
+    if (!email) return;
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
+    if (error) {
+      msgEl.className = 'login-err';
+      msgEl.textContent = 'Something went wrong. Please try again.';
+    } else {
+      msgEl.className = 'login-msg';
+      msgEl.textContent = '✓ Check your email for a login link!';
+    }
+  }
+
+  async function signOut() {
+    await sb.auth.signOut();
+  }
+
+  // ── Load dashboard data ──
+  async function loadDashboard() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+
+    const email = currentUser.email;
+
+    // Load customer, members, tasks, visit in parallel
+    const [customerRes, membersRes, tasksRes, visitsRes] = await Promise.all([
+      sb.from('customers').select('*').eq('email', email).single(),
+      sb.from('household_members').select('*').eq('customer_email', email).order('sort_order'),
+      sb.from('tasks').select('*').eq('customer_email', email).order('sort_order'),
+      sb.from('visits').select('*').eq('customer_email', email).eq('status', 'upcoming').order('scheduled_at').limit(1),
+    ]);
+
+    customerData = customerRes.data;
+    members = membersRes.data || [];
+    allTasks = tasksRes.data || [];
+    upcomingVisit = visitsRes.data?.[0] || null;
+
+    renderDashboard();
+  }
+
+  // ── Render ──
+  function renderDashboard() {
+    renderTabs();
+    renderContent();
+  }
+
+  function renderTabs() {
+    const tabs = [DASHER_TAB, ...members];
+    const html = tabs.map(t => `
+      <button class="tab ${activeTab === t.id ? 'active' : ''}" onclick="switchTab('${t.id}')">
+        ${t.emoji || ''} ${t.name}
+      </button>`).join('') + `
+      <button class="tab tab-add" onclick="openAddMember()" title="Add household list">＋</button>`;
+    document.getElementById('tabs-container').innerHTML = html;
+  }
+
+  function renderContent() {
+    const container = document.getElementById('main-content');
+
+    if (activeTab === 'dasher') {
+      renderDasherView(container);
+    } else {
+      renderMemberView(container, activeTab);
+    }
+  }
+
+  function renderDasherView(container) {
+    const upcomingTasks = allTasks.filter(t => t.visit_id && t.category === 'upcoming');
+    const futureTasks = allTasks.filter(t => !t.visit_id && t.category === 'future' || (!t.visit_id && !t.member_id && t.category !== 'upcoming'));
+
+    const visitBanner = upcomingVisit
+      ? (() => {
+          const d = new Date(upcomingVisit.scheduled_at);
+          const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+          const timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+          const hrs = (upcomingVisit.duration_minutes / 60).toFixed(1).replace('.0', '');
+          return `<div class="visit-banner animate">
+            <div>
+              <div class="visit-label">📅 Upcoming visit</div>
+              <div class="visit-date">${dateStr} at ${timeStr}</div>
+              <div class="visit-meta">${hrs} hour${hrs !== '1' ? 's' : ''}</div>
+            </div>
+          </div>`;
+        })()
+      : `<div class="visit-banner animate" style="justify-content:space-between">
+          <div>
+            <div class="visit-label">No upcoming visit</div>
+            <div class="visit-meta" style="margin-top:4px">Book a visit to get started</div>
+          </div>
+          <button class="book-btn" onclick="window.location='/app.html'">Book now</button>
+        </div>`;
+
+    container.innerHTML = `
+      ${visitBanner}
+      <div class="section-header">
+        <span class="section-label">Upcoming Visit Tasks</span>
+        <span class="section-count">${upcomingTasks.length} tasks</span>
+      </div>
+      ${renderTaskList(upcomingTasks, 'upcoming')}
+      <div class="add-task-row">
+        <input class="add-task-input" id="add-upcoming" placeholder="Add to this visit…" onkeydown="if(event.key==='Enter')addTask('upcoming')" />
+        <button class="add-task-btn" onclick="addTask('upcoming')">+</button>
+      </div>
+      <div class="section-header" style="margin-top:16px">
+        <span class="section-label">Future Visits</span>
+        <span class="section-count">${futureTasks.length} tasks</span>
+      </div>
+      <div class="section-label" style="padding: 0 16px 8px; font-size: 12px; color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0">
+        Tasks saved for later visits — only you can see these
+      </div>
+      ${renderTaskList(futureTasks, 'future')}
+      <div class="add-task-row">
+        <input class="add-task-input" id="add-future" placeholder="Add to future visits…" onkeydown="if(event.key==='Enter')addTask('future')" />
+        <button class="add-task-btn" onclick="addTask('future')">+</button>
+      </div>
+      <div class="spacer"></div>
+    `;
+  }
+
+  function renderMemberView(container, memberId) {
+    const member = members.find(m => m.id === memberId);
+    if (!member) return;
+    const memberTasks = allTasks.filter(t => t.member_id === memberId);
+    const done = memberTasks.filter(t => t.done).length;
+
+    container.innerHTML = `
+      <div class="visit-banner animate" style="align-items:center">
+        <div>
+          <div class="visit-label">${member.emoji} ${member.name}'s List</div>
+          <div class="visit-meta">${done}/${memberTasks.length} complete</div>
+        </div>
+      </div>
+      <div class="section-header">
+        <span class="section-label">Tasks</span>
+        <span class="section-count">${memberTasks.length}</span>
+      </div>
+      ${renderTaskList(memberTasks, 'member')}
+      <div class="add-task-row">
+        <input class="add-task-input" id="add-member-task" placeholder="Add a task…" onkeydown="if(event.key==='Enter')addMemberTask('${memberId}')" />
+        <button class="add-task-btn" onclick="addMemberTask('${memberId}')">+</button>
+      </div>
+      <div class="spacer"></div>
+    `;
+  }
+
+  function renderTaskList(tasks, context) {
+    if (!tasks.length) {
+      return `<div style="padding: 12px 16px; font-size: 13px; color: var(--muted);">No tasks yet — add one below.</div>`;
+    }
+    return tasks.map(task => {
+      const actionBtns = context === 'upcoming'
+        ? `<button class="task-action-btn" onclick="demoteTask(event,'${task.id}')">→ Future</button>`
+        : context === 'future'
+        ? `<button class="task-action-btn" onclick="promoteTask(event,'${task.id}')">→ This visit</button>`
+        : '';
+
+      return `<div class="task-card priority-${task.priority} ${task.done ? 'done' : ''} animate" id="task-${task.id}">
+        <div class="task-check ${task.done ? 'checked' : ''}" onclick="toggleTask(event,'${task.id}')">${task.done ? '✓' : ''}</div>
+        <div class="task-body" onclick="openSheet('${task.id}')">
+          <div class="task-title">${task.title}</div>
+          ${task.notes ? `<div class="task-note">📝 ${task.notes}</div>` : ''}
+        </div>
+        ${actionBtns ? `<div class="task-actions">${actionBtns}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // ── Tab switching ──
+  function switchTab(id) {
+    activeTab = id;
+    renderDashboard();
+  }
+
+  // ── Task actions ──
+  async function toggleTask(e, taskId) {
+    e.stopPropagation();
+    const task = allTasks.find(t => t.id === taskId);
+    if (!task) return;
+    task.done = !task.done;
+    task.done_at = task.done ? new Date().toISOString() : null;
+    await sb.from('tasks').update({ done: task.done, done_at: task.done_at }).eq('id', taskId);
+    renderContent();
+  }
+
+  async function promoteTask(e, taskId) {
+    e.stopPropagation();
+    const task = allTasks.find(t => t.id === taskId);
+    if (!task) return;
+    task.category = 'upcoming';
+    task.visit_id = upcomingVisit?.id || null;
+    await sb.from('tasks').update({ category: 'upcoming', visit_id: task.visit_id }).eq('id', taskId);
+    renderContent();
+  }
+
+  async function demoteTask(e, taskId) {
+    e.stopPropagation();
+    const task = allTasks.find(t => t.id === taskId);
+    if (!task) return;
+    task.category = 'future';
+    task.visit_id = null;
+    await sb.from('tasks').update({ category: 'future', visit_id: null }).eq('id', taskId);
+    renderContent();
+  }
+
+  async function addTask(category) {
+    const inputId = category === 'upcoming' ? 'add-upcoming' : 'add-future';
+    const input = document.getElementById(inputId);
+    const title = input?.value.trim();
+    if (!title) return;
+    input.value = '';
+
+    const { data: task } = await sb.from('tasks').insert({
+      customer_email: currentUser.email,
+      visit_id: category === 'upcoming' ? (upcomingVisit?.id || null) : null,
+      category,
+      title,
+      priority: 'medium',
+      done: false,
+      sort_order: allTasks.length,
+    }).select().single();
+
+    if (task) { allTasks.push(task); renderContent(); }
+  }
+
+  async function addMemberTask(memberId) {
+    const input = document.getElementById('add-member-task');
+    const title = input?.value.trim();
+    if (!title) return;
+    input.value = '';
+
+    const { data: task } = await sb.from('tasks').insert({
+      customer_email: currentUser.email,
+      member_id: memberId,
+      title,
+      priority: 'medium',
+      done: false,
+      sort_order: allTasks.length,
+    }).select().single();
+
+    if (task) { allTasks.push(task); renderContent(); }
+  }
+
+  // ── Task detail sheet ──
+  function openSheet(taskId) {
+    activeTask = allTasks.find(t => t.id === taskId);
+    if (!activeTask) return;
+
+    const priorityColors = { high: '#EF4444', medium: '#F59E0B', low: '#10B981' };
+    const memberOptions = members.map(m =>
+      `<button class="reassign-btn" onclick="reassignToMember('${m.id}')">${m.emoji || '👤'} ${m.name}</button>`
+    ).join('');
+    const isHomeDasherTask = !activeTask.member_id;
+
+    document.getElementById('sheet-body').innerHTML = `
+      <div class="sheet-title">${activeTask.title}</div>
+      <div class="sheet-priority" style="color:${priorityColors[activeTask.priority] || '#94A3B8'}">● ${activeTask.priority} priority</div>
+
+      <div class="field-label">Notes</div>
+      <textarea class="notes-input" id="sheet-notes" rows="3" placeholder="Add instructions for this task…">${activeTask.notes || ''}</textarea>
+
+      <div class="sheet-actions">
+        <button class="sheet-action" onclick="startVoice()">🎙 Voice note</button>
+        <label class="sheet-action">
+          📷 Add photo
+          <input type="file" accept="image/*" style="display:none" onchange="handlePhoto(this)" />
+        </label>
+        <button class="sheet-action danger" onclick="deleteTask()">🗑 Delete</button>
+      </div>
+
+      ${isHomeDasherTask ? `
+      <div class="reassign-section">
+        <div class="field-label">Reassign to household member</div>
+        <div class="reassign-grid">
+          ${memberOptions || '<span style="font-size:13px;color:var(--muted)">No household members yet — add one with the + tab</span>'}
+        </div>
+      </div>` : `
+      <div class="reassign-section">
+        <div class="field-label">Move to HomeDasher list</div>
+        <div class="reassign-grid">
+          <button class="reassign-btn" onclick="reassignToDasher('upcoming')">🧹 Upcoming visit</button>
+          <button class="reassign-btn" onclick="reassignToDasher('future')">📋 Future visits</button>
+        </div>
+      </div>`}
+
+      <button class="save-btn" onclick="saveSheet()">Save & Close</button>
+    `;
+
+    document.getElementById('overlay').classList.add('open');
+    document.getElementById('task-sheet').classList.add('open');
+  }
+
+  function closeSheet() {
+    document.getElementById('overlay').classList.remove('open');
+    document.getElementById('task-sheet').classList.remove('open');
+    activeTask = null;
+  }
+
+  async function saveSheet() {
+    if (!activeTask) return;
+    const notes = document.getElementById('sheet-notes')?.value || '';
+    activeTask.notes = notes;
+    await sb.from('tasks').update({ notes }).eq('id', activeTask.id);
+    closeSheet();
+    renderContent();
+  }
+
+  async function deleteTask() {
+    if (!activeTask) return;
+    await sb.from('tasks').delete().eq('id', activeTask.id);
+    allTasks = allTasks.filter(t => t.id !== activeTask.id);
+    closeSheet();
+    renderContent();
+  }
+
+  async function reassignToMember(memberId) {
+    if (!activeTask) return;
+    activeTask.member_id = memberId;
+    activeTask.visit_id = null;
+    activeTask.category = null;
+    await sb.from('tasks').update({ member_id: memberId, visit_id: null, category: null }).eq('id', activeTask.id);
+    closeSheet();
+    renderContent();
+  }
+
+  async function reassignToDasher(category) {
+    if (!activeTask) return;
+    activeTask.member_id = null;
+    activeTask.category = category;
+    activeTask.visit_id = category === 'upcoming' ? (upcomingVisit?.id || null) : null;
+    await sb.from('tasks').update({
+      member_id: null,
+      category,
+      visit_id: activeTask.visit_id,
+    }).eq('id', activeTask.id);
+    closeSheet();
+    renderContent();
+  }
+
+  // ── Voice notes ──
+  function startVoice() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) { alert('Voice input not supported in this browser.'); return; }
+    const r = new SpeechRecognition();
+    r.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      const el = document.getElementById('sheet-notes');
+      if (el) el.value = el.value ? el.value + ' ' + transcript : transcript;
+    };
+    r.start();
+  }
+
+  // ── Add member ──
+  function openAddMember() {
+    document.getElementById('add-member-modal').classList.add('open');
+  }
+  function closeAddMember() {
+    document.getElementById('add-member-modal').classList.remove('open');
+    document.getElementById('new-member-name').value = '';
+    newMemberEmoji = '👤';
+    document.querySelectorAll('.emoji-opt').forEach(el => el.classList.remove('selected'));
+  }
+  function selectEmoji(e) {
+    newMemberEmoji = e;
+    document.querySelectorAll('.emoji-opt').forEach(el => {
+      el.classList.toggle('selected', el.textContent === e);
+    });
+  }
+  async function saveNewMember() {
+    const name = document.getElementById('new-member-name').value.trim();
+    if (!name) return;
+    const { data: member } = await sb.from('household_members').insert({
+      customer_email: currentUser.email,
+      name,
+      emoji: newMemberEmoji,
+      sort_order: members.length,
+    }).select().single();
+    if (member) {
+      members.push(member);
+      activeTab = member.id;
+    }
+    closeAddMember();
+    renderDashboard();
+  }
+
+  // ── Expose globals ──
+  window.switchTab = switchTab;
+  window.openSheet = openSheet;
+  window.closeSheet = closeSheet;
+  window.saveSheet = saveSheet;
+  window.deleteTask = deleteTask;
+  window.toggleTask = toggleTask;
+  window.promoteTask = promoteTask;
+  window.demoteTask = demoteTask;
+  window.addTask = addTask;
+  window.addMemberTask = addMemberTask;
+  window.reassignToMember = reassignToMember;
+  window.reassignToDasher = reassignToDasher;
+  window.startVoice = startVoice;
+  window.openAddMember = openAddMember;
+  window.closeAddMember = closeAddMember;
+  window.selectEmoji = selectEmoji;
+  window.saveNewMember = saveNewMember;
+  window.sendMagicLink = sendMagicLink;
+  window.signOut = signOut;
+  window.handlePhoto = async (input) => {
+    // Photo upload to Supabase Storage — placeholder for now
+    // TODO: upload file, get URL, add to activeTask.photos
+    alert('Photo upload coming soon!');
+  };
+
+  init();
+</script>
+</body>
+</html>

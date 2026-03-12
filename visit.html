@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeDasher — Your Visit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #3A707F;
+      --teal-dark: #2d5a67;
+      --teal-light: #d4eaee;
+      --teal-pale: #f0f8fa;
+      --ink: #1a2426;
+      --slate: #3d5259;
+      --muted: #6b8289;
+      --border: #e0e8ea;
+      --white: #ffffff;
+      --sans: 'Montserrat', system-ui, sans-serif;
+      --display: 'Bangers', cursive;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: #F0F8FA;
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #0891b2, var(--teal-dark));
+      padding: 24px 20px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+    .logo {
+      font-family: var(--display);
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 16px;
+    }
+    .visit-date {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .visit-meta {
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 16px;
+    }
+    .progress-bar-bg {
+      background: rgba(255,255,255,0.2);
+      border-radius: 99px;
+      height: 6px;
+      margin-top: 12px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: #fff;
+      transition: width 0.4s ease;
+    }
+    .progress-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 6px;
+    }
+
+    /* ── ACCESS CARD ── */
+    .access-card {
+      margin: 16px 16px 0;
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px 18px;
+      border-left: 4px solid #F59E0B;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .access-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #F59E0B;
+      margin-bottom: 8px;
+    }
+    .access-method {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .access-detail {
+      font-size: 13px;
+      color: var(--slate);
+      line-height: 1.5;
+    }
+
+    /* ── PETS CARD ── */
+    .pets-card {
+      margin: 10px 16px 0;
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px 18px;
+      border-left: 4px solid #10B981;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .pets-emoji { font-size: 24px; flex-shrink: 0; }
+    .pets-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #10B981;
+      margin-bottom: 4px;
+    }
+    .pets-note {
+      font-size: 13px;
+      color: var(--slate);
+      line-height: 1.5;
+    }
+
+    /* ── TASK LIST ── */
+    .section-header {
+      padding: 20px 16px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    .task-card {
+      margin: 0 16px 8px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .task-card:active { transform: scale(0.98); }
+    .task-card.done { opacity: 0.5; }
+
+    .task-check {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+    .task-check.checked {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+
+    .task-content { flex: 1; min-width: 0; }
+    .task-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    .task-card.done .task-title {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+    .task-notes {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+    .task-priority {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 7px;
+    }
+
+    /* ── EMPTY / LOADING / ERROR STATES ── */
+    .state-card {
+      margin: 40px 24px;
+      text-align: center;
+    }
+    .state-icon { font-size: 48px; margin-bottom: 16px; }
+    .state-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+    .state-body { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* ── COMPLETE BUTTON ── */
+    .complete-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 16px;
+      background: rgba(240,248,250,0.95);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+    }
+    .complete-btn {
+      width: 100%;
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .complete-btn:hover { background: var(--teal-dark); }
+    .complete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .spacer { height: 90px; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="state-card">
+    <div class="state-icon">⏳</div>
+    <div class="state-title">Loading your visit…</div>
+  </div>
+</div>
+
+<script>
+  // ── Init Supabase ──
+  const { createClient } = supabase;
+  const sb = createClient(
+    '__SUPABASE_URL__',       // replaced at build/deploy time
+    '__SUPABASE_ANON_KEY__'   // replaced at build/deploy time
+  );
+
+  // ── Get visit token from URL ──
+  const token = new URLSearchParams(window.location.search).get('t')
+    || window.location.pathname.split('/visit/')[1]?.split('?')[0];
+
+  let visitData = null;
+  let tasks = [];
+
+  const accessLabels = {
+    someone_home: '🏠 Someone will be home',
+    buzzer: '🔔 Someone home — buzzer/gate access required',
+    independent: '🔑 Independent entry',
+  };
+
+  const arrivalLabels = {
+    call: 'Please call on arrival',
+    text: 'Please text on arrival',
+    ring_bell: 'Please ring the bell',
+    enter: 'Enter and start — door will be unlocked',
+  };
+
+  const priorityColors = { high: '#EF4444', medium: '#F59E0B', low: '#10B981' };
+
+  async function load() {
+    if (!token) {
+      renderError('No visit found', 'This link doesn\'t look right. Please check your text message and try again.');
+      return;
+    }
+
+    // Load visit
+    const { data: visit, error: visitErr } = await sb
+      .from('visits')
+      .select('*, customers(name, address)')
+      .eq('visit_token', token)
+      .single();
+
+    if (visitErr || !visit) {
+      renderError('Visit not found', 'This link may have expired or the visit was cancelled. Contact HomeDasher if you need help.');
+      return;
+    }
+
+    visitData = visit;
+
+    // Load tasks for this visit
+    const { data: taskRows } = await sb
+      .from('tasks')
+      .select('*')
+      .eq('visit_id', visit.id)
+      .eq('category', 'upcoming')
+      .order('sort_order', { ascending: true });
+
+    tasks = taskRows || [];
+
+    // Load household profile for access/pets
+    const { data: profile } = await sb
+      .from('household_profile')
+      .select('*')
+      .eq('customer_email', visit.customer_email)
+      .single();
+
+    render(visit, tasks, profile);
+  }
+
+  function render(visit, tasks, profile) {
+    const scheduledAt = new Date(visit.scheduled_at);
+    const dateStr = scheduledAt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    const timeStr = scheduledAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const durationHrs = (visit.duration_minutes / 60).toFixed(1).replace('.0', '');
+    const address = visit.customers?.name ? `${visit.customers.name} · ${visit.customers.address || ''}` : visit.customers?.address || '';
+
+    const done = tasks.filter(t => t.done).length;
+    const total = tasks.length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    // Access info — prefer visit-level override, fall back to profile
+    const accessMethod = visit.access_method || profile?.access_method;
+    const accessDetails = visit.access_details || profile?.access_details;
+    const arrivalPref = visit.arrival_preference || profile?.arrival_preference;
+
+    // Pets
+    const hasPets = profile?.pets;
+    const petNotes = profile?.pet_notes;
+
+    const accessCard = accessMethod ? `
+      <div class="access-card">
+        <div class="access-label">🔑 Home access</div>
+        <div class="access-method">${accessLabels[accessMethod] || accessMethod}</div>
+        ${arrivalPref ? `<div class="access-detail">${arrivalLabels[arrivalPref] || arrivalPref}</div>` : ''}
+        ${accessDetails ? `<div class="access-detail" style="margin-top:6px;padding-top:6px;border-top:1px solid #f0f0f0">${accessDetails}</div>` : ''}
+      </div>` : '';
+
+    const petsCard = hasPets ? `
+      <div class="pets-card">
+        <div class="pets-emoji">🐾</div>
+        <div>
+          <div class="pets-label">Pets in the home</div>
+          <div class="pets-note">${petNotes || 'Customer has pets. Please be mindful of doors.'}</div>
+        </div>
+      </div>` : '';
+
+    const taskItems = tasks.map(task => `
+      <div class="task-card ${task.done ? 'done' : ''}" onclick="toggleTask('${task.id}', this)">
+        <div class="task-check ${task.done ? 'checked' : ''}">${task.done ? '✓' : ''}</div>
+        <div class="task-content">
+          <div class="task-title">${task.title}</div>
+          ${task.notes ? `<div class="task-notes">📝 ${task.notes}</div>` : ''}
+        </div>
+        <div class="task-priority" style="background:${priorityColors[task.priority] || '#94A3B8'}"></div>
+      </div>`).join('');
+
+    const allDone = total > 0 && done === total;
+
+    document.getElementById('app').innerHTML = `
+      <div class="header">
+        <div class="logo">HomeDasher</div>
+        <div class="visit-date">${dateStr}</div>
+        <div class="visit-meta">${timeStr} · ${durationHrs} hr${durationHrs !== '1' ? 's' : ''} · ${address}</div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width:${pct}%"></div>
+        </div>
+        <div class="progress-label">${done} of ${total} tasks complete</div>
+      </div>
+
+      ${accessCard}
+      ${petsCard}
+
+      <div class="section-header">Today's Tasks</div>
+      ${taskItems || '<div class="state-card"><div class="state-body">No tasks on this visit yet.</div></div>'}
+
+      <div class="spacer"></div>
+
+      <div class="complete-bar">
+        <button class="complete-btn" onclick="markVisitComplete()" ${!allDone ? 'disabled' : ''}>
+          ${allDone ? '✓ Mark visit complete' : `${done}/${total} tasks checked off`}
+        </button>
+      </div>
+    `;
+  }
+
+  async function toggleTask(taskId, cardEl) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    const newDone = !task.done;
+    task.done = newDone;
+    task.done_at = newDone ? new Date().toISOString() : null;
+
+    // Update UI immediately
+    const checkEl = cardEl.querySelector('.task-check');
+    checkEl.textContent = newDone ? '✓' : '';
+    checkEl.className = `task-check ${newDone ? 'checked' : ''}`;
+    cardEl.className = `task-card ${newDone ? 'done' : ''}`;
+
+    // Update progress
+    const done = tasks.filter(t => t.done).length;
+    const total = tasks.length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.querySelector('.progress-bar-fill').style.width = `${pct}%`;
+    document.querySelector('.progress-label').textContent = `${done} of ${total} tasks complete`;
+
+    const allDone = total > 0 && done === total;
+    const btn = document.querySelector('.complete-btn');
+    btn.disabled = !allDone;
+    btn.textContent = allDone ? '✓ Mark visit complete' : `${done}/${total} tasks checked off`;
+
+    // Persist to Supabase
+    await sb.from('tasks').update({ done: newDone, done_at: task.done_at }).eq('id', taskId);
+  }
+
+  async function markVisitComplete() {
+    const btn = document.querySelector('.complete-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    await sb.from('visits').update({
+      status: 'completed',
+      completed_at: new Date().toISOString(),
+    }).eq('id', visitData.id);
+
+    btn.textContent = '🎉 Visit complete! Great work.';
+    btn.style.background = '#10B981';
+  }
+
+  function renderError(title, body) {
+    document.getElementById('app').innerHTML = `
+      <div class="state-card">
+        <div class="state-icon">🔍</div>
+        <div class="state-title">${title}</div>
+        <div class="state-body">${body}</div>
+      </div>`;
+  }
+
+  load();
+</script>
+</body>
+</html>
