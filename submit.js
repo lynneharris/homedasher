@@ -124,6 +124,8 @@ module.exports = async (req, res) => {
 
     // --- 5. Create client + job in Jobber ---
     let jobberClientId = existingCustomer?.jobber_client_id;
+    let jobberPropertyId = existingCustomer?.jobber_property_id;
+
     if (!jobberClientId) {
       const nameParts = name.split(' ');
       const jobberClient = await createJobberClient({
@@ -134,18 +136,22 @@ module.exports = async (req, res) => {
         address,
       });
       jobberClientId = jobberClient.id;
+      jobberPropertyId = jobberClient.propertyId;
 
-      // Save Jobber client ID back to Supabase
+      // Save Jobber client ID and property ID back to Supabase
       await supabase
         .from('customers')
-        .update({ jobber_client_id: jobberClientId })
+        .update({
+          jobber_client_id: jobberClientId,
+          jobber_property_id: jobberPropertyId,
+        })
         .eq('email', email);
     }
 
     // Create job in Jobber
     const startAt = new Date(`${date}T${time}`).toISOString();
     const jobberJob = await createJobberJob({
-      clientId: jobberClientId,
+      propertyId: jobberPropertyId,
       title: `HomeDasher Clean — ${name}`,
       instructions: `${choreList}\n\nCustomer notes: ${notes || 'None'}\nAddress: ${address}`,
       startAt,
