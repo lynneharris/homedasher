@@ -258,35 +258,62 @@
 
     <p>We're putting the finishing touches on something great. Enter your email and we'll let you know the moment we launch.</p>
 
-    <div class="form">
-      <input type="email" id="emailInput" placeholder="your@email.com" />
-      <button onclick="handleSubmit()">Notify Me</button>
-    </div>
-    <div class="success-msg" id="successMsg">✓ You're on the list — we'll be in touch!</div>
+   <div id="notify-section">
+  <input type="email" id="notify-email" placeholder="Enter your email" autocomplete="email" />
+  <button id="notify-btn" onclick="submitNotify()">Notify Me</button>
+  <p id="notify-msg" style="display:none;"></p>
+</div>
 
     <p class="footnote">HomeDasher &nbsp;·&nbsp; On-Demand Housework Service</p>
 
   </div>
 
-  <script>
-    function handleSubmit() {
-      const input = document.getElementById('emailInput');
-      const msg = document.getElementById('successMsg');
-      const form = document.querySelector('.form');
-      if (!input.value || !input.value.includes('@')) {
-        input.style.borderBottom = '1px solid #e63946';
-        input.focus();
-        return;
-      }
-      form.style.opacity = '0.4';
-      form.style.pointerEvents = 'none';
-      msg.style.display = 'block';
-    }
+ <script>
+async function submitNotify() {
+  const emailInput = document.getElementById('notify-email');
+  const btn = document.getElementById('notify-btn');
+  const msg = document.getElementById('notify-msg');
+  const email = emailInput.value.trim();
 
-    document.getElementById('emailInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') handleSubmit();
+  if (!email) {
+    showNotifyMsg('Please enter your email address.', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  try {
+    const res = await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
     });
-  </script>
+    const data = await res.json();
+
+    if (res.ok) {
+      showNotifyMsg(data.message || "You're on the list!", 'success');
+      emailInput.value = '';
+      btn.style.display = 'none';
+    } else {
+      showNotifyMsg(data.error || 'Something went wrong. Please try again.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Notify Me';
+    }
+  } catch (err) {
+    showNotifyMsg('Connection error. Please try again.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Notify Me';
+  }
+}
+
+function showNotifyMsg(text, type) {
+  const msg = document.getElementById('notify-msg');
+  msg.textContent = text;
+  msg.style.display = 'block';
+  msg.style.color = type === 'success' ? '#2a9d8f' : '#e63946';
+}
+</script>
 
 </body>
 </html>
