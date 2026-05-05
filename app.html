@@ -655,7 +655,6 @@ function renderGenericDetail(cat, idx, total, pct) {
 
 // ── BOOKING DETAILS ──
 function renderBook() {
-  const durations = [1, 1.5, 2, 2.5, 3, 3.5, 4, 5];
   const price = state.duration * 50;
   return `
     <div class="steps">
@@ -687,9 +686,10 @@ function renderBook() {
             <div id="time-slots">${state.date ? '<div style="color:var(--muted);font-size:14px">Loading times…</div>' : ''}</div>
           </div>
           <div class="field span2">
-            <label>How long do you need? <span style="color:var(--muted);font-weight:400">($50/hr)</span></label>
-            <div class="duration-grid">
-              ${durations.map(d => `<button class="dur-btn ${state.duration === d ? 'active' : ''}" onclick="setDuration(${d})">${d} hr${d !== 1 ? 's' : ''}<small>$${d * 50}</small></button>`).join('')}
+            <label>Visit length</label>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--teal-pale);border:1px solid var(--teal-light);border-radius:10px;">
+              <span style="font-size:15px;color:var(--teal-deep);font-weight:500;">${state.duration} hr${state.duration !== 1 ? 's' : ''} &middot; $${state.duration * 50}</span>
+              <button onclick="startBooking()" style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">Edit</button>
             </div>
           </div>
           <div class="field span2"><label>Additional notes <span style="color:var(--muted);font-weight:400">(optional)</span></label><textarea id="notes" placeholder="Anything else we should know…">${state.notes || ''}</textarea></div>
