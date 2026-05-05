@@ -366,6 +366,14 @@ function fmtTime(min) {
   const h = Math.floor(min / 60), m = min % 60;
   return m === 0 ? h + ' hr' : h + ' hr ' + m + ' min';
 }
+function fmtDuration(hrs) {
+  if (hrs < 1) {
+    return Math.round(hrs * 60) + ' min';
+  }
+  const h = Math.floor(hrs);
+  const m = Math.round((hrs - h) * 60);
+  return m === 0 ? h + ' hr' + (h !== 1 ? 's' : '') : h + ' hr ' + m + ' min';
+}
 function totalMinutes() { return Object.values(state.taskTimes).reduce((s, v) => s + (v || 0), 0); }
 function selectedCats() { return CATS.filter(c => (state.taskTimes[c.id] || 0) > 0); }
 function updateFooter() {
@@ -501,7 +509,7 @@ function renderTaskSelect() {
     <div class="main">
       <div class="card">
         <div class="card-title">What do you need help with?</div>
-        <div class="card-sub">Select categories and set time in 5-min increments.</div>
+        <div class="card-sub">Select categories and set time in 5-min increments. Billed in 15-min increments, 30-min minimum.</div>
         <div id="ts-categories">${rows}</div>
         <div class="ts-total-bar">
           <div><div class="ts-total-label">Total visit time</div></div>
@@ -726,7 +734,7 @@ function renderBook() {
         </div>
         <div style="background:var(--teal-pale);border:1px solid var(--teal-light);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
           <div>
-            <div style="font-size:15px;font-weight:600;color:var(--teal-deep);">${state.duration < 1 ? '30 min' : state.duration + ' hr' + (state.duration !== 1 ? 's' : '')} &middot; $${state.duration * 50}</div>
+            <div style="font-size:15px;font-weight:600;color:var(--teal-deep);">${fmtDuration(state.duration)} &middot; $${state.duration * 50}</div>
             <div style="font-size:12px;color:var(--teal);margin-top:3px;">Free cancellation anytime before your appointment</div>
           </div>
           <button onclick="startBooking()" style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px;flex-shrink:0;margin-left:16px;">Edit</button>
@@ -811,7 +819,7 @@ function renderSuccess() {
         <p class="success-sub">Your booking is confirmed. We'll ${state.contactPref === 'sms' ? 'text' : 'email'} you when your HomeDasher is assigned.</p>
         <div class="success-detail">
           <div class="success-row"><span class="success-row-label">Date</span><span class="success-row-val">${formatDate(state.date, state.time)}</span></div>
-          <div class="success-row"><span class="success-row-label">Duration</span><span class="success-row-val">${state.duration < 1 ? '30 min' : state.duration + ' hr' + (state.duration !== 1 ? 's' : '')}</span></div>
+          <div class="success-row"><span class="success-row-label">Duration</span><span class="success-row-val">${fmtDuration(state.duration)}</span></div>
           <div class="success-row"><span class="success-row-label">Address</span><span class="success-row-val">${state.bookingDetails?.address || ''}</span></div>
           <div class="success-row"><span class="success-row-label">Total charged</span><span class="success-row-val">$${(b.amountCharged / 100 || state.duration * 50).toFixed(2)}</span></div>
         </div>
@@ -892,7 +900,7 @@ function tsUpdateTotal() {
 }
 window.goToInstructionsBranch = () => {
   const total = totalMinutes();
-  if (total > 0) state.duration = Math.max(0.5, Math.ceil((total / 60) * 2) / 2);
+  if (total > 0) state.duration = Math.max(0.5, Math.ceil((total / 60) * 4) / 4);
   state.screen = 'instructions-branch';
   render();
 };
