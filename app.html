@@ -685,13 +685,7 @@ function renderBook() {
             <label>Available start times ${state.date ? `· <span style="color:var(--teal)">${formatDateShort(state.date)}</span>` : ''}</label>
             <div id="time-slots">${state.date ? '<div style="color:var(--muted);font-size:14px">Loading times…</div>' : ''}</div>
           </div>
-          <div class="field span2">
-            <label>Visit length</label>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--teal-pale);border:1px solid var(--teal-light);border-radius:10px;">
-              <span style="font-size:15px;color:var(--teal-deep);font-weight:500;">${state.duration < 1 ? '30 min' : state.duration + ' hr' + (state.duration !== 1 ? 's' : '')} &middot; $${state.duration * 50}</span>
-              <button onclick="startBooking()" style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">Edit</button>
-            </div>
-          </div>
+
           <div class="field span2"><label>Additional notes <span style="color:var(--muted);font-weight:400">(optional)</span></label><textarea id="notes" placeholder="Anything else we should know…">${state.notes || ''}</textarea></div>
           <div class="field span2">
             <label>Home access</label>
@@ -730,12 +724,12 @@ function renderBook() {
           </div>` : ''}
           ${state.referralCode ? `<div class="field span2"><label>Referral code</label><input type="text" value="${state.referralCode}" readonly style="color:var(--teal);background:var(--teal-pale)" /></div>` : ''}
         </div>
-        <div class="price-display">
+        <div style="background:var(--teal-pale);border:1px solid var(--teal-light);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
           <div>
-            <div class="price-label">${state.duration < 1 ? '30 min' : state.duration + ' hr' + (state.duration !== 1 ? 's' : '')} × $50/hr</div>
-            <div class="price-note">Free cancellation anytime before your appointment</div>
+            <div style="font-size:15px;font-weight:600;color:var(--teal-deep);">${state.duration < 1 ? '30 min' : state.duration + ' hr' + (state.duration !== 1 ? 's' : '')} &middot; $${state.duration * 50}</div>
+            <div style="font-size:12px;color:var(--teal);margin-top:3px;">Free cancellation anytime before your appointment</div>
           </div>
-          <div style="text-align:right"><div class="price-amount">$${price}</div></div>
+          <button onclick="startBooking()" style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px;flex-shrink:0;margin-left:16px;">Edit</button>
         </div>
         <button class="submit-btn" onclick="goToPayment()">Continue to payment →</button>
         <div id="book-error"></div>
