@@ -927,8 +927,33 @@ window.catDetailBack = () => {
 };
 window.adjustBaths = (delta) => {
   if (!state.catDetails['cleaning']) state.catDetails['cleaning'] = {};
-  state.catDetails['cleaning'].bathCount = Math.max(1, Math.min(8, (state.catDetails['cleaning'].bathCount || 1) + delta));
-  render();
+  const d = state.catDetails['cleaning'];
+  // Save any already-typed location values before touching the DOM
+  document.querySelectorAll('.cd-location-row input').forEach((inp, i) => {
+    if (!d.bathLocations) d.bathLocations = [];
+    d.bathLocations[i] = inp.value;
+  });
+  d.bathCount = Math.max(1, Math.min(8, (d.bathCount || 1) + delta));
+  // Targeted update — rebuild only the stepper count, button states, and location fields
+  const countEl = document.querySelector('.cd-count');
+  if (countEl) countEl.textContent = d.bathCount;
+  const btns = document.querySelectorAll('.cd-stepper-row .ts-btn');
+  if (btns[0]) btns[0].disabled = d.bathCount <= 1;
+  if (btns[1]) btns[1].disabled = d.bathCount >= 8;
+  const fieldsEl = document.querySelector('.cd-location-fields');
+  if (fieldsEl) {
+    let html = '';
+    for (let i = 1; i <= d.bathCount; i++) {
+      const val = (d.bathLocations && d.bathLocations[i-1]) || '';
+      html += `<div class="cd-location-row">
+        <div class="cd-location-num">Bathroom ${i}</div>
+        <input type="text" placeholder="e.g. upstairs hall, master en suite" value="${val}"
+          oninput="setBathLocation(${i-1}, this.value)"
+          style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);" />
+      </div>`;
+    }
+    fieldsEl.innerHTML = html;
+  }
 };
 window.setBathLocation = (idx, val) => {
   if (!state.catDetails['cleaning']) state.catDetails['cleaning'] = {};
@@ -950,23 +975,53 @@ window.triggerPhotoUpload = (catId) => {
   if (input) input.click();
 };
 
+// ── SAVE BOOKING FIELDS ──
+// Call before any render() that happens while the booking form is visible,
+// so typed values aren't lost when the form rebuilds.
+function saveBookingFields() {
+  if (state.screen !== 'book') return;
+  const get = (id) => document.getElementById(id)?.value.trim() || '';
+  if (get('name'))    state._savedName    = get('name');
+  if (get('email'))   state._savedEmail   = get('email');
+  if (get('phone'))   state._savedPhone   = get('phone');
+  if (get('address')) state._savedAddress = get('address');
+  if (get('notes'))   state.notes         = get('notes');
+  const ad = get('access-details'); if (ad) state.accessDetails = ad;
+  const pn = get('pet-notes');      if (pn) state.petNotes      = pn;
+}
+
+// Patch renderBook to restore saved field values into the customer object
+// so the input value="" attributes get repopulated after a re-render.
+function saveAndRender() {
+  saveBookingFields();
+  // Temporarily patch state.customer so renderBook picks up the saved values
+  state.customer = {
+    name:    state._savedName    || state.customer?.name    || '',
+    email:   state._savedEmail   || state.customer?.email   || '',
+    phone:   state._savedPhone   || state.customer?.phone   || '',
+    address: state._savedAddress || state.customer?.address || '',
+  };
+  render();
+}
+
 // ── NAV ACTIONS ──
 window.startBooking  = () => { state.screen = 'task-select'; render(); };
 window.showMagicLink = () => { state.screen = 'magic'; render(); };
 window.goToBook      = () => { state.screen = 'book'; render(); };
-window.setPref       = (p) => { state.contactPref = p; render(); };
-window.setDuration   = (d) => { state.duration = d; render(); };
+window.setPref       = (p) => { state.contactPref = p; if (state.screen === 'book') saveAndRender(); else render(); };
+window.setDuration   = (d) => { state.duration = d; if (state.screen === 'book') saveAndRender(); else render(); };
 window.setRating     = (r) => { state.rating = r; render(); };
-window.setAccess     = (m) => { state.accessMethod = m; state.arrivalPreference = null; render(); };
-window.setArrival    = (p) => { state.arrivalPreference = p; render(); };
-window.setPets       = (v) => { state.hasPets = v; render(); };
+window.setAccess     = (m) => { state.accessMethod = m; state.arrivalPreference = null; saveAndRender(); };
+window.setArrival    = (p) => { state.arrivalPreference = p; saveAndRender(); };
+window.setPets       = (v) => { state.hasPets = v; saveAndRender(); };
 window.applyPromo    = applyPromo;
 window.goToRate      = () => { state.screen = 'rate'; render(); };
 
 window.goToPayment = () => {
-  const name    = document.getElementById('name')?.value.trim();
-  const email   = document.getElementById('email')?.value.trim();
-  const address = document.getElementById('address')?.value.trim();
+  saveBookingFields();
+  const name    = document.getElementById('name')?.value.trim()    || state._savedName    || '';
+  const email   = document.getElementById('email')?.value.trim()   || state._savedEmail   || '';
+  const address = document.getElementById('address')?.value.trim() || state._savedAddress || '';
   const errEl   = document.getElementById('book-error');
   if (!name || !email || !address) { errEl.innerHTML = '<div class="error-msg">Please fill in your name, email, and address.</div>'; return; }
   if (!state.date)  { errEl.innerHTML = '<div class="error-msg">Please select a date.</div>'; return; }
