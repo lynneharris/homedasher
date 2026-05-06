@@ -319,14 +319,14 @@
 
 // ── CATEGORIES ──
 const CATS = [
-  { id: 'cleaning', label: 'Cleaning & tidying' },
-  { id: 'laundry',  label: 'Laundry' },
-  { id: 'dishes',   label: 'Dishes' },
-  { id: 'org',      label: 'Home organization & restocking' },
-  { id: 'pets',     label: 'Pet & plant care' },
-  { id: 'garbage',  label: 'Garbage, recycling & yard waste' },
-  { id: 'mail',     label: 'Mail & packages' },
-  { id: 'admin',    label: 'Research & home admin tasks' },
+  { id: 'cleaning',  label: 'Cleaning, tidying & dishes' },
+  { id: 'laundry',   label: 'Laundry' },
+  { id: 'mealprep',  label: 'Meal prep' },
+  { id: 'org',       label: 'Home organization & restocking' },
+  { id: 'pets',      label: 'Pet & plant care' },
+  { id: 'garbage',   label: 'Garbage, recycling & yard waste' },
+  { id: 'mail',      label: 'Mail & packages' },
+  { id: 'admin',     label: 'Research & home admin tasks' },
 ];
 
 // ── STATE ──
@@ -574,9 +574,9 @@ const CLEANING_ROOMS = [
 
 function renderCleaningDetail(idx, total, pct) {
   const d = state.catDetails['cleaning'] || {};
-  // If no room is currently active, show the room picker
   if (!state.cleaningRoom) return renderCleaningRoomPicker(idx, total, pct, d);
-  // Route to the right room screen
+  // If kitchen selected but no mode chosen yet, show mode picker
+  if (state.cleaningRoom === 'kitchen' && !state.kitchenMode) return renderKitchenModePicker(idx, total, pct, d);
   switch (state.cleaningRoom) {
     case 'kitchen':   return renderKitchenScreen(idx, total, pct, d);
     case 'bathrooms': return renderBathroomScreen(idx, total, pct, d);
@@ -630,7 +630,66 @@ function renderCleaningRoomPicker(idx, total, pct, d) {
     </div>`;
 }
 
-// ── KITCHEN SCREEN ──
+// ── KITCHEN MODE PICKER ──
+function renderKitchenModePicker(idx, total, pct, d) {
+  const selectedRooms = d.rooms || [];
+  const roomIdx = selectedRooms.indexOf('kitchen');
+  const nextRoom = selectedRooms[roomIdx + 1];
+  return `${cdStepsHtml()}
+    <div class="main">
+      <div class="card">
+        ${cdProgressHtml(idx, total, pct)}
+        <div class="cd-category-label">Cleaning &amp; tidying</div>
+        <div class="cd-title">Kitchen</div>
+        <div class="branch-question" style="font-size:16px;margin-bottom:6px;">How would you like to set up kitchen tasks?</div>
+        <div class="branch-sub" style="margin-bottom:20px;">You can update these anytime before your visit.</div>
+        <div class="branch-option primary" onclick="setKitchenMode('standard')">
+          <div>
+            <div style="font-weight:600;margin-bottom:4px;">Standard kitchen reset</div>
+            <div style="font-size:13px;color:var(--muted);font-weight:400;">Unload/reload dishwasher, clean and sanitize counters, sink, and appliances</div>
+          </div>
+        </div>
+        <div class="branch-option" onclick="setKitchenMode('custom')">
+          <div style="font-weight:600;">Specify kitchen tasks</div>
+        </div>
+        <div class="cd-nav" style="margin-top:16px;">
+          <button class="cd-back-btn" onclick="roomScreenBack()">← Back</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── KITCHEN STANDARD RESET SCREEN ──
+function renderKitchenStandardScreen(idx, total, pct, d) {
+  const selectedRooms = d.rooms || [];
+  const roomIdx = selectedRooms.indexOf('kitchen');
+  const nextRoom = selectedRooms[roomIdx + 1];
+  const notes = (d.kitchen || {}).standardNotes || '';
+  return `${cdStepsHtml()}
+    <div class="main">
+      <div class="card">
+        ${cdProgressHtml(idx, total, pct)}
+        <div class="cd-category-label">Cleaning &amp; tidying</div>
+        <div class="cd-title">Standard Kitchen Reset</div>
+        <div class="cd-included" style="margin-bottom:20px;">
+          <div class="cd-included-label">What's included</div>
+          <div class="cd-included-item"><div class="cd-dot"></div>Unload and reload dishwasher</div>
+          <div class="cd-included-item"><div class="cd-dot"></div>Clean and sanitize counters</div>
+          <div class="cd-included-item"><div class="cd-dot"></div>Clean and sanitize sink</div>
+          <div class="cd-included-item"><div class="cd-dot"></div>Clean and sanitize appliances (exterior)</div>
+        </div>
+        <div class="cd-section" style="margin-top:0;">Additional notes</div>
+        <textarea placeholder="Any extra details for your HomeDasher…" style="width:100%;margin-top:8px;margin-bottom:8px;"
+          oninput="setStandardKitchenNotes(this.value)">${notes}</textarea>
+        <button style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;margin-bottom:20px;"
+          onclick="setKitchenMode('custom')">Switch to custom tasks instead →</button>
+        <div class="cd-nav">
+          <button class="cd-back-btn" onclick="state.kitchenMode=null;render();">← Back</button>
+          <button class="cd-next-btn" onclick="roomScreenNext()">${nextRoom ? 'Next room →' : 'Done with cleaning →'}</button>
+        </div>
+      </div>
+    </div>`;
+}
 
 // Shared UI helpers used by all room screens
 function mkCheckbox(id, label, checked, onchange, indent=0) {
@@ -755,9 +814,9 @@ function kitchenSectionHtml(sectionId, k) {
     }
     case 'floors': {
       const f = k.floors || {};
-      return mkAccordion('floors','Floors', f.open, `setK('floors.open',!getK('floors.open'))`,
-        mkCheckbox('floors-sweep','Sweep (please supply broom)', f.sweep, `setK('floors.sweep',!getK('floors.sweep'))`,1) +
-        mkCheckbox('floors-vacuum','Vacuum (please supply vacuum)', f.vacuum, `setK('floors.vacuum',!getK('floors.vacuum'))`,1),
+      return mkAccordion('floors','Floors <span style="font-size:12px;font-weight:400;color:var(--muted);">(please supply broom, dustpan, and/or vacuum)</span>', f.open, `setK('floors.open',!getK('floors.open'))`,
+        mkCheckbox('floors-sweep','Sweep', f.sweep, `setK('floors.sweep',!getK('floors.sweep'))`,1) +
+        mkCheckbox('floors-vacuum','Vacuum', f.vacuum, `setK('floors.vacuum',!getK('floors.vacuum'))`,1),
       0);
     }
     case 'baseboards': {
@@ -771,6 +830,11 @@ function kitchenSectionHtml(sectionId, k) {
 const KITCHEN_SECTIONS = ['dishes','sink','countertops','appliances','windows','floors','baseboards'];
 
 function renderKitchenScreen(idx, total, pct, d) {
+  if (state.kitchenMode === 'standard') return renderKitchenStandardScreen(idx, total, pct, d);
+  return renderKitchenCustomScreen(idx, total, pct, d);
+}
+
+function renderKitchenCustomScreen(idx, total, pct, d) {
   const k = d.kitchen || {};
   const selectedRooms = d.rooms || [];
   const roomIdx = selectedRooms.indexOf('kitchen');
@@ -786,12 +850,7 @@ function renderKitchenScreen(idx, total, pct, d) {
         <div class="cd-category-label">Cleaning &amp; tidying</div>
         <div class="cd-title">Kitchen</div>
         ${sections}
-        <button class="cd-photo-btn" onclick="triggerPhotoUpload('kitchen')" style="margin-top:20px;">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1" y="4" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><circle cx="9" cy="9.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M6 4l1.5-2h3L12 4" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
-          Add a photo (optional)
-        </button>
-        <input type="file" id="photo-upload-kitchen" accept="image/*" style="display:none" />
-        <div class="cd-nav">
+        <div class="cd-nav" style="margin-top:20px;">
           <button class="cd-back-btn" onclick="roomScreenBack()">← Back</button>
           <button class="cd-next-btn" onclick="roomScreenNext()">${nextRoom ? 'Next room →' : 'Done with cleaning →'}</button>
         </div>
@@ -1209,9 +1268,11 @@ window.roomScreenNext = () => {
   const idx = rooms.indexOf(state.cleaningRoom);
   if (idx + 1 < rooms.length) {
     state.cleaningRoom = rooms[idx + 1];
+    state.kitchenMode = null;
     render();
   } else {
     state.cleaningRoom = null;
+    state.kitchenMode = null;
     catDetailNext();
   }
 };
@@ -1221,11 +1282,23 @@ window.roomScreenBack = () => {
   const idx = rooms.indexOf(state.cleaningRoom);
   if (idx > 0) {
     state.cleaningRoom = rooms[idx - 1];
+    state.kitchenMode = null;
     render();
   } else {
     state.cleaningRoom = null;
+    state.kitchenMode = null;
     render();
   }
+};
+
+window.setKitchenMode = (mode) => {
+  state.kitchenMode = mode;
+  render();
+};
+window.setStandardKitchenNotes = (val) => {
+  if (!state.catDetails['cleaning']) state.catDetails['cleaning'] = {};
+  if (!state.catDetails['cleaning'].kitchen) state.catDetails['cleaning'].kitchen = {};
+  state.catDetails['cleaning'].kitchen.standardNotes = val;
 };
 
 // ── KITCHEN STATE HELPERS ──
