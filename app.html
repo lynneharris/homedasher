@@ -861,60 +861,133 @@ function renderKitchenCustomScreen(idx, total, pct, d) {
 // ── BATHROOM SCREEN ──
 function renderBathroomScreen(idx, total, pct, d) {
   const bathCount = d.bathCount || 1;
-  const towels = d.towels || false;
-  let locationFields = '';
-  for (let i = 1; i <= bathCount; i++) {
-    const val = (d.bathLocations && d.bathLocations[i-1]) || '';
-    locationFields += `<div class="cd-location-row">
-      <div class="cd-location-num">Bathroom ${i}</div>
-      <input type="text" placeholder="e.g. upstairs hall, master en suite" value="${val}"
-        oninput="setBathLocation(${i-1}, this.value)"
-        style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);" />
-    </div>`;
-  }
+  const bathModes = d.bathModes || {};  // { 0: 'standard'|'custom', 1: ... }
   const selectedRooms = d.rooms || [];
   const roomIdx = selectedRooms.indexOf('bathrooms');
   const nextRoom = selectedRooms[roomIdx + 1];
+
+  // Build per-bathroom sections
+  let bathSections = '';
+  for (let i = 0; i < bathCount; i++) {
+    const loc = (d.bathLocations && d.bathLocations[i]) || '';
+    const mode = bathModes[i];
+    const label = loc ? `Bathroom ${i+1} — ${loc}` : `Bathroom ${i+1}`;
+    bathSections += `<div id="bath-section-${i}" style="margin-top:16px;">
+      ${renderBathSection(i, label, mode, d)}
+    </div>`;
+  }
+
   return `${cdStepsHtml()}
     <div class="main">
       <div class="card">
         ${cdProgressHtml(idx, total, pct)}
         <div class="cd-category-label">Cleaning &amp; tidying</div>
         <div class="cd-title">Bathrooms</div>
-        <div class="cd-included">
-          <div class="cd-included-label">What's included</div>
+        <div class="cd-included" style="margin-bottom:20px;">
+          <div class="cd-included-label">Standard reset includes</div>
           <div class="cd-included-item"><div class="cd-dot"></div>Scrub and sanitize toilet with disposable wand</div>
           <div class="cd-included-item"><div class="cd-dot"></div>Wipe down and sanitize all fixtures</div>
           <div class="cd-included-item"><div class="cd-dot"></div>Clean mirrors</div>
           <div class="cd-included-item"><div class="cd-dot"></div>Empty trash</div>
         </div>
-        <div class="cd-section">How many bathrooms?</div>
+        <div class="cd-section" style="margin-top:0;">How many bathrooms?</div>
         <div class="cd-stepper-row">
           <button class="ts-btn" onclick="adjustBaths(-1)" ${bathCount <= 1 ? 'disabled' : ''}>−</button>
           <div class="cd-count">${bathCount}</div>
           <button class="ts-btn" onclick="adjustBaths(1)" ${bathCount >= 8 ? 'disabled' : ''}>+</button>
         </div>
         <div class="cd-section">Where are they located?</div>
-        <div class="cd-location-fields">${locationFields}</div>
-        <div class="cd-check-row" onclick="toggleTowels()">
-          <div class="ts-checkbox ${towels ? 'checked' : ''}" id="towels-cb">
-            <svg class="ts-checkmark" viewBox="0 0 11 8" fill="none"><polyline points="1,4 4,7 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="cd-check-label">Replace towels and/or bathmats</div>
+        <div class="cd-location-fields" id="bath-location-fields">
+          ${Array.from({length: bathCount}, (_,i) => {
+            const val = (d.bathLocations && d.bathLocations[i]) || '';
+            return `<div class="cd-location-row">
+              <div class="cd-location-num">Bathroom ${i+1}</div>
+              <input type="text" placeholder="e.g. upstairs hall, master en suite" value="${val}"
+                oninput="setBathLocation(${i}, this.value)"
+                style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);" />
+            </div>`;
+          }).join('')}
         </div>
-        <div class="cd-section">Additional instructions</div>
-        <textarea placeholder="Any extra details for your HomeDasher…" style="width:100%;margin-bottom:16px;" oninput="setCatNote('cleaning', this.value)">${d.notes || ''}</textarea>
-        <button class="cd-photo-btn" onclick="triggerPhotoUpload('bathrooms')">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1" y="4" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><circle cx="9" cy="9.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M6 4l1.5-2h3L12 4" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
-          Add a photo (optional)
-        </button>
-        <input type="file" id="photo-upload-bathrooms" accept="image/*" style="display:none" />
-        <div class="cd-nav">
+        ${bathSections}
+        <div class="cd-nav" style="margin-top:20px;">
           <button class="cd-back-btn" onclick="roomScreenBack()">← Back</button>
           <button class="cd-next-btn" onclick="roomScreenNext()">${nextRoom ? 'Next room →' : 'Done with cleaning →'}</button>
         </div>
       </div>
     </div>`;
+}
+
+function renderBathSection(i, label, mode, d) {
+  if (!mode) {
+    // Show mode picker for this bathroom
+    return `<div style="border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+      <div style="font-size:14px;font-weight:600;color:var(--slate);margin-bottom:12px;">${label}</div>
+      <div class="branch-option primary" style="margin-bottom:8px;padding:12px 14px;" onclick="setBathMode(${i},'standard')">
+        <div style="font-weight:600;font-size:14px;">Standard reset</div>
+      </div>
+      <div class="branch-option" style="padding:12px 14px;" onclick="setBathMode(${i},'custom')">
+        <div style="font-weight:600;font-size:14px;">Specify bathroom tasks</div>
+      </div>
+    </div>`;
+  }
+  if (mode === 'standard') {
+    const notes = ((d.bathNotes || {})[i]) || '';
+    return `<div style="border:1px solid var(--teal-light);border-radius:12px;padding:14px 16px;background:var(--teal-pale);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:14px;font-weight:600;color:var(--teal-deep);">${label}</div>
+        <button onclick="setBathMode(${i},null)" style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;text-decoration:underline;">Change</button>
+      </div>
+      <div style="font-size:13px;color:var(--teal-dark);margin-bottom:10px;">✓ Standard reset</div>
+      <input type="text" placeholder="Any extra notes for this bathroom…" value="${notes}"
+        oninput="setBathNotes(${i},this.value)"
+        style="width:100%;padding:9px 12px;border:1px solid var(--teal-light);border-radius:10px;font-family:var(--sans);font-size:14px;background:white;outline:none;color:var(--ink);" />
+    </div>`;
+  }
+  // Custom mode
+  const b = ((d.bathCustom || {})[i]) || {};
+  const BATH_SECTIONS = ['toilet','sinks','shower','tub','mirrors','trash','towels','bathmats','floors'];
+  const sections = BATH_SECTIONS.map(s =>
+    `<div id="bath-${i}-section-${s}">${bathSectionHtml(s, b, i)}</div>`
+  ).join('');
+  return `<div style="border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="font-size:14px;font-weight:600;color:var(--slate);">${label}</div>
+      <button onclick="setBathMode(${i},null)" style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;text-decoration:underline;">Change</button>
+    </div>
+    ${sections}
+  </div>`;
+}
+
+function bathSectionHtml(sectionId, b, bathIdx) {
+  switch(sectionId) {
+    case 'toilet':  return mkCheckbox(`b${bathIdx}-toilet`,  'Toilet',  b.toilet,  `setBathCustom(${bathIdx},'toilet',!getBath(${bathIdx},'toilet'))`);
+    case 'sinks':   return mkCheckbox(`b${bathIdx}-sinks`,   'Sinks',   b.sinks,   `setBathCustom(${bathIdx},'sinks',!getBath(${bathIdx},'sinks'))`);
+    case 'shower':  return mkCheckbox(`b${bathIdx}-shower`,  'Shower',  b.shower,  `setBathCustom(${bathIdx},'shower',!getBath(${bathIdx},'shower'))`);
+    case 'tub':     return mkCheckbox(`b${bathIdx}-tub`,     'Tub',     b.tub,     `setBathCustom(${bathIdx},'tub',!getBath(${bathIdx},'tub'))`);
+    case 'mirrors': return mkCheckbox(`b${bathIdx}-mirrors`, 'Mirrors', b.mirrors, `setBathCustom(${bathIdx},'mirrors',!getBath(${bathIdx},'mirrors'))`);
+    case 'trash':   return mkCheckbox(`b${bathIdx}-trash`,   'Trash',   b.trash,   `setBathCustom(${bathIdx},'trash',!getBath(${bathIdx},'trash'))`);
+    case 'towels': {
+      return mkAccordion(`b${bathIdx}-towels`, 'Towels', b.towels, `setBathCustom(${bathIdx},'towels',!getBath(${bathIdx},'towels'))`,
+        mkCheckbox(`b${bathIdx}-towels-all`,   'Remove all towels',      b.towelsAll,   `setBathCustom(${bathIdx},'towelsAll',!getBath(${bathIdx},'towelsAll'))`, 1) +
+        mkCheckbox(`b${bathIdx}-towels-floor`, 'Remove towels on floor', b.towelsFloor, `setBathCustom(${bathIdx},'towelsFloor',!getBath(${bathIdx},'towelsFloor'))`, 1) +
+        mkCheckbox(`b${bathIdx}-towels-place`, 'Place dirty towels', b.towelsPlace, `setBathCustom(${bathIdx},'towelsPlace',!getBath(${bathIdx},'towelsPlace'))`, 1) +
+        (b.towelsPlace ? mkText(`b${bathIdx}-towels-loc`, 'Where? e.g. hamper, laundry room…', b.towelsLoc, `setBathCustom(${bathIdx},'towelsLoc',this.value)`, 2) : ''),
+      0);
+    }
+    case 'bathmats': {
+      return mkAccordion(`b${bathIdx}-bathmats`, 'Bathmats', b.bathmats, `setBathCustom(${bathIdx},'bathmats',!getBath(${bathIdx},'bathmats'))`,
+        mkCheckbox(`b${bathIdx}-bathmats-place`, 'Place dirty bathmats', b.bathmatsPlace, `setBathCustom(${bathIdx},'bathmatsPlace',!getBath(${bathIdx},'bathmatsPlace'))`, 1) +
+        (b.bathmatsPlace ? mkText(`b${bathIdx}-bathmats-loc`, 'Where? e.g. hamper, laundry room…', b.bathmatsLoc, `setBathCustom(${bathIdx},'bathmatsLoc',this.value)`, 2) : ''),
+      0);
+    }
+    case 'floors': {
+      return mkAccordion(`b${bathIdx}-floors`, 'Floors <span style="font-size:12px;font-weight:400;color:var(--muted);">(please supply broom, dustpan, and/or vacuum)</span>', b.floors, `setBathCustom(${bathIdx},'floors',!getBath(${bathIdx},'floors'))`,
+        mkCheckbox(`b${bathIdx}-floors-sweep`,  'Sweep',  b.floorsSweep,  `setBathCustom(${bathIdx},'floorsSweep',!getBath(${bathIdx},'floorsSweep'))`, 1) +
+        mkCheckbox(`b${bathIdx}-floors-vacuum`, 'Vacuum', b.floorsVacuum, `setBathCustom(${bathIdx},'floorsVacuum',!getBath(${bathIdx},'floorsVacuum'))`, 1),
+      0);
+    }
+    default: return '';
+  }
 }
 
 // ── GENERIC ROOM SCREEN ──
@@ -1327,45 +1400,96 @@ window.setK = (path, value) => {
   }
 };
 
+window.setBathMode = (bathIdx, mode) => {
+  if (!state.catDetails['cleaning']) state.catDetails['cleaning'] = {};
+  const d = state.catDetails['cleaning'];
+  if (!d.bathModes) d.bathModes = {};
+  d.bathModes[bathIdx] = mode;
+  const loc = (d.bathLocations && d.bathLocations[bathIdx]) || '';
+  const label = loc ? `Bathroom ${bathIdx+1} — ${loc}` : `Bathroom ${bathIdx+1}`;
+  const el = document.getElementById('bath-section-' + bathIdx);
+  if (el) el.innerHTML = renderBathSection(bathIdx, label, mode, d);
+};
+window.setBathNotes = (bathIdx, val) => {
+  if (!state.catDetails['cleaning']) state.catDetails['cleaning'] = {};
+  const d = state.catDetails['cleaning'];
+  if (!d.bathNotes) d.bathNotes = {};
+  d.bathNotes[bathIdx] = val;
+};
+window.getBath = (bathIdx, key) => {
+  return ((state.catDetails['cleaning'] || {}).bathCustom || {})[bathIdx]?.[key];
+};
+window.setBathCustom = (bathIdx, key, value) => {
+  if (!state.catDetails['cleaning']) state.catDetails['cleaning'] = {};
+  const d = state.catDetails['cleaning'];
+  if (!d.bathCustom) d.bathCustom = {};
+  if (!d.bathCustom[bathIdx]) d.bathCustom[bathIdx] = {};
+  d.bathCustom[bathIdx][key] = value;
+  // Targeted re-render of just this section
+  const topKey = key.split('.')[0];
+  const BATH_SECTIONS = ['toilet','sinks','shower','tub','mirrors','trash','towels','bathmats','floors'];
+  const sectionId = BATH_SECTIONS.find(s => topKey === s || key === s) || topKey;
+  const el = document.getElementById(`bath-${bathIdx}-section-${sectionId}`);
+  if (el) el.innerHTML = bathSectionHtml(sectionId, d.bathCustom[bathIdx], bathIdx);
+};
+
 window.adjustBaths = (delta) => {
+  if (!state.catDetails['cleaning']) state.catDetails['cleaning'] = {};
   const d = state.catDetails['cleaning'];
   // Save any already-typed location values before touching the DOM
-  document.querySelectorAll('.cd-location-row input').forEach((inp, i) => {
+  document.querySelectorAll('#bath-location-fields .cd-location-row input').forEach((inp, i) => {
     if (!d.bathLocations) d.bathLocations = [];
     d.bathLocations[i] = inp.value;
   });
   d.bathCount = Math.max(1, Math.min(8, (d.bathCount || 1) + delta));
-  // Targeted update — rebuild only the stepper count, button states, and location fields
+  // Update stepper count and buttons
   const countEl = document.querySelector('.cd-count');
   if (countEl) countEl.textContent = d.bathCount;
   const btns = document.querySelectorAll('.cd-stepper-row .ts-btn');
   if (btns[0]) btns[0].disabled = d.bathCount <= 1;
   if (btns[1]) btns[1].disabled = d.bathCount >= 8;
-  const fieldsEl = document.querySelector('.cd-location-fields');
+  // Rebuild location fields
+  const fieldsEl = document.getElementById('bath-location-fields');
   if (fieldsEl) {
     let html = '';
-    for (let i = 1; i <= d.bathCount; i++) {
-      const val = (d.bathLocations && d.bathLocations[i-1]) || '';
+    for (let i = 0; i < d.bathCount; i++) {
+      const val = (d.bathLocations && d.bathLocations[i]) || '';
       html += `<div class="cd-location-row">
-        <div class="cd-location-num">Bathroom ${i}</div>
+        <div class="cd-location-num">Bathroom ${i+1}</div>
         <input type="text" placeholder="e.g. upstairs hall, master en suite" value="${val}"
-          oninput="setBathLocation(${i-1}, this.value)"
+          oninput="setBathLocation(${i}, this.value)"
           style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);" />
       </div>`;
     }
     fieldsEl.innerHTML = html;
+  }
+  // Add/remove bath sections as needed
+  const card = document.querySelector('.card');
+  if (card) {
+    // Remove sections beyond new count
+    for (let i = d.bathCount; i < 8; i++) {
+      const el = document.getElementById('bath-section-' + i);
+      if (el) el.remove();
+    }
+    // Add sections for new bathrooms
+    const nav = card.querySelector('.cd-nav');
+    for (let i = 0; i < d.bathCount; i++) {
+      if (!document.getElementById('bath-section-' + i)) {
+        const div = document.createElement('div');
+        div.id = 'bath-section-' + i;
+        div.style.marginTop = '16px';
+        const loc = (d.bathLocations && d.bathLocations[i]) || '';
+        const label = loc ? `Bathroom ${i+1} — ${loc}` : `Bathroom ${i+1}`;
+        div.innerHTML = renderBathSection(i, label, (d.bathModes || {})[i], d);
+        card.insertBefore(div, nav);
+      }
+    }
   }
 };
 window.setBathLocation = (idx, val) => {
   if (!state.catDetails['cleaning']) state.catDetails['cleaning'] = {};
   if (!state.catDetails['cleaning'].bathLocations) state.catDetails['cleaning'].bathLocations = [];
   state.catDetails['cleaning'].bathLocations[idx] = val;
-};
-window.toggleTowels = () => {
-  if (!state.catDetails['cleaning']) state.catDetails['cleaning'] = {};
-  state.catDetails['cleaning'].towels = !state.catDetails['cleaning'].towels;
-  const cb = document.getElementById('towels-cb');
-  if (cb) cb.className = 'ts-checkbox' + (state.catDetails['cleaning'].towels ? ' checked' : '');
 };
 window.setCatNote = (catId, val) => {
   if (!state.catDetails[catId]) state.catDetails[catId] = {};
