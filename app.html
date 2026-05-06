@@ -7,7 +7,8 @@
   <meta name="description" content="Tired of raiding the clean laundry pile? HomeDasher sends skilled help to your home — working from your to-do list, not ours. Book in minutes, come home ready to reclaim your evenings." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=optional">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=optional" rel="stylesheet">
   <script src="https://js.stripe.com/v3/"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -401,6 +402,7 @@ function render() {
     case 'task-select':         app.innerHTML = renderTaskSelect(); break;
     case 'instructions-branch': app.innerHTML = renderInstructionsBranch(); break;
     case 'cat-detail':          app.innerHTML = renderCatDetail(); break;
+    case 'review':              app.innerHTML = renderReview(); break;
     case 'book':                app.innerHTML = renderBook(); break;
     case 'payment':             app.innerHTML = renderPayment(); setupStripe(); break;
     case 'success':             app.innerHTML = renderSuccess(); break;
@@ -1359,6 +1361,342 @@ function renderGenericDetail(cat, idx, total, pct) {
     </div>`;
 }
 
+// ── REVIEW SCREEN ──
+function renderReview() {
+  const cats = selectedCats();
+  const total = totalMinutes();
+  const sections = cats.map((cat, i) => reviewCatHtml(cat, i)).join('');
+
+  return `
+    <div class="steps">
+      <div class="step done"><div class="step-dot">✓</div><div class="step-label">Plan</div></div>
+      <div class="step-line done"></div>
+      <div class="step active"><div class="step-dot">2</div><div class="step-label">Details</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">3</div><div class="step-label">Pay</div></div>
+    </div>
+    <div class="main">
+      <div class="card">
+        <div class="card-title">Review your visit</div>
+        <div class="card-sub">Check everything looks right before entering your booking details.</div>
+        ${sections}
+        <div style="background:var(--teal-pale);border:1px solid var(--teal-light);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+          <div style="font-size:15px;font-weight:600;color:var(--teal-deep);">Total visit time</div>
+          <div style="font-size:15px;font-weight:600;color:var(--teal-deep);">${fmtTime(total)}</div>
+        </div>
+        <button class="submit-btn" style="margin-top:20px;" onclick="goToBook()">Continue to booking →</button>
+      </div>
+    </div>`;
+}
+
+function reviewCatHtml(cat, catIdx) {
+  const mins = state.taskTimes[cat.id] || 0;
+  const d = state.catDetails[cat.id] || {};
+  const items = reviewItemsForCat(cat, d);
+  const hasItems = items.length > 0;
+
+  return `<div style="border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:${hasItems ? '12px' : '0'};">
+      <div>
+        <div style="font-size:15px;font-weight:600;color:var(--teal-deep);">${cat.label}</div>
+        <div style="font-size:13px;color:var(--teal);margin-top:2px;">${fmtTime(mins)}</div>
+      </div>
+      <button onclick="editCat(${catIdx})" style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px;flex-shrink:0;margin-left:12px;">Edit</button>
+    </div>
+    ${hasItems
+      ? `<div style="display:flex;flex-direction:column;gap:4px;">${items.map(item => reviewItemHtml(item, 0)).join('')}</div>`
+      : `<div style="font-size:13px;color:var(--muted);font-style:italic;">No instructions added. <button onclick="editCat(${catIdx})" style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:13px;cursor:pointer;text-decoration:underline;font-style:normal;">Add instructions →</button></div>`
+    }
+  </div>`;
+}
+
+function reviewItemHtml(item, depth) {
+  const indent = depth * 16;
+  if (typeof item === 'string') {
+    return `<div style="font-size:13px;color:var(--slate);padding:2px 0;margin-left:${indent}px;">
+      <span style="color:var(--teal);margin-right:6px;">·</span>${item}
+    </div>`;
+  }
+  if (item.label && item.children) {
+    return `<div style="margin-left:${indent}px;">
+      <div style="font-size:13px;font-weight:600;color:var(--slate);padding:3px 0;">${item.label}</div>
+      ${item.children.map(c => reviewItemHtml(c, depth + 1)).join('')}
+    </div>`;
+  }
+  return '';
+}
+
+function reviewItemsForCat(cat, d) {
+  switch(cat.id) {
+    case 'cleaning': return reviewCleaning(d);
+    case 'mealprep': return reviewMealPrep(d);
+    case 'laundry':  return d.notes ? [d.notes] : [];
+    default:         return d.notes ? [d.notes] : [];
+  }
+}
+
+// ── CLEANING REVIEW ──
+function reviewCleaning(d) {
+  const rooms = d.rooms || [];
+  if (!rooms.length) return [];
+  return rooms.map(roomId => {
+    const label = CLEANING_ROOMS.find(r => r.id === roomId)?.label || roomId;
+    const children = reviewRoomItems(roomId, d);
+    return { label, children };
+  });
+}
+
+function reviewRoomItems(roomId, d) {
+  switch(roomId) {
+    case 'kitchen':   return reviewKitchen(d);
+    case 'bathrooms': return reviewBathrooms(d);
+    case 'living':    return reviewRoomData('living', d, LIVING_SECTIONS);
+    case 'bedrooms':  return reviewRoomData('bedrooms', d, BEDROOM_SECTIONS);
+    case 'garage':    return reviewRoomData('garage', d, GARAGE_SECTIONS);
+    default:          return [];
+  }
+}
+
+function reviewKitchen(d) {
+  const mode = state.kitchenMode;
+  if (mode === 'standard') {
+    const items = ['Unload and reload dishwasher', 'Clean and sanitize counters', 'Clean and sanitize sink', 'Clean and sanitize appliances (exterior)'];
+    const notes = (d.kitchen || {}).standardNotes;
+    if (notes) items.push(`Notes: ${notes}`);
+    return [{ label: 'Standard kitchen reset', children: items.map(i => i) }];
+  }
+  const k = d.kitchen || {};
+  const items = [];
+
+  // Dishes
+  const di = k.dishes || {};
+  if (di.open) {
+    const dishItems = [];
+    if (di.unload) {
+      const sub = di.unloadMode === 'counter' ? 'unload to countertop' : di.unloadMode === 'away' ? `put away to cabinets${di.unsureMode ? ' · if unsure: ' + (di.unsureMode === 'leave' ? 'leave out' : 'find a home') : ''}` : '';
+      if (sub) dishItems.push('Unload dishwasher — ' + sub);
+    }
+    if (di.reload) {
+      let reloadStr = 'Reload dishwasher';
+      const parts = [];
+      if (di.startCycle) parts.push('start cycle' + (di.cycleMode === 'custom' ? ` (${di.cycleCustom || 'custom'})` : ' (default settings)'));
+      if (di.addDetergent) parts.push(`add detergent${di.detergentLoc ? ' (' + di.detergentLoc + ')' : ''}`);
+      if (di.addRinse) parts.push(`add rinse aid${di.rinseLoc ? ' (' + di.rinseLoc + ')' : ''}`);
+      if (parts.length) reloadStr += ' — ' + parts.join(', ');
+      dishItems.push(reloadStr);
+    }
+    if (di.handwash && di.handwashItems) dishItems.push(`Hand wash: ${di.handwashItems}`);
+    if (dishItems.length) items.push({ label: 'Dishes', children: dishItems });
+  }
+
+  // Sink
+  const si = k.sink || {};
+  if (si.open && si.mode) items.push(`Sink — ${si.mode === 'ignore' ? 'ignore dirty dishes' : 'wash/reload dishes per instructions'}`);
+
+  // Countertops
+  const ct = k.countertops || {};
+  if (ct.open) {
+    const ctItems = [];
+    if (ct.wipe) ctItems.push('Wipe down and sanitize');
+    if (ct.clutter) {
+      let clutterStr = 'Clutter — ' + (ct.clutterMode === 'leave' ? 'leave as is' : 'consolidate into a pile');
+      if (ct.clutterMode === 'pile' && ct.bins) clutterStr += ` · storage bins${ct.binsDetail ? ' (' + ct.binsDetail + ')' : ''}`;
+      ctItems.push(clutterStr);
+    }
+    if (ctItems.length) items.push({ label: 'Countertops', children: ctItems });
+  }
+
+  // Appliances
+  const ap = k.appliances || {};
+  if (ap.open) {
+    const apItems = [];
+    ['microwave','oven'].forEach(id => {
+      const a = ap[id] || {};
+      if (a.open) {
+        const parts = [];
+        if (a.exterior) parts.push('exterior');
+        if (a.interior) parts.push('interior');
+        if (parts.length) apItems.push(`${id.charAt(0).toUpperCase()+id.slice(1)}: ${parts.join(', ')}${a.notes ? ' · ' + a.notes : ''}`);
+      }
+    });
+    if (ap.stove) apItems.push('Stove: exterior');
+    if (ap.dishwasher) apItems.push('Dishwasher: exterior');
+    const fr = ap.fridge || {};
+    if (fr.open) {
+      const frParts = [];
+      if (fr.exterior) frParts.push('exterior');
+      if (fr.interior) {
+        const intParts = [];
+        if (fr.intFridge) intParts.push('refrigerator');
+        if (fr.intFreezer) intParts.push('freezer');
+        if (intParts.length) frParts.push('interior (' + intParts.join(', ') + ')');
+      }
+      if (frParts.length) apItems.push(`Refrigerator: ${frParts.join(', ')}`);
+    }
+    const oth = ap.other || {};
+    if (oth.open && oth.text) apItems.push(`Other: ${oth.text}`);
+    if (apItems.length) items.push({ label: 'Appliances', children: apItems });
+  }
+
+  // Windows
+  const wi = k.windows || {};
+  if (wi.open) {
+    const wParts = [];
+    if (wi.exterior) wParts.push('exterior');
+    if (wi.interior) wParts.push('interior');
+    if (wi.notes) wParts.push(wi.notes);
+    if (wParts.length) items.push(`Windows — ${wParts.join(', ')}`);
+  }
+
+  // Floors
+  const fl = k.floors || {};
+  if (fl.open) {
+    const fParts = [];
+    if (fl.sweep) fParts.push('sweep');
+    if (fl.vacuum) fParts.push('vacuum');
+    if (fParts.length) items.push(`Floors — ${fParts.join(', ')}`);
+  }
+
+  if (k.baseboards) items.push('Baseboards');
+  return items;
+}
+
+function reviewBathrooms(d) {
+  const bathCount = d.bathCount || 1;
+  const items = [];
+  for (let i = 0; i < bathCount; i++) {
+    const loc = (d.bathLocations && d.bathLocations[i]) || '';
+    const label = loc ? `Bathroom ${i+1} — ${loc}` : `Bathroom ${i+1}`;
+    const mode = (d.bathModes || {})[i];
+    if (!mode) { items.push(label + ' — no instructions added'); continue; }
+    if (mode === 'standard') {
+      const notes = (d.bathNotes || {})[i];
+      const children = ['Standard reset (toilet, fixtures, mirrors, trash)'];
+      if (notes) children.push(`Notes: ${notes}`);
+      items.push({ label, children });
+      continue;
+    }
+    const b = (d.bathCustom || {})[i] || {};
+    const taskItems = [];
+    if (b.toilet)  taskItems.push('Toilet');
+    if (b.sinks)   taskItems.push('Sinks');
+    if (b.shower)  taskItems.push('Shower');
+    if (b.tub)     taskItems.push('Tub');
+    if (b.mirrors) taskItems.push('Mirrors');
+    if (b.trash)   taskItems.push('Trash');
+    if (b.towels) {
+      const tParts = [];
+      if (b.towelsRemove) {
+        const rMode = b.towelsRemoveMode === 'all' ? 'remove all' : b.towelsRemoveMode === 'floor' ? 'remove from floor' : 'remove';
+        tParts.push(rMode + (b.towelsRemoveLoc ? ' → ' + b.towelsRemoveLoc : ''));
+      }
+      if (b.towelsReplace) tParts.push('replace' + (b.towelsReplaceLoc ? ' from ' + b.towelsReplaceLoc : ''));
+      taskItems.push('Towels' + (tParts.length ? ' — ' + tParts.join(', ') : ''));
+    }
+    if (b.bathmats) {
+      const bParts = [];
+      if (b.bathmatsRemove) bParts.push('remove' + (b.bathmatsRemoveLoc ? ' → ' + b.bathmatsRemoveLoc : ''));
+      if (b.bathmatsReplace) bParts.push('replace' + (b.bathmatsReplaceLoc ? ' from ' + b.bathmatsReplaceLoc : ''));
+      taskItems.push('Bathmats' + (bParts.length ? ' — ' + bParts.join(', ') : ''));
+    }
+    if (b.windows) {
+      const wParts = [];
+      if (b.winExt) wParts.push('exterior');
+      if (b.winInt) wParts.push('interior');
+      taskItems.push('Windows' + (wParts.length ? ' — ' + wParts.join(', ') : ''));
+    }
+    if (b.baseboards) taskItems.push('Baseboards');
+    if (b.floors) {
+      const fParts = [];
+      if (b.floorsSweep) fParts.push('sweep');
+      if (b.floorsVacuum) fParts.push('vacuum');
+      taskItems.push('Floors' + (fParts.length ? ' — ' + fParts.join(', ') : ''));
+    }
+    items.push({ label, children: taskItems.length ? taskItems : ['No specific tasks selected'] });
+  }
+  return items;
+}
+
+function reviewRoomData(roomId, d, sections) {
+  const r = d[roomId] || {};
+  const items = [];
+  if (r.tidy) {
+    const tParts = [];
+    if (r.tidyAway) tParts.push('put items away');
+    if (r.tidyPile) tParts.push('consolidate into a pile');
+    if (r.tidyOrg) {
+      const cats = [];
+      if (r.tidyOrgToys) cats.push("children's toys");
+      if (r.tidyOrgClothes) cats.push('clothes');
+      if (r.tidyOrgPapers) cats.push('papers');
+      if (r.tidyOrgOther && r.tidyOrgOtherText) cats.push(r.tidyOrgOtherText);
+      tParts.push('organize' + (cats.length ? ': ' + cats.join(', ') : ''));
+    }
+    if (r.tidyBins) tParts.push('storage bins' + (r.tidyBinsDetail ? ' (' + r.tidyBinsDetail + ')' : ''));
+    if (tParts.length) items.push('Tidy — ' + tParts.join(', '));
+  }
+  if (r.furniture) {
+    const fParts = [];
+    if (roomId === 'bedrooms' && r.furnBeds) {
+      const bParts = [];
+      if (r.furnBedsMake) bParts.push('make bed');
+      if (r.furnBedsRemove) {
+        const linens = [];
+        if (r.furnBedsSheets) linens.push('sheets');
+        if (r.furnBedsMattress) linens.push('mattress cover');
+        if (r.furnBedsPillows) linens.push('pillowcases');
+        if (r.furnBedsBlanket) linens.push('blanket');
+        if (r.furnBedsDuvet) linens.push('duvet cover');
+        bParts.push('remove linens' + (linens.length ? ' (' + linens.join(', ') + ')' : '') + (r.furnBedsRemoveLoc ? ' → ' + r.furnBedsRemoveLoc : ''));
+      }
+      if (r.furnBedsReplace) bParts.push('replace linens' + (r.furnBedsReplaceLoc ? ' from ' + r.furnBedsReplaceLoc : ''));
+      if (bParts.length) fParts.push('Beds: ' + bParts.join(', '));
+    }
+    if (r.furnDust) fParts.push(`Dust/wipe: ${r.furnDust}`);
+    if (fParts.length) items.push({ label: 'Furniture', children: fParts });
+  }
+  if (r.windows) {
+    const wParts = [];
+    if (r.winExt) wParts.push('exterior');
+    if (r.winInt) wParts.push('interior');
+    if (r.winNotes) wParts.push(r.winNotes);
+    if (wParts.length) items.push(`Windows — ${wParts.join(', ')}`);
+  }
+  if (r.floors) {
+    const fParts = [];
+    if (r.floorsSweep) fParts.push('sweep');
+    if (r.floorsVacuum) fParts.push('vacuum');
+    if (fParts.length) items.push(`Floors — ${fParts.join(', ')}`);
+  }
+  if (r.baseboards) items.push('Baseboards');
+  // Garage specific
+  if (r.surfaces) items.push('Wipe down surfaces' + (r.surfacesDetail ? ' — ' + r.surfacesDetail : ''));
+  if (r.cobwebs) items.push('Cobwebs');
+  return items;
+}
+
+// ── MEAL PREP REVIEW ──
+function reviewMealPrep(d) {
+  const items = [];
+  if (d.overview) items.push(d.overview);
+  if (d.leaveInKitchen) items.push('Will leave written instructions / recipes in the kitchen');
+  if (d.recipeLinks && d.recipeLinks.some(l => l.trim())) {
+    d.recipeLinks.filter(l => l.trim()).forEach(l => items.push(`Recipe: ${l}`));
+  }
+  if (d.ingredientLocations) items.push(`Ingredients: ${d.ingredientLocations}`);
+  if (d.notes) items.push(`Notes: ${d.notes}`);
+  return items;
+}
+
+// ── EDIT NAV ──
+window.editCat = (catIdx) => {
+  state.instructionIdx = catIdx;
+  state.cleaningRoom = null;
+  state.kitchenMode = null;
+  state.screen = 'cat-detail';
+  render();
+};
+
 // ── BOOKING DETAILS ──
 function renderBook() {
   const price = state.duration * 50;
@@ -1614,7 +1952,8 @@ window.catDetailNext = () => {
     state.instructionIdx++;
     render();
   } else {
-    goToBook();
+    state.screen = 'review';
+    render();
   }
 };
 window.catDetailBack = () => {
