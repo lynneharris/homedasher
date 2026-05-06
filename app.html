@@ -580,6 +580,9 @@ function renderCleaningDetail(idx, total, pct) {
   switch (state.cleaningRoom) {
     case 'kitchen':   return renderKitchenScreen(idx, total, pct, d);
     case 'bathrooms': return renderBathroomScreen(idx, total, pct, d);
+    case 'living':    return renderLivingScreen(idx, total, pct, d);
+    case 'bedrooms':  return renderBedroomsScreen(idx, total, pct, d);
+    case 'garage':    return renderGarageScreen(idx, total, pct, d);
     default:          return renderGenericRoomScreen(state.cleaningRoom, idx, total, pct, d);
   }
 }
@@ -945,7 +948,7 @@ function renderBathSection(i, label, mode, d) {
   }
   // Custom mode
   const b = ((d.bathCustom || {})[i]) || {};
-  const BATH_SECTIONS = ['toilet','sinks','shower','tub','mirrors','trash','towels','bathmats','floors'];
+  const BATH_SECTIONS = ['toilet','sinks','shower','tub','mirrors','trash','towels','bathmats','windows','baseboards','floors'];
   const sections = BATH_SECTIONS.map(s =>
     `<div id="bath-${i}-section-${s}">${bathSectionHtml(s, b, i)}</div>`
   ).join('');
@@ -994,30 +997,234 @@ function bathSectionHtml(sectionId, b, bathIdx) {
         mkCheckbox(`b${bathIdx}-floors-vacuum`, 'Vacuum', b.floorsVacuum, `setBathCustom(${bathIdx},'floorsVacuum',!getBath(${bathIdx},'floorsVacuum'))`, 1),
       0);
     }
+    case 'windows': {
+      return mkAccordion(`b${bathIdx}-windows`, 'Windows', b.windows, `setBathCustom(${bathIdx},'windows',!getBath(${bathIdx},'windows'))`,
+        mkCheckbox(`b${bathIdx}-win-ext`, 'Exterior (within reach)', b.winExt, `setBathCustom(${bathIdx},'winExt',!getBath(${bathIdx},'winExt'))`, 1) +
+        mkCheckbox(`b${bathIdx}-win-int`, 'Interior',                b.winInt, `setBathCustom(${bathIdx},'winInt',!getBath(${bathIdx},'winInt'))`,  1) +
+        mkText(`b${bathIdx}-win-notes`, 'Additional detail…', b.winNotes, `setBathCustom(${bathIdx},'winNotes',this.value)`, 1),
+      0);
+    }
+    case 'baseboards': {
+      return mkCheckbox(`b${bathIdx}-baseboards`, 'Baseboards', b.baseboards, `setBathCustom(${bathIdx},'baseboards',!getBath(${bathIdx},'baseboards'))`);
+    }
     default: return '';
   }
 }
 
 // ── GENERIC ROOM SCREEN ──
+// ── SHARED ROOM SECTION HELPERS ──
+
+function mkWindowsSection(roomId, r) {
+  return mkAccordion(`${roomId}-windows`, 'Windows', r.windows, `setRoom('${roomId}','windows',!getRoomVal('${roomId}','windows'))`,
+    mkCheckbox(`${roomId}-win-ext`, 'Exterior (within reach)', r.winExt, `setRoom('${roomId}','winExt',!getRoomVal('${roomId}','winExt'))`, 1) +
+    mkCheckbox(`${roomId}-win-int`, 'Interior', r.winInt, `setRoom('${roomId}','winInt',!getRoomVal('${roomId}','winInt'))`, 1) +
+    mkText(`${roomId}-win-notes`, 'Additional detail…', r.winNotes, `setRoom('${roomId}','winNotes',this.value)`, 1),
+  0);
+}
+
+function mkFloorsSection(roomId, r) {
+  return mkAccordion(`${roomId}-floors`, 'Floors <span style="font-size:12px;font-weight:400;color:var(--muted);">(please supply broom, dustpan, and/or vacuum)</span>', r.floors, `setRoom('${roomId}','floors',!getRoomVal('${roomId}','floors'))`,
+    mkCheckbox(`${roomId}-floors-sweep`,  'Sweep',  r.floorsSweep,  `setRoom('${roomId}','floorsSweep',!getRoomVal('${roomId}','floorsSweep'))`,  1) +
+    mkCheckbox(`${roomId}-floors-vacuum`, 'Vacuum', r.floorsVacuum, `setRoom('${roomId}','floorsVacuum',!getRoomVal('${roomId}','floorsVacuum'))`, 1),
+  0);
+}
+
+function mkBaseboardsSection(roomId, r) {
+  return mkCheckbox(`${roomId}-baseboards`, 'Baseboards', r.baseboards, `setRoom('${roomId}','baseboards',!getRoomVal('${roomId}','baseboards'))`);
+}
+
+function mkTidySection(roomId, r) {
+  return mkAccordion(`${roomId}-tidy`, 'Pick up / tidy', r.tidy, `setRoom('${roomId}','tidy',!getRoomVal('${roomId}','tidy'))`,
+    mkCheckbox(`${roomId}-tidy-away`,  'Put items away if possible', r.tidyAway,  `setRoom('${roomId}','tidyAway',!getRoomVal('${roomId}','tidyAway'))`,  1) +
+    mkCheckbox(`${roomId}-tidy-pile`,  'Consolidate into a pile',    r.tidyPile,  `setRoom('${roomId}','tidyPile',!getRoomVal('${roomId}','tidyPile'))`,  1) +
+    mkAccordion(`${roomId}-tidy-org`,  'Organize items into categories', r.tidyOrg, `setRoom('${roomId}','tidyOrg',!getRoomVal('${roomId}','tidyOrg'))`,
+      mkCheckbox(`${roomId}-tidy-org-toys`,   "Children's toys", r.tidyOrgToys,   `setRoom('${roomId}','tidyOrgToys',!getRoomVal('${roomId}','tidyOrgToys'))`,   2) +
+      mkCheckbox(`${roomId}-tidy-org-clothes`, 'Clothes',        r.tidyOrgClothes,`setRoom('${roomId}','tidyOrgClothes',!getRoomVal('${roomId}','tidyOrgClothes'))`, 2) +
+      mkCheckbox(`${roomId}-tidy-org-papers`,  'Papers',         r.tidyOrgPapers, `setRoom('${roomId}','tidyOrgPapers',!getRoomVal('${roomId}','tidyOrgPapers'))`,  2) +
+      mkCheckbox(`${roomId}-tidy-org-other`,   'Other',          r.tidyOrgOther,  `setRoom('${roomId}','tidyOrgOther',!getRoomVal('${roomId}','tidyOrgOther'))`,   2) +
+      (r.tidyOrgOther ? mkText(`${roomId}-tidy-org-other-text`, 'Describe…', r.tidyOrgOtherText, `setRoom('${roomId}','tidyOrgOtherText',this.value)`, 3) : ''),
+    1) +
+    mkAccordion(`${roomId}-tidy-bins`, 'Provide clear storage bins for organization ($5/bin)', r.tidyBins, `setRoom('${roomId}','tidyBins',!getRoomVal('${roomId}','tidyBins'))`,
+      mkText(`${roomId}-tidy-bins-detail`, 'Quantity and any additional details…', r.tidyBinsDetail, `setRoom('${roomId}','tidyBinsDetail',this.value)`, 2),
+    1),
+  0);
+}
+
+function mkFurnitureSection(roomId, r, includeBeds=false) {
+  const bedsHtml = includeBeds ? mkAccordion(`${roomId}-furn-beds`, 'Beds', r.furnBeds, `setRoom('${roomId}','furnBeds',!getRoomVal('${roomId}','furnBeds'))`,
+    mkCheckbox(`${roomId}-furn-beds-make`, 'Make bed', r.furnBedsMake, `setRoom('${roomId}','furnBedsMake',!getRoomVal('${roomId}','furnBedsMake'))`, 2) +
+    mkAccordion(`${roomId}-furn-beds-remove`, 'Remove linens', r.furnBedsRemove, `setRoom('${roomId}','furnBedsRemove',!getRoomVal('${roomId}','furnBedsRemove'))`,
+      mkCheckbox(`${roomId}-furn-beds-sheets`,   'Sheets',         r.furnBedsSheets,   `setRoom('${roomId}','furnBedsSheets',!getRoomVal('${roomId}','furnBedsSheets'))`,   3) +
+      mkCheckbox(`${roomId}-furn-beds-mattress`,  'Mattress cover', r.furnBedsMattress, `setRoom('${roomId}','furnBedsMattress',!getRoomVal('${roomId}','furnBedsMattress'))`, 3) +
+      mkCheckbox(`${roomId}-furn-beds-pillows`,   'Pillowcases',    r.furnBedsPillows,  `setRoom('${roomId}','furnBedsPillows',!getRoomVal('${roomId}','furnBedsPillows'))`,  3) +
+      mkCheckbox(`${roomId}-furn-beds-blanket`,   'Blanket',        r.furnBedsBlanket,  `setRoom('${roomId}','furnBedsBlanket',!getRoomVal('${roomId}','furnBedsBlanket'))`,  3) +
+      mkCheckbox(`${roomId}-furn-beds-duvet`,     'Duvet cover',    r.furnBedsDuvet,    `setRoom('${roomId}','furnBedsDuvet',!getRoomVal('${roomId}','furnBedsDuvet'))`,    3) +
+      mkText(`${roomId}-furn-beds-remove-loc`, 'Where should they go?', r.furnBedsRemoveLoc, `setRoom('${roomId}','furnBedsRemoveLoc',this.value)`, 3),
+    2) +
+    mkAccordion(`${roomId}-furn-beds-replace`, 'Replace linens', r.furnBedsReplace, `setRoom('${roomId}','furnBedsReplace',!getRoomVal('${roomId}','furnBedsReplace'))`,
+      mkText(`${roomId}-furn-beds-replace-loc`, 'Where are fresh linens?', r.furnBedsReplaceLoc, `setRoom('${roomId}','furnBedsReplaceLoc',this.value)`, 3),
+    2),
+  1) : '';
+
+  return mkAccordion(`${roomId}-furniture`, 'Furniture', r.furniture, `setRoom('${roomId}','furniture',!getRoomVal('${roomId}','furniture'))`,
+    bedsHtml +
+    mkText(`${roomId}-furn-dust`, 'Items to wipe down or dust (e.g. coffee table, shelves, TV stand)…', r.furnDust, `setRoom('${roomId}','furnDust',this.value)`, 1),
+  0);
+}
+
+// ── LIVING AREAS / OFFICE SCREEN ──
+const LIVING_SECTIONS = ['tidy','furniture','windows','floors','baseboards'];
+
+function livingSectionHtml(sectionId, r) {
+  switch(sectionId) {
+    case 'tidy':       return mkTidySection('living', r);
+    case 'furniture':  return mkFurnitureSection('living', r, false);
+    case 'windows':    return mkWindowsSection('living', r);
+    case 'floors':     return mkFloorsSection('living', r);
+    case 'baseboards': return mkBaseboardsSection('living', r);
+    default: return '';
+  }
+}
+
+function renderLivingScreen(idx, total, pct, d) {
+  const r = d.living || {};
+  const selectedRooms = d.rooms || [];
+  const nextRoom = selectedRooms[selectedRooms.indexOf('living') + 1];
+  const sections = LIVING_SECTIONS.map(s =>
+    `<div id="living-section-${s}">${livingSectionHtml(s, r)}</div>`
+  ).join('');
+  return `${cdStepsHtml()}
+    <div class="main"><div class="card">
+      ${cdProgressHtml(idx, total, pct)}
+      <div class="cd-category-label">Cleaning &amp; tidying</div>
+      <div class="cd-title">Living Areas / Office</div>
+      ${sections}
+      <div class="cd-nav" style="margin-top:20px;">
+        <button class="cd-back-btn" onclick="roomScreenBack()">← Back</button>
+        <button class="cd-next-btn" onclick="roomScreenNext()">${nextRoom ? 'Next room →' : 'Done with cleaning →'}</button>
+      </div>
+    </div></div>`;
+}
+
+// ── BEDROOMS SCREEN ──
+const BEDROOM_SECTIONS = ['tidy','furniture','windows','floors','baseboards'];
+
+function bedroomSectionHtml(sectionId, r) {
+  switch(sectionId) {
+    case 'tidy':       return mkTidySection('bedrooms', r);
+    case 'furniture':  return mkFurnitureSection('bedrooms', r, true);
+    case 'windows':    return mkWindowsSection('bedrooms', r);
+    case 'floors':     return mkFloorsSection('bedrooms', r);
+    case 'baseboards': return mkBaseboardsSection('bedrooms', r);
+    default: return '';
+  }
+}
+
+function renderBedroomsScreen(idx, total, pct, d) {
+  const r = d.bedrooms || {};
+  const selectedRooms = d.rooms || [];
+  const nextRoom = selectedRooms[selectedRooms.indexOf('bedrooms') + 1];
+  const sections = BEDROOM_SECTIONS.map(s =>
+    `<div id="bedrooms-section-${s}">${bedroomSectionHtml(s, r)}</div>`
+  ).join('');
+  return `${cdStepsHtml()}
+    <div class="main"><div class="card">
+      ${cdProgressHtml(idx, total, pct)}
+      <div class="cd-category-label">Cleaning &amp; tidying</div>
+      <div class="cd-title">Bedrooms</div>
+      ${sections}
+      <div class="cd-nav" style="margin-top:20px;">
+        <button class="cd-back-btn" onclick="roomScreenBack()">← Back</button>
+        <button class="cd-next-btn" onclick="roomScreenNext()">${nextRoom ? 'Next room →' : 'Done with cleaning →'}</button>
+      </div>
+    </div></div>`;
+}
+
+// ── GARAGE SCREEN ──
+const GARAGE_SECTIONS = ['tidy','surfaces','cobwebs','floors'];
+
+function garageSectionHtml(sectionId, r) {
+  switch(sectionId) {
+    case 'tidy':     return mkTidySection('garage', r);
+    case 'surfaces': return mkAccordion('garage-surfaces', 'Wipe down surfaces', r.surfaces, `setRoom('garage','surfaces',!getRoomVal('garage','surfaces'))`,
+      mkText('garage-surfaces-detail', 'Which surfaces? e.g. workbench, shelving…', r.surfacesDetail, `setRoom('garage','surfacesDetail',this.value)`, 1),
+    0);
+    case 'cobwebs':  return mkCheckbox('garage-cobwebs', 'Cobwebs', r.cobwebs, `setRoom('garage','cobwebs',!getRoomVal('garage','cobwebs'))`);
+    case 'floors':   return mkFloorsSection('garage', r);
+    default: return '';
+  }
+}
+
+function renderGarageScreen(idx, total, pct, d) {
+  const r = d.garage || {};
+  const selectedRooms = d.rooms || [];
+  const nextRoom = selectedRooms[selectedRooms.indexOf('garage') + 1];
+  const sections = GARAGE_SECTIONS.map(s =>
+    `<div id="garage-section-${s}">${garageSectionHtml(s, r)}</div>`
+  ).join('');
+  return `${cdStepsHtml()}
+    <div class="main"><div class="card">
+      ${cdProgressHtml(idx, total, pct)}
+      <div class="cd-category-label">Cleaning &amp; tidying</div>
+      <div class="cd-title">Garage</div>
+      ${sections}
+      <div class="cd-nav" style="margin-top:20px;">
+        <button class="cd-back-btn" onclick="roomScreenBack()">← Back</button>
+        <button class="cd-next-btn" onclick="roomScreenNext()">${nextRoom ? 'Next room →' : 'Done with cleaning →'}</button>
+      </div>
+    </div></div>`;
+}
+
+// ── ROOM STATE HELPERS ──
+window.getRoomVal = (roomId, key) => {
+  return (state.catDetails['cleaning'] || {})[roomId]?.[key];
+};
+window.setRoom = (roomId, key, value) => {
+  if (!state.catDetails['cleaning']) state.catDetails['cleaning'] = {};
+  if (!state.catDetails['cleaning'][roomId]) state.catDetails['cleaning'][roomId] = {};
+  state.catDetails['cleaning'][roomId][key] = value;
+  // Find top-level section and re-render just that div
+  const sectionMaps = {
+    living:   LIVING_SECTIONS,
+    bedrooms: BEDROOM_SECTIONS,
+    garage:   GARAGE_SECTIONS,
+  };
+  const sectionFns = {
+    living:   livingSectionHtml,
+    bedrooms: bedroomSectionHtml,
+    garage:   garageSectionHtml,
+  };
+  const sections = sectionMaps[roomId];
+  const fn = sectionFns[roomId];
+  if (!sections || !fn) return;
+  const sectionId = sections.find(s => key === s || key.startsWith(s)) ||
+    (key.startsWith('tidy') ? 'tidy' :
+     key.startsWith('furn') || key === 'furniture' ? 'furniture' :
+     key.startsWith('win') || key === 'windows' ? 'windows' :
+     key.startsWith('floors') ? 'floors' :
+     key === 'baseboards' ? 'baseboards' :
+     key === 'surfaces' || key === 'surfacesDetail' ? 'surfaces' :
+     key === 'cobwebs' ? 'cobwebs' : null);
+  if (!sectionId) return;
+  const el = document.getElementById(`${roomId}-section-${sectionId}`);
+  if (el) el.innerHTML = fn(sectionId, state.catDetails['cleaning'][roomId]);
+};
+
 function renderGenericRoomScreen(roomId, idx, total, pct, d) {
   const roomLabel = CLEANING_ROOMS.find(r => r.id === roomId)?.label || roomId;
   const selectedRooms = d.rooms || [];
-  const roomIdx = selectedRooms.indexOf(roomId);
-  const nextRoom = selectedRooms[roomIdx + 1];
+  const nextRoom = selectedRooms[selectedRooms.indexOf(roomId) + 1];
   return `${cdStepsHtml()}
-    <div class="main">
-      <div class="card">
-        ${cdProgressHtml(idx, total, pct)}
-        <div class="cd-category-label">Cleaning &amp; tidying</div>
-        <div class="cd-title">${roomLabel}</div>
-        <div class="card-sub">Detail screens for this room are coming soon. Use the notes field below for now.</div>
-        <textarea placeholder="Any instructions for this room…" style="width:100%;margin-top:8px;margin-bottom:16px;" oninput="setCatNote('cleaning_${roomId}', this.value)"></textarea>
-        <div class="cd-nav">
-          <button class="cd-back-btn" onclick="roomScreenBack()">← Back</button>
-          <button class="cd-next-btn" onclick="roomScreenNext()">${nextRoom ? 'Next room →' : 'Done with cleaning →'}</button>
-        </div>
+    <div class="main"><div class="card">
+      ${cdProgressHtml(idx, total, pct)}
+      <div class="cd-category-label">Cleaning &amp; tidying</div>
+      <div class="cd-title">${roomLabel}</div>
+      <textarea placeholder="Any instructions for this room…" style="width:100%;margin-top:8px;margin-bottom:16px;" oninput="setCatNote('cleaning_${roomId}', this.value)"></textarea>
+      <div class="cd-nav">
+        <button class="cd-back-btn" onclick="roomScreenBack()">← Back</button>
+        <button class="cd-next-btn" onclick="roomScreenNext()">${nextRoom ? 'Next room →' : 'Done with cleaning →'}</button>
       </div>
-    </div>`;
+    </div></div>`;
 }
 
 function renderGenericDetail(cat, idx, total, pct) {
@@ -1435,7 +1642,7 @@ window.setBathCustom = (bathIdx, key, value) => {
   if (!d.bathCustom[bathIdx]) d.bathCustom[bathIdx] = {};
   d.bathCustom[bathIdx][key] = value;
   // Identify which top-level section to re-render
-  const BATH_SECTIONS = ['toilet','sinks','shower','tub','mirrors','trash','towels','bathmats','floors'];
+  const BATH_SECTIONS = ['toilet','sinks','shower','tub','mirrors','trash','towels','bathmats','windows','baseboards','floors'];
   const sectionId = BATH_SECTIONS.find(s => key === s || key.startsWith(s)) || key;
   const el = document.getElementById(`bath-${bathIdx}-section-${sectionId}`);
   if (el) el.innerHTML = bathSectionHtml(sectionId, d.bathCustom[bathIdx], bathIdx);
