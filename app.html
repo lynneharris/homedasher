@@ -968,16 +968,24 @@ function bathSectionHtml(sectionId, b, bathIdx) {
     case 'trash':   return mkCheckbox(`b${bathIdx}-trash`,   'Trash',   b.trash,   `setBathCustom(${bathIdx},'trash',!getBath(${bathIdx},'trash'))`);
     case 'towels': {
       return mkAccordion(`b${bathIdx}-towels`, 'Towels', b.towels, `setBathCustom(${bathIdx},'towels',!getBath(${bathIdx},'towels'))`,
-        mkCheckbox(`b${bathIdx}-towels-all`,   'Remove all towels',      b.towelsAll,   `setBathCustom(${bathIdx},'towelsAll',!getBath(${bathIdx},'towelsAll'))`, 1) +
-        mkCheckbox(`b${bathIdx}-towels-floor`, 'Remove towels on floor', b.towelsFloor, `setBathCustom(${bathIdx},'towelsFloor',!getBath(${bathIdx},'towelsFloor'))`, 1) +
-        mkCheckbox(`b${bathIdx}-towels-place`, 'Place dirty towels', b.towelsPlace, `setBathCustom(${bathIdx},'towelsPlace',!getBath(${bathIdx},'towelsPlace'))`, 1) +
-        (b.towelsPlace ? mkText(`b${bathIdx}-towels-loc`, 'Where? e.g. hamper, laundry room…', b.towelsLoc, `setBathCustom(${bathIdx},'towelsLoc',this.value)`, 2) : ''),
+        mkAccordion(`b${bathIdx}-towels-remove`, 'Remove', b.towelsRemove, `setBathCustom(${bathIdx},'towelsRemove',!getBath(${bathIdx},'towelsRemove'))`,
+          mkRadio(`b${bathIdx}-towels-all`,   'Remove all',                b.towelsRemoveMode==='all',   `setBathCustom(${bathIdx},'towelsRemoveMode','all')`,   2) +
+          mkRadio(`b${bathIdx}-towels-floor`, 'Remove only towels on floor', b.towelsRemoveMode==='floor', `setBathCustom(${bathIdx},'towelsRemoveMode','floor')`, 2) +
+          mkText(`b${bathIdx}-towels-remove-loc`, 'Where should they go? e.g. hamper, laundry room…', b.towelsRemoveLoc, `setBathCustom(${bathIdx},'towelsRemoveLoc',this.value)`, 2),
+        1) +
+        mkAccordion(`b${bathIdx}-towels-replace`, 'Replace', b.towelsReplace, `setBathCustom(${bathIdx},'towelsReplace',!getBath(${bathIdx},'towelsReplace'))`,
+          mkText(`b${bathIdx}-towels-replace-loc`, 'Where are fresh towels? e.g. linen closet, shelf…', b.towelsReplaceLoc, `setBathCustom(${bathIdx},'towelsReplaceLoc',this.value)`, 2),
+        1),
       0);
     }
     case 'bathmats': {
       return mkAccordion(`b${bathIdx}-bathmats`, 'Bathmats', b.bathmats, `setBathCustom(${bathIdx},'bathmats',!getBath(${bathIdx},'bathmats'))`,
-        mkCheckbox(`b${bathIdx}-bathmats-place`, 'Place dirty bathmats', b.bathmatsPlace, `setBathCustom(${bathIdx},'bathmatsPlace',!getBath(${bathIdx},'bathmatsPlace'))`, 1) +
-        (b.bathmatsPlace ? mkText(`b${bathIdx}-bathmats-loc`, 'Where? e.g. hamper, laundry room…', b.bathmatsLoc, `setBathCustom(${bathIdx},'bathmatsLoc',this.value)`, 2) : ''),
+        mkAccordion(`b${bathIdx}-bathmats-remove`, 'Remove', b.bathmatsRemove, `setBathCustom(${bathIdx},'bathmatsRemove',!getBath(${bathIdx},'bathmatsRemove'))`,
+          mkText(`b${bathIdx}-bathmats-remove-loc`, 'Where should they go? e.g. hamper, laundry room…', b.bathmatsRemoveLoc, `setBathCustom(${bathIdx},'bathmatsRemoveLoc',this.value)`, 2),
+        1) +
+        mkAccordion(`b${bathIdx}-bathmats-replace`, 'Replace', b.bathmatsReplace, `setBathCustom(${bathIdx},'bathmatsReplace',!getBath(${bathIdx},'bathmatsReplace'))`,
+          mkText(`b${bathIdx}-bathmats-replace-loc`, 'Where are fresh bathmats? e.g. linen closet, shelf…', b.bathmatsReplaceLoc, `setBathCustom(${bathIdx},'bathmatsReplaceLoc',this.value)`, 2),
+        1),
       0);
     }
     case 'floors': {
@@ -1426,10 +1434,9 @@ window.setBathCustom = (bathIdx, key, value) => {
   if (!d.bathCustom) d.bathCustom = {};
   if (!d.bathCustom[bathIdx]) d.bathCustom[bathIdx] = {};
   d.bathCustom[bathIdx][key] = value;
-  // Targeted re-render of just this section
-  const topKey = key.split('.')[0];
+  // Identify which top-level section to re-render
   const BATH_SECTIONS = ['toilet','sinks','shower','tub','mirrors','trash','towels','bathmats','floors'];
-  const sectionId = BATH_SECTIONS.find(s => topKey === s || key === s) || topKey;
+  const sectionId = BATH_SECTIONS.find(s => key === s || key.startsWith(s)) || key;
   const el = document.getElementById(`bath-${bathIdx}-section-${sectionId}`);
   if (el) el.innerHTML = bathSectionHtml(sectionId, d.bathCustom[bathIdx], bathIdx);
 };
