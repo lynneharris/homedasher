@@ -631,148 +631,153 @@ function renderCleaningRoomPicker(idx, total, pct, d) {
 }
 
 // ── KITCHEN SCREEN ──
+
+// Shared UI helpers used by all room screens
+function mkCheckbox(id, label, checked, onchange, indent=0) {
+  const ml = indent ? `margin-left:${indent*20}px;` : '';
+  const bt = indent ? 'none' : '1px solid var(--border)';
+  return `<div class="cd-check-row" style="${ml}border-top:${bt};" onclick="${onchange}">
+    <div class="ts-checkbox ${checked?'checked':''}" id="cb-${id}">
+      <svg class="ts-checkmark" viewBox="0 0 11 8" fill="none"><polyline points="1,4 4,7 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="cd-check-label">${label}</div>
+  </div>`;
+}
+function mkRadio(id, label, checked, onchange, indent=0) {
+  const ml = indent ? `margin-left:${indent*20}px;` : '';
+  return `<div class="cd-check-row" style="${ml}border-top:none;" onclick="${onchange}">
+    <div class="ts-checkbox ${checked?'checked':''}" id="rb-${id}" style="border-radius:50%;">
+      <div style="width:8px;height:8px;border-radius:50%;background:white;${checked?'':'display:none'}"></div>
+    </div>
+    <div class="cd-check-label">${label}</div>
+  </div>`;
+}
+function mkText(id, placeholder, val, onchange, indent=0) {
+  const ml = indent ? `margin-left:${indent*20}px;` : '';
+  const w  = indent ? `calc(100% - ${indent*20}px)` : '100%';
+  return `<input type="text" id="tf-${id}" placeholder="${placeholder}" value="${val||''}" oninput="${onchange}"
+    style="${ml}width:${w};padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);margin-bottom:10px;display:block;" />`;
+}
+function mkAccordion(id, label, checked, onchange, children, indent=0) {
+  return mkCheckbox(id, label, checked, onchange, indent) +
+    (checked ? `<div>${children}</div>` : '');
+}
+
+// Each section renders independently — called by renderKitchenSection(sectionId)
+function kitchenSectionHtml(sectionId, k) {
+  switch(sectionId) {
+    case 'dishes': {
+      const d = k.dishes || {};
+      return mkAccordion('dishes','Dishes', d.open, `setK('dishes.open',!getK('dishes.open'))`,
+        mkAccordion('unload','Unload dishwasher', d.unload, `setK('dishes.unload',!getK('dishes.unload'))`,
+          mkRadio('unload-counter','Unload to countertop', d.unloadMode==='counter', `setK('dishes.unloadMode','counter')`,2) +
+          mkRadio('unload-away','Put away to cabinets & shelves', d.unloadMode==='away', `setK('dishes.unloadMode','away')`,2) +
+          (d.unloadMode==='away' ?
+            mkRadio('unsure-leave','Leave items out if unsure where they belong', d.unsureMode==='leave', `setK('dishes.unsureMode','leave')`,3) +
+            mkRadio('unsure-find','Find homes for everything', d.unsureMode==='find', `setK('dishes.unsureMode','find')`,3)
+          : ''),
+        1) +
+        mkAccordion('reload','Reload dishwasher', d.reload, `setK('dishes.reload',!getK('dishes.reload'))`,
+          mkCheckbox('start-cycle','Start cycle after reloading', d.startCycle, `setK('dishes.startCycle',!getK('dishes.startCycle'))`,2) +
+          (d.startCycle ?
+            mkRadio('cycle-default','Use default cycle settings', d.cycleMode==='default', `setK('dishes.cycleMode','default')`,3) +
+            mkRadio('cycle-custom','Custom settings', d.cycleMode==='custom', `setK('dishes.cycleMode','custom')`,3) +
+            (d.cycleMode==='custom' ? mkText('cycle-custom-text','Describe cycle settings…', d.cycleCustom, `setK('dishes.cycleCustom',this.value)`,3) : '')
+          : '') +
+          mkCheckbox('add-detergent','Add detergent', d.addDetergent, `setK('dishes.addDetergent',!getK('dishes.addDetergent'))`,2) +
+          (d.addDetergent ? mkText('detergent-loc','Detergent location & details…', d.detergentLoc, `setK('dishes.detergentLoc',this.value)`,3) : '') +
+          mkCheckbox('add-rinse','Add rinse aid', d.addRinse, `setK('dishes.addRinse',!getK('dishes.addRinse'))`,2) +
+          (d.addRinse ? mkText('rinse-loc','Rinse aid location & details…', d.rinseLoc, `setK('dishes.rinseLoc',this.value)`,3) : ''),
+        1) +
+        mkAccordion('handwash','Hand-wash items', d.handwash, `setK('dishes.handwash',!getK('dishes.handwash'))`,
+          mkText('handwash-items',"List any items that aren't dishwasher safe…", d.handwashItems, `setK('dishes.handwashItems',this.value)`,2),
+        1)
+      ,0);
+    }
+    case 'sink': {
+      const s = k.sink || {};
+      return mkAccordion('sink','Sink', s.open, `setK('sink.open',!getK('sink.open'))`,
+        mkRadio('sink-ignore','Ignore dirty dishes', s.mode==='ignore', `setK('sink.mode','ignore')`,1) +
+        mkRadio('sink-wash','Wash / reload dishes according to instructions above', s.mode==='wash', `setK('sink.mode','wash')`,1),
+      0);
+    }
+    case 'countertops': {
+      const c = k.countertops || {};
+      return mkAccordion('countertops','Countertops', c.open, `setK('countertops.open',!getK('countertops.open'))`,
+        mkCheckbox('ctr-wipe','Wipe down and sanitize', c.wipe, `setK('countertops.wipe',!getK('countertops.wipe'))`,1) +
+        mkAccordion('ctr-clutter','Clutter present', c.clutter, `setK('countertops.clutter',!getK('countertops.clutter'))`,
+          mkRadio('clutter-leave','Leave as is', c.clutterMode==='leave', `setK('countertops.clutterMode','leave')`,2) +
+          mkRadio('clutter-pile','Consolidate in a pile', c.clutterMode==='pile', `setK('countertops.clutterMode','pile')`,2) +
+          (c.clutterMode==='pile' ?
+            mkCheckbox('clutter-bins','Provide clear storage bins ($5/bin)', c.bins, `setK('countertops.bins',!getK('countertops.bins'))`,3) +
+            (c.bins ? mkText('bins-detail','Quantity and any additional details…', c.binsDetail, `setK('countertops.binsDetail',this.value)`,4) : '')
+          : ''),
+        1),
+      0);
+    }
+    case 'appliances': {
+      const a = k.appliances || {};
+      function appInt(id, label) {
+        const x = a[id] || {};
+        return mkAccordion(`app-${id}`, label, x.open, `setK('appliances.${id}.open',!getK('appliances.${id}.open'))`,
+          mkCheckbox(`${id}-ext`,'Exterior', x.exterior, `setK('appliances.${id}.exterior',!getK('appliances.${id}.exterior'))`,2) +
+          mkCheckbox(`${id}-int`,'Interior', x.interior, `setK('appliances.${id}.interior',!getK('appliances.${id}.interior'))`,2) +
+          mkText(`${id}-notes`,'Notes…', x.notes, `setK('appliances.${id}.notes',this.value)`,2),
+        1);
+      }
+      const fr = a.fridge || {};
+      const fridgeHtml = mkAccordion('app-fridge','Refrigerator', fr.open, `setK('appliances.fridge.open',!getK('appliances.fridge.open'))`,
+        mkCheckbox('fridge-ext','Exterior', fr.exterior, `setK('appliances.fridge.exterior',!getK('appliances.fridge.exterior'))`,2) +
+        mkAccordion('fridge-int','Interior', fr.interior, `setK('appliances.fridge.interior',!getK('appliances.fridge.interior'))`,
+          mkCheckbox('fridge-int-fridge','Refrigerator', fr.intFridge, `setK('appliances.fridge.intFridge',!getK('appliances.fridge.intFridge'))`,3) +
+          mkCheckbox('fridge-int-freezer','Freezer', fr.intFreezer, `setK('appliances.fridge.intFreezer',!getK('appliances.fridge.intFreezer'))`,3),
+        2),
+      1);
+      const oth = a.other || {};
+      return mkAccordion('appliances','Appliances', a.open, `setK('appliances.open',!getK('appliances.open'))`,
+        appInt('microwave','Microwave') +
+        appInt('oven','Oven') +
+        mkCheckbox('app-stove','Stove', a.stove, `setK('appliances.stove',!getK('appliances.stove'))`,1) +
+        mkCheckbox('app-dishwasher','Dishwasher', a.dishwasher, `setK('appliances.dishwasher',!getK('appliances.dishwasher'))`,1) +
+        fridgeHtml +
+        mkAccordion('app-other','Other', oth.open, `setK('appliances.other.open',!getK('appliances.other.open'))`,
+          mkText('other-app-text','Describe the appliance…', oth.text, `setK('appliances.other.text',this.value)`,2),
+        1),
+      0);
+    }
+    case 'windows': {
+      const w = k.windows || {};
+      return mkAccordion('windows','Windows', w.open, `setK('windows.open',!getK('windows.open'))`,
+        mkCheckbox('win-ext','Exterior (within reach)', w.exterior, `setK('windows.exterior',!getK('windows.exterior'))`,1) +
+        mkCheckbox('win-int','Interior', w.interior, `setK('windows.interior',!getK('windows.interior'))`,1) +
+        mkText('win-notes','Additional detail…', w.notes, `setK('windows.notes',this.value)`,1),
+      0);
+    }
+    case 'floors': {
+      const f = k.floors || {};
+      return mkAccordion('floors','Floors', f.open, `setK('floors.open',!getK('floors.open'))`,
+        mkCheckbox('floors-sweep','Sweep (please supply broom)', f.sweep, `setK('floors.sweep',!getK('floors.sweep'))`,1) +
+        mkCheckbox('floors-vacuum','Vacuum (please supply vacuum)', f.vacuum, `setK('floors.vacuum',!getK('floors.vacuum'))`,1),
+      0);
+    }
+    case 'baseboards': {
+      const checked = k.baseboards || false;
+      return mkCheckbox('baseboards','Baseboards', checked, `setK('baseboards',!getK('baseboards'))`);
+    }
+    default: return '';
+  }
+}
+
+const KITCHEN_SECTIONS = ['dishes','sink','countertops','appliances','windows','floors','baseboards'];
+
 function renderKitchenScreen(idx, total, pct, d) {
   const k = d.kitchen || {};
-
-  function checkbox(id, label, checked, onchange, indent=0) {
-    const indentStyle = indent ? `margin-left:${indent * 20}px;` : '';
-    return `<div class="cd-check-row" style="${indentStyle}border-top:${indent ? 'none' : '1px solid var(--border)'};" onclick="${onchange}">
-      <div class="ts-checkbox ${checked ? 'checked' : ''}" id="cb-${id}">
-        <svg class="ts-checkmark" viewBox="0 0 11 8" fill="none"><polyline points="1,4 4,7 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="cd-check-label">${label}</div>
-    </div>`;
-  }
-
-  function radio(id, label, checked, onchange, indent=0) {
-    const indentStyle = indent ? `margin-left:${indent * 20}px;` : '';
-    return `<div class="cd-check-row" style="${indentStyle}border-top:none;" onclick="${onchange}">
-      <div class="ts-checkbox ${checked ? 'checked' : ''}" id="rb-${id}" style="border-radius:50%;">
-        <div style="width:8px;height:8px;border-radius:50%;background:white;${checked ? '' : 'display:none'}"></div>
-      </div>
-      <div class="cd-check-label">${label}</div>
-    </div>`;
-  }
-
-  function textField(id, placeholder, val, onchange, indent=0) {
-    const indentStyle = indent ? `margin-left:${indent * 20}px;` : '';
-    return `<input type="text" placeholder="${placeholder}" value="${val||''}" oninput="${onchange}"
-      style="${indentStyle}width:calc(100% - ${indent*20}px);padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);margin-bottom:10px;display:block;" />`;
-  }
-
-  function section(label) {
-    return `<div class="cd-section" style="margin-top:20px;">${label}</div>`;
-  }
-
-  function accordion(id, label, checked, onchange, children, indent=0) {
-    return checkbox(id, label, checked, onchange, indent) +
-      (checked ? `<div class="accordion-children">${children}</div>` : '');
-  }
-
-  // ── DISHES ──
-  const dishes = k.dishes || {};
-  const dishesHtml = accordion('dishes', 'Dishes', dishes.open, `setKitchen('dishes.open',!getK('dishes.open'))`,
-    // Unload
-    accordion('unload', 'Unload dishwasher', dishes.unload, `setKitchen('dishes.unload',!getK('dishes.unload'))`,
-      radio('unload-counter', 'Unload to countertop', dishes.unloadMode==='counter', `setKitchen('dishes.unloadMode','counter')`, 2) +
-      radio('unload-away', 'Put away to cabinets & shelves', dishes.unloadMode==='away', `setKitchen('dishes.unloadMode','away')`, 2) +
-      (dishes.unloadMode === 'away' ?
-        radio('unsure-leave', 'Leave items out if unsure where they belong', dishes.unsureMode==='leave', `setKitchen('dishes.unsureMode','leave')`, 3) +
-        radio('unsure-find', 'Find homes for everything', dishes.unsureMode==='find', `setKitchen('dishes.unsureMode','find')`, 3)
-      : ''),
-    1) +
-    // Reload
-    accordion('reload', 'Reload dishwasher', dishes.reload, `setKitchen('dishes.reload',!getK('dishes.reload'))`,
-      checkbox('start-cycle', 'Start cycle after reloading', dishes.startCycle, `setKitchen('dishes.startCycle',!getK('dishes.startCycle'))`, 2) +
-      (dishes.startCycle ?
-        radio('cycle-default', 'Use default cycle settings', dishes.cycleMode==='default', `setKitchen('dishes.cycleMode','default')`, 3) +
-        radio('cycle-custom', 'Custom settings', dishes.cycleMode==='custom', `setKitchen('dishes.cycleMode','custom')`, 3) +
-        (dishes.cycleMode === 'custom' ? textField('cycle-custom-text', 'Describe cycle settings…', dishes.cycleCustom, `setKitchen('dishes.cycleCustom',this.value)`, 3) : '')
-      : '') +
-      checkbox('add-detergent', 'Add detergent', dishes.addDetergent, `setKitchen('dishes.addDetergent',!getK('dishes.addDetergent'))`, 2) +
-      (dishes.addDetergent ? textField('detergent-loc', 'Detergent location & details…', dishes.detergentLoc, `setKitchen('dishes.detergentLoc',this.value)`, 3) : '') +
-      checkbox('add-rinse', 'Add rinse aid', dishes.addRinse, `setKitchen('dishes.addRinse',!getK('dishes.addRinse'))`, 2) +
-      (dishes.addRinse ? textField('rinse-loc', 'Rinse aid location & details…', dishes.rinseLoc, `setKitchen('dishes.rinseLoc',this.value)`, 3) : ''),
-    1) +
-    // Handwash
-    accordion('handwash', 'Hand-wash items', dishes.handwash, `setKitchen('dishes.handwash',!getK('dishes.handwash'))`,
-      textField('handwash-items', 'List any items that aren\'t dishwasher safe…', dishes.handwashItems, `setKitchen('dishes.handwashItems',this.value)`, 2),
-    1),
-  0);
-
-  // ── SINK ──
-  const sink = k.sink || {};
-  const sinkHtml = accordion('sink', 'Sink', sink.open, `setKitchen('sink.open',!getK('sink.open'))`,
-    radio('sink-ignore', 'Ignore dirty dishes', sink.mode==='ignore', `setKitchen('sink.mode','ignore')`, 1) +
-    radio('sink-wash', 'Wash / reload dishes according to instructions above', sink.mode==='wash', `setKitchen('sink.mode','wash')`, 1),
-  0);
-
-  // ── COUNTERTOPS ──
-  const ctr = k.countertops || {};
-  const countertopsHtml = accordion('countertops', 'Countertops', ctr.open, `setKitchen('countertops.open',!getK('countertops.open'))`,
-    checkbox('ctr-wipe', 'Wipe down and sanitize', ctr.wipe, `setKitchen('countertops.wipe',!getK('countertops.wipe'))`, 1) +
-    accordion('ctr-clutter', 'Clutter present', ctr.clutter, `setKitchen('countertops.clutter',!getK('countertops.clutter'))`,
-      radio('clutter-leave', 'Leave as is', ctr.clutterMode==='leave', `setKitchen('countertops.clutterMode','leave')`, 2) +
-      radio('clutter-pile', 'Consolidate in a pile', ctr.clutterMode==='pile', `setKitchen('countertops.clutterMode','pile')`, 2) +
-      (ctr.clutterMode === 'pile' ?
-        checkbox('clutter-bins', 'Provide clear storage bins ($5/bin)', ctr.bins, `setKitchen('countertops.bins',!getK('countertops.bins'))`, 3) +
-        (ctr.bins ? textField('bins-detail', 'Quantity and any additional details…', ctr.binsDetail, `setKitchen('countertops.binsDetail',this.value)`, 4) : '')
-      : ''),
-    1),
-  0);
-
-  // ── APPLIANCES ──
-  const app = k.appliances || {};
-  function applianceWithInterior(id, label) {
-    const a = app[id] || {};
-    return accordion(`app-${id}`, label, a.open, `setKitchen('appliances.${id}.open',!getK('appliances.${id}.open'))`,
-      checkbox(`${id}-ext`, 'Exterior', a.exterior, `setKitchen('appliances.${id}.exterior',!getK('appliances.${id}.exterior'))`, 2) +
-      checkbox(`${id}-int`, 'Interior', a.interior, `setKitchen('appliances.${id}.interior',!getK('appliances.${id}.interior'))`, 2) +
-      textField(`${id}-notes`, 'Notes…', a.notes, `setKitchen('appliances.${id}.notes',this.value)`, 2),
-    1);
-  }
-  const fridgeData = app.fridge || {};
-  const fridgeHtml = accordion('app-fridge', 'Refrigerator', fridgeData.open, `setKitchen('appliances.fridge.open',!getK('appliances.fridge.open'))`,
-    checkbox('fridge-ext', 'Exterior', fridgeData.exterior, `setKitchen('appliances.fridge.exterior',!getK('appliances.fridge.exterior'))`, 2) +
-    accordion('fridge-int', 'Interior', fridgeData.interior, `setKitchen('appliances.fridge.interior',!getK('appliances.fridge.interior'))`,
-      checkbox('fridge-int-fridge', 'Refrigerator', fridgeData.intFridge, `setKitchen('appliances.fridge.intFridge',!getK('appliances.fridge.intFridge'))`, 3) +
-      checkbox('fridge-int-freezer', 'Freezer', fridgeData.intFreezer, `setKitchen('appliances.fridge.intFreezer',!getK('appliances.fridge.intFreezer'))`, 3),
-    2),
-  1);
-  const otherApp = app.other || {};
-  const appliancesHtml = accordion('appliances', 'Appliances', app.open, `setKitchen('appliances.open',!getK('appliances.open'))`,
-    applianceWithInterior('microwave', 'Microwave') +
-    applianceWithInterior('oven', 'Oven') +
-    checkbox('app-stove', 'Stove', app.stove, `setKitchen('appliances.stove',!getK('appliances.stove'))`, 1) +
-    checkbox('app-dishwasher', 'Dishwasher', app.dishwasher, `setKitchen('appliances.dishwasher',!getK('appliances.dishwasher'))`, 1) +
-    fridgeHtml +
-    accordion('app-other', 'Other', otherApp.open, `setKitchen('appliances.other.open',!getK('appliances.other.open'))`,
-      textField('other-app-text', 'Describe the appliance…', otherApp.text, `setKitchen('appliances.other.text',this.value)`, 2),
-    1),
-  0);
-
-  // ── WINDOWS ──
-  const win = k.windows || {};
-  const windowsHtml = accordion('windows', 'Windows', win.open, `setKitchen('windows.open',!getK('windows.open'))`,
-    checkbox('win-ext', 'Exterior (within reach)', win.exterior, `setKitchen('windows.exterior',!getK('windows.exterior'))`, 1) +
-    checkbox('win-int', 'Interior', win.interior, `setKitchen('windows.interior',!getK('windows.interior'))`, 1) +
-    textField('win-notes', 'Additional detail…', win.notes, `setKitchen('windows.notes',this.value)`, 1),
-  0);
-
-  // ── FLOORS ──
-  const floors = k.floors || {};
-  const floorsHtml = accordion('floors', 'Floors', floors.open, `setKitchen('floors.open',!getK('floors.open'))`,
-    checkbox('floors-sweep', 'Sweep (please supply broom)', floors.sweep, `setKitchen('floors.sweep',!getK('floors.sweep'))`, 1) +
-    checkbox('floors-vacuum', 'Vacuum (please supply vacuum)', floors.vacuum, `setKitchen('floors.vacuum',!getK('floors.vacuum'))`, 1),
-  0);
-
-  // ── BASEBOARDS ──
-  const baseboards = k.baseboards || false;
-  const baseboardsHtml = checkbox('baseboards', 'Baseboards', baseboards, `setKitchen('baseboards',!getK('baseboards'))`);
-
   const selectedRooms = d.rooms || [];
   const roomIdx = selectedRooms.indexOf('kitchen');
   const nextRoom = selectedRooms[roomIdx + 1];
+  const sections = KITCHEN_SECTIONS.map(s =>
+    `<div id="kitchen-section-${s}">${kitchenSectionHtml(s, k)}</div>`
+  ).join('');
 
   return `${cdStepsHtml()}
     <div class="main">
@@ -780,13 +785,7 @@ function renderKitchenScreen(idx, total, pct, d) {
         ${cdProgressHtml(idx, total, pct)}
         <div class="cd-category-label">Cleaning &amp; tidying</div>
         <div class="cd-title">Kitchen</div>
-        ${dishesHtml}
-        ${sinkHtml}
-        ${countertopsHtml}
-        ${appliancesHtml}
-        ${windowsHtml}
-        ${floorsHtml}
-        ${baseboardsHtml}
+        ${sections}
         <button class="cd-photo-btn" onclick="triggerPhotoUpload('kitchen')" style="margin-top:20px;">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1" y="4" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><circle cx="9" cy="9.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M6 4l1.5-2h3L12 4" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
           Add a photo (optional)
@@ -1236,7 +1235,7 @@ window.getK = (path) => {
   for (const p of parts) obj = obj?.[p];
   return obj;
 };
-window.setKitchen = (path, value) => {
+window.setK = (path, value) => {
   if (!state.catDetails['cleaning']) state.catDetails['cleaning'] = {};
   if (!state.catDetails['cleaning'].kitchen) state.catDetails['cleaning'].kitchen = {};
   const parts = path.split('.');
@@ -1246,7 +1245,13 @@ window.setKitchen = (path, value) => {
     obj = obj[parts[i]];
   }
   obj[parts[parts.length - 1]] = value;
-  render();
+  // Targeted re-render: only update the section div that changed
+  const topSection = KITCHEN_SECTIONS.includes(parts[0]) ? parts[0] : parts[0];
+  const sectionEl = document.getElementById('kitchen-section-' + topSection);
+  if (sectionEl) {
+    const k = (state.catDetails['cleaning'] || {}).kitchen || {};
+    sectionEl.innerHTML = kitchenSectionHtml(topSection, k);
+  }
 };
 
 window.adjustBaths = (delta) => {
