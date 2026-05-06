@@ -221,6 +221,18 @@
     .branch-option:hover { border-color: var(--teal); background: var(--teal-pale); color: var(--teal-dark); }
     .branch-option.primary { border: 2px solid var(--teal); }
 
+    /* MIC BUTTON */
+    .mic-wrap { position: relative; display: block; margin-bottom: 10px; }
+    .mic-wrap input { padding-right: 40px !important; width: 100%; }
+    .mic-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; padding: 0; }
+    .mic-btn:hover { border-color: var(--teal); background: var(--teal-pale); }
+    .mic-btn.recording { border-color: #dc2626; background: #fef2f2; animation: mic-pulse 1s infinite; }
+    .mic-btn.recording svg { color: #dc2626; }
+    @keyframes mic-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.3); } 50% { box-shadow: 0 0 0 4px rgba(220,38,38,0); } }
+    .mic-ta-wrap { position: relative; display: block; margin-bottom: 20px; }
+    .mic-ta-wrap textarea { padding-right: 40px !important; width: 100%; margin-bottom: 0 !important; }
+    .mic-ta-wrap .mic-btn { top: 10px; transform: none; }
+
     /* CATEGORY DETAIL */
     .cd-progress { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
     .cd-progress-bar { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
@@ -424,9 +436,9 @@ function renderHero() {
         <p class="section-body">A great housekeeper or household manager is invaluable — but training one takes months. You have to teach them where everything lives, how you like things done, your family's routines, your pets' needs. That investment only makes sense at 40 hours a week. It's why truly personalized household help has always been out of reach for most people.</p>
         <p class="section-body">HomeDasher changes that. The HomeDasher Planner — our proprietary task intake system — captures everything about your home and delivers a fully custom to-do list to your HomeDasher before they arrive. No training period. No explaining. No wasted time on the first visit.</p>
         <div class="callout-row">
-          <div class="callout-item"><div class="callout-icon">🧠</div><div class="callout-text"><strong>Offload the mental load.</strong> Every task that lives in your head gets documented, prioritized, and delegated — in minutes.</div></div>
-          <div class="callout-item"><div class="callout-icon">⚡</div><div class="callout-text"><strong>HomeDashers arrive briefed.</strong> No orientation, no questions, no half-finished tasks because they didn't know where the vacuum was.</div></div>
-          <div class="callout-item"><div class="callout-icon">⚖️</div><div class="callout-text"><strong>Distribute work fairly.</strong> Assign tasks to your HomeDasher, yourself, and other household members — all in one organized plan.</div></div>
+          <div class="callout-item"><div class="callout-text"><strong>Offload the mental load.</strong> Every task that lives in your head gets documented, prioritized, and delegated — in minutes.</div></div>
+          <div class="callout-item"><div class="callout-text"><strong>HomeDashers arrive briefed.</strong> No orientation, no questions, no half-finished tasks because they didn't know where the vacuum was.</div></div>
+          <div class="callout-item"><div class="callout-text"><strong>Distribute work fairly.</strong> Assign tasks to your HomeDasher, yourself, and other household members — all in one organized plan.</div></div>
         </div>
       </div>
     </section>
@@ -683,8 +695,7 @@ function renderKitchenStandardScreen(idx, total, pct, d) {
           <div class="cd-included-item"><div class="cd-dot"></div>Clean and sanitize appliances (exterior)</div>
         </div>
         <div class="cd-section" style="margin-top:0;">Additional notes</div>
-        <textarea placeholder="Any extra details for your HomeDasher…" style="width:100%;margin-top:8px;margin-bottom:8px;"
-          oninput="setStandardKitchenNotes(this.value)">${notes}</textarea>
+        ${mkTextarea('kitchen-std-notes', 'Any extra details for your HomeDasher…', notes, 'setStandardKitchenNotes(this.value)', 'margin-top:8px;')}
         <button style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;margin-bottom:20px;"
           onclick="setKitchenMode('custom')">Switch to custom tasks instead →</button>
         <div class="cd-nav">
@@ -718,8 +729,25 @@ function mkRadio(id, label, checked, onchange, indent=0) {
 function mkText(id, placeholder, val, onchange, indent=0) {
   const ml = indent ? `margin-left:${indent*20}px;` : '';
   const w  = indent ? `calc(100% - ${indent*20}px)` : '100%';
-  return `<input type="text" id="tf-${id}" placeholder="${placeholder}" value="${val||''}" oninput="${onchange}"
-    style="${ml}width:${w};padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);margin-bottom:10px;display:block;" />`;
+  return `<div class="mic-wrap" style="${ml}width:${w};">
+    <input type="text" id="tf-${id}" placeholder="${placeholder}" value="${val||''}" oninput="${onchange}"
+      style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);display:block;" />
+    ${mkMicBtn('tf-' + id)}
+  </div>`;
+}
+function mkTextarea(id, placeholder, val, onchange, extraStyle='') {
+  return `<div class="mic-ta-wrap" style="${extraStyle}">
+    <textarea id="ta-${id}" placeholder="${placeholder}" oninput="${onchange}"
+      style="width:100%;padding:9px 12px 9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);resize:vertical;min-height:80px;">${val||''}</textarea>
+    ${mkMicBtn('ta-' + id)}
+  </div>`;
+}
+function mkMicBtn(targetId) {
+  return `<button type="button" class="mic-btn" id="mic-${targetId}" onclick="startVoice('${targetId}')" title="Voice input">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;color:var(--muted);">
+      <rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/>
+    </svg>
+  </button>`;
 }
 function mkAccordion(id, label, checked, onchange, children, indent=0) {
   return mkCheckbox(id, label, checked, onchange, indent) +
@@ -942,9 +970,12 @@ function renderBathSection(i, label, mode, d) {
         <button onclick="setBathMode(${i},null)" style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;text-decoration:underline;">Change</button>
       </div>
       <div style="font-size:13px;color:var(--teal-dark);margin-bottom:10px;">✓ Standard reset</div>
-      <input type="text" placeholder="Any extra notes for this bathroom…" value="${notes}"
-        oninput="setBathNotes(${i},this.value)"
-        style="width:100%;padding:9px 12px;border:1px solid var(--teal-light);border-radius:10px;font-family:var(--sans);font-size:14px;background:white;outline:none;color:var(--ink);" />
+      <div class="mic-wrap" style="margin-bottom:0;">
+        <input type="text" id="bath-std-note-${i}" placeholder="Any extra notes for this bathroom…" value="${notes}"
+          oninput="setBathNotes(${i},this.value)"
+          style="width:100%;padding:9px 36px 9px 12px;border:1px solid var(--teal-light);border-radius:10px;font-family:var(--sans);font-size:14px;background:white;outline:none;color:var(--ink);" />
+        ${mkMicBtn('bath-std-note-' + i)}
+      </div>
     </div>`;
   }
   // Custom mode
@@ -1220,7 +1251,7 @@ function renderGenericRoomScreen(roomId, idx, total, pct, d) {
       ${cdProgressHtml(idx, total, pct)}
       <div class="cd-category-label">Cleaning &amp; tidying</div>
       <div class="cd-title">${roomLabel}</div>
-      <textarea placeholder="Any instructions for this room…" style="width:100%;margin-top:8px;margin-bottom:16px;" oninput="setCatNote('cleaning_${roomId}', this.value)"></textarea>
+      ${mkTextarea(`room-${roomId}-notes`, 'Any instructions for this room…', '', `setCatNote('cleaning_${roomId}', this.value)`, 'margin-top:8px;')}
       <div class="cd-nav">
         <button class="cd-back-btn" onclick="roomScreenBack()">← Back</button>
         <button class="cd-next-btn" onclick="roomScreenNext()">${nextRoom ? 'Next room →' : 'Done with cleaning →'}</button>
@@ -1257,13 +1288,11 @@ function renderMealPrepDetail(idx, total, pct) {
           <div class="cd-progress-label">${idx + 1} of ${total}</div>
         </div>
         <div class="cd-category-label">Meal prep</div>
-        <div class="cd-title">What would you like prepared?</div>
+        <div class="cd-title">What would you like help with?</div>
 
-        <textarea placeholder="Overview — e.g. prep ingredients for the week, cook a batch of soup, make a salad for dinner tonight…"
-          style="width:100%;margin-bottom:20px;min-height:80px;"
-          oninput="setMealPrepDirect('overview',this.value)">${d.overview || ''}</textarea>
+        ${mkTextarea('mp-overview', 'Overview — e.g. prep ingredients for the week, cook a batch of soup, make a salad for dinner tonight…', d.overview, "setMealPrepDirect('overview',this.value)")}
 
-        <div class="cd-check-row" style="border-top:1px solid var(--border);" onclick="setMealPrepDirect('leaveInKitchen',!d.leaveInKitchen);this.closest('.card').querySelector('#mp-leave-cb').className='ts-checkbox'+(${d.leaveInKitchen}?'':' checked');">
+        <div class="cd-check-row" style="border-top:1px solid var(--border);margin-top:4px;" onclick="toggleMealPrepLeave()">
           <div class="ts-checkbox ${d.leaveInKitchen ? 'checked' : ''}" id="mp-leave-cb">
             <svg class="ts-checkmark" viewBox="0 0 11 8" fill="none"><polyline points="1,4 4,7 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
@@ -1284,21 +1313,11 @@ function renderMealPrepDetail(idx, total, pct) {
         </button>
         <input type="file" id="photo-upload-mealprep" accept="image/*" style="display:none" />
 
-        <div class="cd-section" style="margin-top:0;">Written instructions</div>
-        <textarea placeholder="Step-by-step instructions, cooking times, temperatures, etc…"
-          style="width:100%;margin-bottom:20px;"
-          oninput="setMealPrepDirect('instructions',this.value)">${d.instructions || ''}</textarea>
-
-        <div class="cd-section" style="margin-top:0;">Grocery / ingredient list</div>
-        <textarea placeholder="List ingredients needed…"
-          style="width:100%;margin-bottom:20px;"
-          oninput="setMealPrepDirect('groceryList',this.value)">${d.groceryList || ''}</textarea>
-
         <div class="cd-section" style="margin-top:0;">Where to find specific ingredients</div>
-        <input type="text" placeholder="e.g. chicken is in the freezer, olive oil is in the pantry…"
-          value="${d.ingredientLocations || ''}"
-          oninput="setMealPrepDirect('ingredientLocations',this.value)"
-          style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);margin-bottom:20px;" />
+        ${mkText('mp-ingredients', 'e.g. chicken is in the freezer, olive oil is in the pantry…', d.ingredientLocations, "setMealPrepDirect('ingredientLocations',this.value)")}
+
+        <div class="cd-section">Additional notes</div>
+        ${mkTextarea('mp-notes', 'Anything else your HomeDasher should know…', d.notes, "setMealPrepDirect('notes',this.value)")}
 
         <div class="cd-nav">
           <button class="cd-back-btn" onclick="catDetailBack()">← Back</button>
@@ -1326,7 +1345,7 @@ function renderGenericDetail(cat, idx, total, pct) {
         </div>
         <div class="cd-title">${cat.label}</div>
         <div class="cd-section">Additional instructions</div>
-        <textarea placeholder="Any notes or special instructions for your HomeDasher…" style="width:100%;margin-bottom:16px;" oninput="setCatNote('${cat.id}', this.value)">${d.notes || ''}</textarea>
+        ${mkTextarea(`cat-${cat.id}-notes`, 'Any notes or special instructions for your HomeDasher…', d.notes, `setCatNote('${cat.id}', this.value)`)}
         <button class="cd-photo-btn" onclick="triggerPhotoUpload('${cat.id}')">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1" y="4" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><circle cx="9" cy="9.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M6 4l1.5-2h3L12 4" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
           Add a photo (optional)
@@ -1796,7 +1815,70 @@ window.triggerPhotoUpload = (catId) => {
   if (input) input.click();
 };
 
+// ── VOICE INPUT ──
+let _voiceRecognition = null;
+let _voiceActive = null;
+window.startVoice = (targetId) => {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert('Voice input is not supported in this browser. Try Chrome or Safari.');
+    return;
+  }
+  // If already recording this field, stop it
+  if (_voiceActive === targetId && _voiceRecognition) {
+    _voiceRecognition.stop();
+    return;
+  }
+  // Stop any existing session
+  if (_voiceRecognition) _voiceRecognition.stop();
+
+  const btn = document.getElementById('mic-' + targetId);
+  const field = document.getElementById(targetId);
+  if (!field) return;
+
+  const recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+  _voiceRecognition = recognition;
+  _voiceActive = targetId;
+
+  const existingVal = field.value || '';
+  let interim = '';
+
+  recognition.onstart = () => {
+    if (btn) btn.classList.add('recording');
+  };
+  recognition.onresult = (e) => {
+    let final = '';
+    interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    field.value = existingVal + (existingVal && final ? ' ' : '') + final + interim;
+    field.dispatchEvent(new Event('input'));
+  };
+  recognition.onerror = () => {
+    if (btn) btn.classList.remove('recording');
+    _voiceActive = null;
+    _voiceRecognition = null;
+  };
+  recognition.onend = () => {
+    if (btn) btn.classList.remove('recording');
+    _voiceActive = null;
+    _voiceRecognition = null;
+  };
+  recognition.start();
+};
+
 // ── MEAL PREP STATE HELPERS ──
+window.toggleMealPrepLeave = () => {
+  if (!state.catDetails['mealprep']) state.catDetails['mealprep'] = {};
+  state.catDetails['mealprep'].leaveInKitchen = !state.catDetails['mealprep'].leaveInKitchen;
+  const cb = document.getElementById('mp-leave-cb');
+  if (cb) cb.className = 'ts-checkbox' + (state.catDetails['mealprep'].leaveInKitchen ? ' checked' : '');
+};
 window.setMealPrepDirect = (key, value) => {
   if (!state.catDetails['mealprep']) state.catDetails['mealprep'] = {};
   state.catDetails['mealprep'][key] = value;
