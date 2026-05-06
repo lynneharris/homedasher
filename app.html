@@ -319,14 +319,14 @@
 
 // ── CATEGORIES ──
 const CATS = [
-  { id: 'cleaning',  label: 'Cleaning, tidying & dishes' },
-  { id: 'laundry',   label: 'Laundry' },
-  { id: 'mealprep',  label: 'Meal prep' },
-  { id: 'org',       label: 'Home organization & restocking' },
-  { id: 'pets',      label: 'Pet & plant care' },
-  { id: 'garbage',   label: 'Garbage, recycling & yard waste' },
-  { id: 'mail',      label: 'Mail & packages' },
-  { id: 'admin',     label: 'Research & home admin tasks' },
+  { id: 'cleaning',  label: 'Cleaning, tidying & dishes',      default: 30 },
+  { id: 'laundry',   label: 'Laundry',                         default: 30 },
+  { id: 'mealprep',  label: 'Meal prep',                       default: 30 },
+  { id: 'org',       label: 'Home organization & restocking',  default: 30 },
+  { id: 'admin',     label: 'Research & home admin tasks',     default: 30 },
+  { id: 'pets',      label: 'Pet & plant care',                default: 15 },
+  { id: 'garbage',   label: 'Garbage, recycling & yard waste', default: 15 },
+  { id: 'mail',      label: 'Mail & packages',                 default: 15 },
 ];
 
 // ── STATE ──
@@ -1249,7 +1249,8 @@ function renderMagicLink() {
 
 // ── TASK SELECTOR ACTIONS ──
 window.tsToggle = (id) => {
-  state.taskTimes[id] = (state.taskTimes[id] || 0) > 0 ? 0 : 30;
+  const cat = CATS.find(c => c.id === id);
+  state.taskTimes[id] = (state.taskTimes[id] || 0) > 0 ? 0 : (cat?.default || 30);
   tsUpdateRow(id);
   tsUpdateTotal();
 };
