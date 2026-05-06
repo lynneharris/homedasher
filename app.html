@@ -446,14 +446,14 @@ function renderHero() {
         <div class="section-eyebrow">What we do</div>
         <h2 class="section-title">One hourly rate. Everything your household needs.</h2>
         <div class="services-grid">
-          <div class="service-card"><div class="service-icon">🧹</div><div class="service-name">Light Housekeeping</div><div class="service-desc">Surface sanitizing, mirrors, toilet, dishes, fridge cleanout, trash &amp; recycling, sweep/vacuum</div></div>
-          <div class="service-card"><div class="service-icon">👕</div><div class="service-name">Laundry &amp; Linens</div><div class="service-desc">Wash, dry, fold, put away. Change and make beds. Organize the linen closet.</div></div>
-          <div class="service-card"><div class="service-icon">🍽️</div><div class="service-name">Meal Prep &amp; Kitchen</div><div class="service-desc">Grocery list building, ingredient prep, simple cooking, pantry and fridge organization</div></div>
-          <div class="service-card"><div class="service-icon">🗂️</div><div class="service-name">Tidying &amp; Organizing</div><div class="service-desc">Any room, any area. Drawers, closets, shelves, kids' rooms. Decluttering, donation sorting.</div></div>
-          <div class="service-card"><div class="service-icon">💻</div><div class="service-name">Research &amp; Admin Tasks</div><div class="service-desc">Compile research, schedule appointments, calls/emails on your behalf, digital organization</div></div>
-          <div class="service-card"><div class="service-icon">🏠</div><div class="service-name">Home Admin &amp; Prep</div><div class="service-desc">Sort mail, guest or event prep, post-event cleanup, move-in unpacking and organizing</div></div>
-          <div class="service-card"><div class="service-icon">🐾</div><div class="service-name">Pet &amp; Plant Care</div><div class="service-desc">Feeding, water, medication, litter box, plant watering. Rabies records required for pets.</div></div>
-          <div class="service-card"><div class="service-icon">♻️</div><div class="service-name">Bins &amp; Mail</div><div class="service-desc">Garbage, recycling and yard waste bins in/out, mail and package collection and sorting</div></div>
+          <div class="service-card"><div class="service-name">Light Housekeeping</div><div class="service-desc">Surface sanitizing, mirrors, toilet, dishes, fridge cleanout, trash &amp; recycling, sweep/vacuum</div></div>
+          <div class="service-card"><div class="service-name">Laundry &amp; Linens</div><div class="service-desc">Wash, dry, fold, put away. Change and make beds. Organize the linen closet.</div></div>
+          <div class="service-card"><div class="service-name">Meal Prep &amp; Kitchen</div><div class="service-desc">Grocery list building, ingredient prep, simple cooking, pantry and fridge organization</div></div>
+          <div class="service-card"><div class="service-name">Tidying &amp; Organizing</div><div class="service-desc">Any room, any area. Drawers, closets, shelves, kids' rooms. Decluttering, donation sorting.</div></div>
+          <div class="service-card"><div class="service-name">Research &amp; Admin Tasks</div><div class="service-desc">Compile research, schedule appointments, calls/emails on your behalf, digital organization</div></div>
+          <div class="service-card"><div class="service-name">Home Admin &amp; Prep</div><div class="service-desc">Sort mail, guest or event prep, post-event cleanup, move-in unpacking and organizing</div></div>
+          <div class="service-card"><div class="service-name">Pet &amp; Plant Care</div><div class="service-desc">Feeding, water, medication, litter box, plant watering. Rabies records required for pets.</div></div>
+          <div class="service-card"><div class="service-name">Bins &amp; Mail</div><div class="service-desc">Garbage, recycling and yard waste bins in/out, mail and package collection and sorting</div></div>
         </div>
         <div class="specialty-note"><strong>Need something more intensive?</strong> We can dispatch specialist HomeDashers for deep cleans, carpet cleaning, junk hauling, and more. <a href="#" onclick="startBooking()">Ask us when building your to-do list →</a></div>
       </div>
@@ -1363,8 +1363,8 @@ function renderBook() {
           <div class="field span2">
             <label>Preferred contact method</label>
             <div class="pref-toggle">
-              <button class="pref-btn ${state.contactPref === 'email' ? 'active' : ''}" onclick="setPref('email')">📧 Email</button>
-              <button class="pref-btn ${state.contactPref === 'sms' ? 'active' : ''}" onclick="setPref('sms')">💬 Text message</button>
+              <button class="pref-btn ${state.contactPref === 'email' ? 'active' : ''}" onclick="setPref('email')">Email</button>
+              <button class="pref-btn ${state.contactPref === 'sms' ? 'active' : ''}" onclick="setPref('sms')">Text message</button>
             </div>
           </div>
           <div class="field span2"><label>Date</label><div id="calendar-widget">${renderCalendar()}</div></div>
@@ -1377,19 +1377,19 @@ function renderBook() {
           <div class="field span2">
             <label>Home access</label>
             <div class="pref-toggle" style="flex-wrap:wrap;gap:8px">
-              <button class="pref-btn ${state.accessMethod === 'someone_home' ? 'active' : ''}" onclick="setAccess('someone_home')">🏠 Someone will be home</button>
-              <button class="pref-btn ${state.accessMethod === 'buzzer' ? 'active' : ''}" onclick="setAccess('buzzer')">🔔 Someone home + buzzer/gate</button>
-              <button class="pref-btn ${state.accessMethod === 'independent' ? 'active' : ''}" onclick="setAccess('independent')">🔑 I'll provide key/code</button>
+              <button class="pref-btn ${state.accessMethod === 'someone_home' ? 'active' : ''}" onclick="setAccess('someone_home')">Someone will be home</button>
+              <button class="pref-btn ${state.accessMethod === 'buzzer' ? 'active' : ''}" onclick="setAccess('buzzer')">Someone home + buzzer/gate</button>
+              <button class="pref-btn ${state.accessMethod === 'independent' ? 'active' : ''}" onclick="setAccess('independent')">I'll provide key/code</button>
             </div>
           </div>
           ${state.accessMethod === 'someone_home' || state.accessMethod === 'buzzer' ? `
           <div class="field span2">
             <label>On arrival, please —</label>
             <div class="pref-toggle" style="flex-wrap:wrap;gap:8px">
-              <button class="pref-btn ${state.arrivalPreference === 'call' ? 'active' : ''}" onclick="setArrival('call')">📞 Call</button>
-              <button class="pref-btn ${state.arrivalPreference === 'text' ? 'active' : ''}" onclick="setArrival('text')">💬 Text</button>
-              <button class="pref-btn ${state.arrivalPreference === 'ring_bell' ? 'active' : ''}" onclick="setArrival('ring_bell')">🔔 Ring the bell</button>
-              <button class="pref-btn ${state.arrivalPreference === 'enter' ? 'active' : ''}" onclick="setArrival('enter')">🚪 Enter and start — door will be unlocked</button>
+              <button class="pref-btn ${state.arrivalPreference === 'call' ? 'active' : ''}" onclick="setArrival('call')">Call</button>
+              <button class="pref-btn ${state.arrivalPreference === 'text' ? 'active' : ''}" onclick="setArrival('text')">Text</button>
+              <button class="pref-btn ${state.arrivalPreference === 'ring_bell' ? 'active' : ''}" onclick="setArrival('ring_bell')">Ring the bell</button>
+              <button class="pref-btn ${state.arrivalPreference === 'enter' ? 'active' : ''}" onclick="setArrival('enter')">Enter and start — door will be unlocked</button>
             </div>
           </div>` : ''}
           ${state.accessMethod === 'buzzer' || state.accessMethod === 'independent' ? `
@@ -1464,7 +1464,7 @@ function renderPayment() {
           <span id="pay-btn-text">Pay $${price} &amp; confirm booking</span>
         </button>
         <div id="pay-error"></div>
-        <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:16px">🔒 Secured by Stripe · Your card info is never stored on our servers</p>
+        <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:16px">Secured by Stripe · Your card info is never stored on our servers</p>
       </div>
     </div>`;
 }
@@ -1533,8 +1533,8 @@ function renderMagicLink() {
         <p style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:16px">or</p>
         <div class="field" style="margin-bottom:20px"><label>Phone number</label><input type="tel" id="magic-phone" placeholder="(555) 000-0000" /></div>
         <div class="pref-toggle" style="margin-bottom:20px">
-          <button class="pref-btn ${state.contactPref === 'email' ? 'active' : ''}" onclick="setPref('email')">📧 Send email link</button>
-          <button class="pref-btn ${state.contactPref === 'sms' ? 'active' : ''}" onclick="setPref('sms')">💬 Send text link</button>
+          <button class="pref-btn ${state.contactPref === 'email' ? 'active' : ''}" onclick="setPref('email')">Send email link</button>
+          <button class="pref-btn ${state.contactPref === 'sms' ? 'active' : ''}" onclick="setPref('sms')">Send text link</button>
         </div>
         <button class="submit-btn" onclick="sendMagicLink()">Send my login link</button>
         <div id="magic-msg"></div>
