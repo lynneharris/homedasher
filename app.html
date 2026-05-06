@@ -560,6 +560,7 @@ function renderCatDetail() {
   const total = cats.length;
   const pct = Math.round((idx / total) * 100);
   if (cat.id === 'cleaning') return renderCleaningDetail(idx, total, pct);
+  if (cat.id === 'mealprep') return renderMealPrepDetail(idx, total, pct);
   return renderGenericDetail(cat, idx, total, pct);
 }
 
@@ -1227,6 +1228,86 @@ function renderGenericRoomScreen(roomId, idx, total, pct, d) {
     </div></div>`;
 }
 
+// ── MEAL PREP DETAIL ──
+function renderMealPrepDetail(idx, total, pct) {
+  const d = state.catDetails['mealprep'] || {};
+  const links = d.recipeLinks || [''];
+  const isLast = idx + 1 >= selectedCats().length;
+
+  const linkFields = links.map((val, i) => `
+    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+      <input type="text" placeholder="Paste recipe URL…" value="${val}"
+        oninput="setMealPrep('recipeLinks[${i}]',this.value)"
+        style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);" />
+      ${links.length > 1 ? `<button onclick="removeMealPrepLink(${i})" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:white;color:var(--muted);font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);">×</button>` : ''}
+    </div>`).join('');
+
+  return `
+    <div class="steps">
+      <div class="step active"><div class="step-dot">1</div><div class="step-label">Plan</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">2</div><div class="step-label">Details</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">3</div><div class="step-label">Pay</div></div>
+    </div>
+    <div class="main">
+      <div class="card">
+        <div class="cd-progress">
+          <div class="cd-progress-bar"><div class="cd-progress-fill" style="width:${pct}%"></div></div>
+          <div class="cd-progress-label">${idx + 1} of ${total}</div>
+        </div>
+        <div class="cd-category-label">Meal prep</div>
+        <div class="cd-title">What would you like prepared?</div>
+
+        <textarea placeholder="Overview — e.g. prep ingredients for the week, cook a batch of soup, make a salad for dinner tonight…"
+          style="width:100%;margin-bottom:20px;min-height:80px;"
+          oninput="setMealPrepDirect('overview',this.value)">${d.overview || ''}</textarea>
+
+        <div class="cd-check-row" style="border-top:1px solid var(--border);" onclick="setMealPrepDirect('leaveInKitchen',!d.leaveInKitchen);this.closest('.card').querySelector('#mp-leave-cb').className='ts-checkbox'+(${d.leaveInKitchen}?'':' checked');">
+          <div class="ts-checkbox ${d.leaveInKitchen ? 'checked' : ''}" id="mp-leave-cb">
+            <svg class="ts-checkmark" viewBox="0 0 11 8" fill="none"><polyline points="1,4 4,7 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="cd-check-label">Will leave written instructions / recipes in the kitchen</div>
+        </div>
+
+        <div class="cd-section" style="margin-top:16px;">Recipe links</div>
+        <div id="mp-recipe-links">${linkFields}</div>
+        <button onclick="addMealPrepLink()"
+          style="display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-family:var(--sans);font-size:13px;color:var(--teal);cursor:pointer;margin-bottom:20px;">
+          + Add another link
+        </button>
+
+        <div class="cd-section" style="margin-top:0;">Photos</div>
+        <button class="cd-photo-btn" onclick="triggerPhotoUpload('mealprep')" style="margin-bottom:20px;">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1" y="4" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><circle cx="9" cy="9.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M6 4l1.5-2h3L12 4" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          Upload recipe card or photo
+        </button>
+        <input type="file" id="photo-upload-mealprep" accept="image/*" style="display:none" />
+
+        <div class="cd-section" style="margin-top:0;">Written instructions</div>
+        <textarea placeholder="Step-by-step instructions, cooking times, temperatures, etc…"
+          style="width:100%;margin-bottom:20px;"
+          oninput="setMealPrepDirect('instructions',this.value)">${d.instructions || ''}</textarea>
+
+        <div class="cd-section" style="margin-top:0;">Grocery / ingredient list</div>
+        <textarea placeholder="List ingredients needed…"
+          style="width:100%;margin-bottom:20px;"
+          oninput="setMealPrepDirect('groceryList',this.value)">${d.groceryList || ''}</textarea>
+
+        <div class="cd-section" style="margin-top:0;">Where to find specific ingredients</div>
+        <input type="text" placeholder="e.g. chicken is in the freezer, olive oil is in the pantry…"
+          value="${d.ingredientLocations || ''}"
+          oninput="setMealPrepDirect('ingredientLocations',this.value)"
+          style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);margin-bottom:20px;" />
+
+        <div class="cd-nav">
+          <button class="cd-back-btn" onclick="catDetailBack()">← Back</button>
+          <button class="cd-next-btn" onclick="catDetailNext()">${isLast ? 'Continue to booking →' : 'Next →'}</button>
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderGenericDetail(cat, idx, total, pct) {
   const d = state.catDetails[cat.id] || {};
   return `
@@ -1713,6 +1794,61 @@ window.setCatNote = (catId, val) => {
 window.triggerPhotoUpload = (catId) => {
   const input = document.getElementById('photo-upload-' + catId);
   if (input) input.click();
+};
+
+// ── MEAL PREP STATE HELPERS ──
+window.setMealPrepDirect = (key, value) => {
+  if (!state.catDetails['mealprep']) state.catDetails['mealprep'] = {};
+  state.catDetails['mealprep'][key] = value;
+  // Only re-render for checkbox toggle (leave in kitchen)
+  if (key === 'leaveInKitchen') {
+    const cb = document.getElementById('mp-leave-cb');
+    if (cb) cb.className = 'ts-checkbox' + (value ? ' checked' : '');
+  }
+};
+window.setMealPrep = (key, value) => {
+  if (!state.catDetails['mealprep']) state.catDetails['mealprep'] = {};
+  // Handle array notation like recipeLinks[0]
+  const match = key.match(/^(\w+)\[(\d+)\]$/);
+  if (match) {
+    const arr = match[1], i = parseInt(match[2]);
+    if (!state.catDetails['mealprep'][arr]) state.catDetails['mealprep'][arr] = [];
+    state.catDetails['mealprep'][arr][i] = value;
+  } else {
+    state.catDetails['mealprep'][key] = value;
+  }
+};
+window.addMealPrepLink = () => {
+  if (!state.catDetails['mealprep']) state.catDetails['mealprep'] = {};
+  if (!state.catDetails['mealprep'].recipeLinks) state.catDetails['mealprep'].recipeLinks = [''];
+  state.catDetails['mealprep'].recipeLinks.push('');
+  const links = state.catDetails['mealprep'].recipeLinks;
+  const container = document.getElementById('mp-recipe-links');
+  if (container) {
+    container.innerHTML = links.map((val, i) => `
+      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+        <input type="text" placeholder="Paste recipe URL…" value="${val}"
+          oninput="setMealPrep('recipeLinks[${i}]',this.value)"
+          style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);" />
+        ${links.length > 1 ? `<button onclick="removeMealPrepLink(${i})" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:white;color:var(--muted);font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);">×</button>` : ''}
+      </div>`).join('');
+  }
+};
+window.removeMealPrepLink = (i) => {
+  if (!state.catDetails['mealprep']?.recipeLinks) return;
+  state.catDetails['mealprep'].recipeLinks.splice(i, 1);
+  if (state.catDetails['mealprep'].recipeLinks.length === 0) state.catDetails['mealprep'].recipeLinks = [''];
+  const links = state.catDetails['mealprep'].recipeLinks;
+  const container = document.getElementById('mp-recipe-links');
+  if (container) {
+    container.innerHTML = links.map((val, i) => `
+      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+        <input type="text" placeholder="Paste recipe URL…" value="${val}"
+          oninput="setMealPrep('recipeLinks[${i}]',this.value)"
+          style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:14px;background:var(--stone);outline:none;color:var(--ink);" />
+        ${links.length > 1 ? `<button onclick="removeMealPrepLink(${i})" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:white;color:var(--muted);font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);">×</button>` : ''}
+      </div>`).join('');
+  }
 };
 
 // ── SAVE BOOKING FIELDS ──
