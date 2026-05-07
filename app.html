@@ -695,6 +695,7 @@ function renderCatDetail() {
   const pct = Math.round((idx / total) * 100);
   if (cat.id === 'cleaning') return renderCleaningDetail(idx, total, pct);
   if (cat.id === 'mealprep') return renderMealPrepDetail(idx, total, pct);
+  if (cat.id === 'laundry')  return renderLaundryDetail(idx, total, pct);
   return renderGenericDetail(cat, idx, total, pct);
 }
 
@@ -1448,6 +1449,243 @@ function renderMealPrepDetail(idx, total, pct) {
       </div>
     </div>`;
 }
+
+// ── LAUNDRY DETAIL ──
+function renderLaundryDetail(idx, total, pct) {
+  const d = state.catDetails['laundry'] || {};
+  const isLast = idx + 1 >= selectedCats().length;
+
+  return `
+    ${cdStepsHtml()}
+    <div class="main">
+      <div class="card">
+        ${cdProgressHtml(idx, total, pct)}
+        <div class="cd-category-label">Laundry</div>
+        <div class="cd-title">What do you need help with?</div>
+
+        <!-- COLLECT DIRTY LAUNDRY -->
+        <div id="laundry-section-collect">${laundryCollectHtml(d)}</div>
+
+        <!-- START A LOAD -->
+        <div id="laundry-section-start">${laundryStartHtml(d)}</div>
+
+        <!-- MOVE TO DRYER -->
+        <div id="laundry-section-dryer">${laundryDryerHtml(d)}</div>
+
+        <!-- FOLD OR PUT AWAY -->
+        <div id="laundry-section-putaway">${laundryPutAwayHtml(d)}</div>
+
+        <!-- ADDITIONAL NOTES -->
+        <div class="cd-section">Additional notes</div>
+        ${mkTextarea('laundry-notes', 'Anything else your HomeDasher should know…', d.notes, "setLaundry('notes',this.value)")}
+
+        <div class="cd-nav">
+          <button class="cd-back-btn" onclick="catDetailBack()">← Back</button>
+          <button class="cd-next-btn" onclick="catDetailNext()">${isLast ? 'Continue to booking →' : 'Next →'}</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function laundryCollectHtml(d) {
+  const c = d.collect || {};
+  return `
+    ${mkCheckbox('laundry-collect', 'Collect dirty laundry', c.open, "setLaundrySection('collect','open',!getLaundry('collect.open'))")}
+    ${c.open ? `<div style="margin-left:0;padding:12px 0 4px;">
+      ${mkCheckbox('collect-washer', 'Hampers near the washing machine', c.nearWasher, "setLaundrySection('collect','nearWasher',!getLaundry('collect.nearWasher'))", 1)}
+      ${mkCheckbox('collect-bedrooms', 'Hampers in bedrooms', c.bedrooms, "setLaundrySection('collect','bedrooms',!getLaundry('collect.bedrooms'))", 1)}
+      ${mkCheckbox('collect-bathrooms', 'Hampers in bathrooms', c.bathrooms, "setLaundrySection('collect','bathrooms',!getLaundry('collect.bathrooms'))", 1)}
+      ${mkCheckbox('collect-stray', 'Collect any stray clothes throughout the house', c.stray, "setLaundrySection('collect','stray',!getLaundry('collect.stray'))", 1)}
+      <div style="margin-left:20px;margin-top:4px;">
+        <div class="cd-section" style="margin-top:8px;margin-bottom:8px;">Anything else? Describe where to find it</div>
+        ${mkText('collect-notes', 'e.g. check under the kids\' beds, gym bag in the hall closet…', c.notes, "setLaundrySection('collect','notes',this.value)", 0)}
+        ${laundryPhotoGroupHtml('collect-photos', c.photos || [], 'collect')}
+      </div>
+    </div>` : ''}`;
+}
+
+function laundryStartHtml(d) {
+  const s = d.start || {};
+  return `
+    ${mkCheckbox('laundry-start', 'Start a load of laundry', s.open, "setLaundrySection('start','open',!getLaundry('start.open'))")}
+    ${s.open ? `<div style="padding:12px 0 4px;">
+      <div class="cd-section" style="margin-top:0;">Which clothes to wash</div>
+      ${mkCheckbox('start-all', 'Wash all dirty laundry in one load', s.washAll, "setLaundrySection('start','washAll',!getLaundry('start.washAll'))", 1)}
+      ${mkAccordion('start-sort', 'Sort laundry into multiple loads', s.sort, "setLaundrySection('start','sort',!getLaundry('start.sort'))",
+        mkText('start-sort-notes', 'Describe how to sort (e.g. darks on cold, lights on warm)…', s.sortNotes, "setLaundrySection('start','sortNotes',this.value)", 2),
+      1)}
+      ${mkAccordion('start-handwash', 'Set aside hand-wash only items', s.handwash, "setLaundrySection('start','handwash',!getLaundry('start.handwash'))",
+        mkText('start-handwash-loc', 'Where should they go?', s.handwashLoc, "setLaundrySection('start','handwashLoc',this.value)", 2),
+      1)}
+
+      <div class="cd-section">Washer settings</div>
+      ${mkRadio('start-default', 'Use default washer settings', s.washerMode === 'default' || !s.washerMode, "setLaundrySection('start','washerMode','default')", 1)}
+      ${mkRadio('start-custom', 'Custom settings', s.washerMode === 'custom', "setLaundrySection('start','washerMode','custom')", 1)}
+      ${s.washerMode === 'custom' ? mkText('start-washer-custom', 'Describe settings (e.g. delicate cycle, cold water)…', s.washerCustom, "setLaundrySection('start','washerCustom',this.value)", 2) : ''}
+
+      <div class="cd-section">Detergent</div>
+      ${mkText('start-detergent', 'Where to find it (e.g. shelf above washer, under sink)…', s.detergent, "setLaundrySection('start','detergent',this.value)", 1)}
+
+      <div class="cd-section">Additional notes</div>
+      ${mkText('start-notes', 'Any other instructions for this load…', s.notes, "setLaundrySection('start','notes',this.value)", 1)}
+    </div>` : ''}`;
+}
+
+function laundryDryerHtml(d) {
+  const dr = d.dryer || {};
+  return `
+    ${mkCheckbox('laundry-dryer', 'Move clothes from washer to dryer', dr.open, "setLaundrySection('dryer','open',!getLaundry('dryer.open'))")}
+    ${dr.open ? `<div style="padding:12px 0 4px;">
+      <div class="cd-section" style="margin-top:0;">Dryer settings</div>
+      ${mkRadio('dryer-default', 'Use default dryer settings', dr.dryerMode === 'default' || !dr.dryerMode, "setLaundrySection('dryer','dryerMode','default')", 1)}
+      ${mkRadio('dryer-custom', 'Custom settings', dr.dryerMode === 'custom', "setLaundrySection('dryer','dryerMode','custom')", 1)}
+      ${dr.dryerMode === 'custom' ? mkText('dryer-custom-text', 'Describe settings (e.g. low heat, timed dry 40 min)…', dr.dryerCustom, "setLaundrySection('dryer','dryerCustom',this.value)", 2) : ''}
+
+      ${mkAccordion('dryer-hangdry', 'Some items should hang dry instead', dr.hangDry, "setLaundrySection('dryer','hangDry',!getLaundry('dryer.hangDry'))",
+        mkText('dryer-hangdry-items', 'Which items?', dr.hangDryItems, "setLaundrySection('dryer','hangDryItems',this.value)", 2) +
+        mkText('dryer-hangdry-loc', 'Where to hang them?', dr.hangDryLoc, "setLaundrySection('dryer','hangDryLoc',this.value)", 2),
+      1)}
+    </div>` : ''}`;
+}
+
+function laundryPutAwayHtml(d) {
+  const p = d.putaway || {};
+  return `
+    ${mkCheckbox('laundry-putaway', 'Fold or put clean clothes away', p.open, "setLaundrySection('putaway','open',!getLaundry('putaway.open'))")}
+    ${p.open ? `<div style="padding:12px 0 4px;">
+      ${mkCheckbox('putaway-fold', 'Fold and leave in basket or on bed', p.fold, "setLaundrySection('putaway','fold',!getLaundry('putaway.fold'))", 1)}
+
+      ${mkAccordion('putaway-away', 'Put away in drawers / closet', p.away, "setLaundrySection('putaway','away',!getLaundry('putaway.away'))",
+        mkText('putaway-away-where', 'Where should things go? (e.g. master bedroom dresser, kids\' closet)…', p.awayWhere, "setLaundrySection('putaway','awayWhere',this.value)", 2) +
+        laundryPhotoGroupHtml('putaway-away-photos', p.awayPhotos || [], 'putaway-away'),
+      1)}
+
+      ${mkAccordion('putaway-hang', 'Hang items', p.hang, "setLaundrySection('putaway','hang',!getLaundry('putaway.hang'))",
+        mkText('putaway-hang-which', 'Which items should be hung?', p.hangWhich, "setLaundrySection('putaway','hangWhich',this.value)", 2) +
+        mkText('putaway-hang-where', 'Where? (e.g. master closet, hall closet)…', p.hangWhere, "setLaundrySection('putaway','hangWhere',this.value)", 2) +
+        laundryPhotoGroupHtml('putaway-hang-photos', p.hangPhotos || [], 'putaway-hang'),
+      1)}
+
+      ${mkAccordion('putaway-iron', 'Set aside items that need ironing', p.iron, "setLaundrySection('putaway','iron',!getLaundry('putaway.iron'))",
+        mkText('putaway-iron-where', 'Where should they go?', p.ironWhere, "setLaundrySection('putaway','ironWhere',this.value)", 2),
+      1)}
+    </div>` : ''}`;
+}
+
+function laundryPhotoGroupHtml(groupId, photos, section) {
+  if (!photos.length) photos = [{ url: null, comment: '' }];
+  return `<div id="laundry-photos-${groupId}" style="margin-top:8px;">
+    ${photos.map((ph, i) => laundryPhotoEntryHtml(groupId, section, i, ph)).join('')}
+    <button onclick="addLaundryPhoto('${groupId}','${section}')"
+      style="display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-family:var(--sans);font-size:13px;color:var(--teal);cursor:pointer;margin-top:4px;margin-left:40px;">
+      + Add another photo
+    </button>
+  </div>`;
+}
+
+function laundryPhotoEntryHtml(groupId, section, i, ph) {
+  return `<div id="laundry-photo-entry-${groupId}-${i}" style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;margin-left:40px;">
+    <button onclick="triggerLaundryPhoto('${groupId}','${section}',${i})"
+      style="display:flex;align-items:center;gap:6px;padding:8px 12px;border:1.5px dashed var(--border);border-radius:10px;background:white;color:var(--muted);font-size:12px;cursor:pointer;white-space:nowrap;font-family:var(--sans);flex-shrink:0;transition:border-color 0.15s;">
+      <svg width="14" height="14" viewBox="0 0 18 18" fill="none"><rect x="1" y="4" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><circle cx="9" cy="9.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M6 4l1.5-2h3L12 4" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+      ${ph.url ? 'Replace photo' : 'Upload photo'}
+    </button>
+    <div class="mic-wrap" style="flex:1;margin-bottom:0;">
+      <input type="text" placeholder="Describe this photo…" value="${ph.comment || ''}"
+        oninput="setLaundryPhotoComment('${groupId}','${section}',${i},this.value)"
+        style="width:100%;padding:8px 36px 8px 12px;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:13px;background:var(--stone);outline:none;color:var(--ink);" />
+      ${mkMicBtn(`laundry-photo-${groupId}-${i}`)}
+    </div>
+    ${i > 0 ? `<button onclick="removeLaundryPhoto('${groupId}','${section}',${i})" style="width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:white;color:var(--muted);font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;">×</button>` : ''}
+    <input type="file" id="laundry-photo-file-${groupId}-${i}" accept="image/*" style="display:none"
+      onchange="handleLaundryPhoto('${groupId}','${section}',${i},this)" />
+  </div>`;
+}
+
+// ── LAUNDRY STATE HELPERS ──
+window.getLaundry = (path) => {
+  const parts = path.split('.');
+  let obj = state.catDetails['laundry'] || {};
+  for (const p of parts) obj = obj?.[p];
+  return obj;
+};
+window.setLaundry = (key, value) => {
+  if (!state.catDetails['laundry']) state.catDetails['laundry'] = {};
+  state.catDetails['laundry'][key] = value;
+};
+window.setLaundrySection = (section, key, value) => {
+  if (!state.catDetails['laundry']) state.catDetails['laundry'] = {};
+  if (!state.catDetails['laundry'][section]) state.catDetails['laundry'][section] = {};
+  state.catDetails['laundry'][section][key] = value;
+  // Re-render the affected section
+  const d = state.catDetails['laundry'];
+  const sectionFns = {
+    collect: laundryCollectHtml,
+    start:   laundryStartHtml,
+    dryer:   laundryDryerHtml,
+    putaway: laundryPutAwayHtml,
+  };
+  const el = document.getElementById('laundry-section-' + section);
+  if (el && sectionFns[section]) el.innerHTML = sectionFns[section](d);
+};
+
+window.addLaundryPhoto = (groupId, section) => {
+  const parts = groupId.split('-');
+  const subKey = parts.slice(1).join('-') + 'Photos';
+  const mainSection = parts[0];
+  if (!state.catDetails['laundry']) state.catDetails['laundry'] = {};
+  if (!state.catDetails['laundry'][mainSection]) state.catDetails['laundry'][mainSection] = {};
+  const photos = state.catDetails['laundry'][mainSection][subKey] || [{ url: null, comment: '' }];
+  photos.push({ url: null, comment: '' });
+  state.catDetails['laundry'][mainSection][subKey] = photos;
+  const container = document.getElementById('laundry-photos-' + groupId);
+  if (container) container.innerHTML = laundryPhotoGroupHtml(groupId, photos, section).match(/id="laundry-photos-[^"]*"[^>]*>([\s\S]*)<\/div>/)?.[0] || '';
+  // Re-render full group
+  const d = state.catDetails['laundry'];
+  const sectionFns = { collect: laundryCollectHtml, start: laundryStartHtml, dryer: laundryDryerHtml, putaway: laundryPutAwayHtml };
+  const el = document.getElementById('laundry-section-' + mainSection);
+  if (el && sectionFns[mainSection]) el.innerHTML = sectionFns[mainSection](d);
+};
+window.removeLaundryPhoto = (groupId, section, i) => {
+  const parts = groupId.split('-');
+  const subKey = parts.slice(1).join('-') + 'Photos';
+  const mainSection = parts[0];
+  const photos = state.catDetails['laundry']?.[mainSection]?.[subKey] || [];
+  photos.splice(i, 1);
+  if (photos.length === 0) photos.push({ url: null, comment: '' });
+  state.catDetails['laundry'][mainSection][subKey] = photos;
+  const d = state.catDetails['laundry'];
+  const sectionFns = { collect: laundryCollectHtml, start: laundryStartHtml, dryer: laundryDryerHtml, putaway: laundryPutAwayHtml };
+  const el = document.getElementById('laundry-section-' + mainSection);
+  if (el && sectionFns[mainSection]) el.innerHTML = sectionFns[mainSection](d);
+};
+window.triggerLaundryPhoto = (groupId, section, i) => {
+  document.getElementById(`laundry-photo-file-${groupId}-${i}`)?.click();
+};
+window.handleLaundryPhoto = (groupId, section, i, input) => {
+  if (!input.files?.[0]) return;
+  const parts = groupId.split('-');
+  const subKey = parts.slice(1).join('-') + 'Photos';
+  const mainSection = parts[0];
+  if (!state.catDetails['laundry']?.[mainSection]) return;
+  const photos = state.catDetails['laundry'][mainSection][subKey] || [];
+  if (!photos[i]) photos[i] = { url: null, comment: '' };
+  photos[i].url = URL.createObjectURL(input.files[0]);
+  photos[i].fileName = input.files[0].name;
+  state.catDetails['laundry'][mainSection][subKey] = photos;
+  const btn = document.querySelector(`#laundry-photo-entry-${groupId}-${i} button`);
+  if (btn) btn.style.borderColor = 'var(--teal)';
+};
+window.setLaundryPhotoComment = (groupId, section, i, value) => {
+  const parts = groupId.split('-');
+  const subKey = parts.slice(1).join('-') + 'Photos';
+  const mainSection = parts[0];
+  if (!state.catDetails['laundry']?.[mainSection]) return;
+  const photos = state.catDetails['laundry'][mainSection][subKey] || [];
+  if (!photos[i]) photos[i] = { url: null, comment: '' };
+  photos[i].comment = value;
+  state.catDetails['laundry'][mainSection][subKey] = photos;
+};
 
 function renderGenericDetail(cat, idx, total, pct) {
   const d = state.catDetails[cat.id] || {};
