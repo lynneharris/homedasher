@@ -46,7 +46,8 @@
       border-bottom: 1px solid var(--border); padding: 0 32px;
       height: 64px; display: flex; align-items: center; justify-content: space-between;
     }
-    .logo { font-family: var(--display); font-size: 28px; letter-spacing: 2px; line-height: 1; color: var(--teal); text-decoration: none; }
+    .logo { font-family: var(--display); font-size: 28px; letter-spacing: 2px; line-height: 1; color: var(--teal); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
+    .logo-img { height: 36px; width: auto; display: block; }
     .logo .home { color: var(--teal); }
     .logo .dasher { color: var(--teal-deep); }
     .nav-links { display: flex; align-items: center; gap: 4px; }
@@ -335,7 +336,7 @@
 <body>
 
 <header>
-  <a href="/" class="logo"><span class="home">HOME</span><span class="dasher">DASHER</span></a>
+  <a href="/" class="logo"><img src="/logo.png" alt="HomeDasher" class="logo-img" /><span class="home">HOME</span><span class="dasher">DASHER</span></a>
   <nav class="nav-links" id="main-nav">
     <a class="nav-link" href="#services">Services</a>
     <a class="nav-link" href="/faq">FAQ</a>
