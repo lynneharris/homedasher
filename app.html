@@ -1129,7 +1129,8 @@ function bathSectionHtml(sectionId, b, bathIdx) {
         mkAccordion(`b${bathIdx}-towels-remove`, 'Remove', b.towelsRemove, `setBathCustom(${bathIdx},'towelsRemove',!getBath(${bathIdx},'towelsRemove'))`,
           mkRadio(`b${bathIdx}-towels-all`,   'Remove all',                b.towelsRemoveMode==='all',   `setBathCustom(${bathIdx},'towelsRemoveMode','all')`,   2) +
           mkRadio(`b${bathIdx}-towels-floor`, 'Remove only towels on floor', b.towelsRemoveMode==='floor', `setBathCustom(${bathIdx},'towelsRemoveMode','floor')`, 2) +
-          mkText(`b${bathIdx}-towels-remove-loc`, 'Where should they go? e.g. hamper, laundry room…', b.towelsRemoveLoc, `setBathCustom(${bathIdx},'towelsRemoveLoc',this.value)`, 2),
+          mkText(`b${bathIdx}-towels-remove-loc`, 'Where should they go? e.g. hamper, laundry room…', b.towelsRemoveLoc, `setBathCustom(${bathIdx},'towelsRemoveLoc',this.value)`, 2) +
+          laundryNudge(),
         1) +
         mkAccordion(`b${bathIdx}-towels-replace`, 'Replace', b.towelsReplace, `setBathCustom(${bathIdx},'towelsReplace',!getBath(${bathIdx},'towelsReplace'))`,
           mkText(`b${bathIdx}-towels-replace-loc`, 'Where are fresh towels? e.g. linen closet, shelf…', b.towelsReplaceLoc, `setBathCustom(${bathIdx},'towelsReplaceLoc',this.value)`, 2),
@@ -1139,7 +1140,8 @@ function bathSectionHtml(sectionId, b, bathIdx) {
     case 'bathmats': {
       return mkAccordion(`b${bathIdx}-bathmats`, 'Bathmats', b.bathmats, `setBathCustom(${bathIdx},'bathmats',!getBath(${bathIdx},'bathmats'))`,
         mkAccordion(`b${bathIdx}-bathmats-remove`, 'Remove', b.bathmatsRemove, `setBathCustom(${bathIdx},'bathmatsRemove',!getBath(${bathIdx},'bathmatsRemove'))`,
-          mkText(`b${bathIdx}-bathmats-remove-loc`, 'Where should they go? e.g. hamper, laundry room…', b.bathmatsRemoveLoc, `setBathCustom(${bathIdx},'bathmatsRemoveLoc',this.value)`, 2),
+          mkText(`b${bathIdx}-bathmats-remove-loc`, 'Where should they go? e.g. hamper, laundry room…', b.bathmatsRemoveLoc, `setBathCustom(${bathIdx},'bathmatsRemoveLoc',this.value)`, 2) +
+          laundryNudge(),
         1) +
         mkAccordion(`b${bathIdx}-bathmats-replace`, 'Replace', b.bathmatsReplace, `setBathCustom(${bathIdx},'bathmatsReplace',!getBath(${bathIdx},'bathmatsReplace'))`,
           mkText(`b${bathIdx}-bathmats-replace-loc`, 'Where are fresh bathmats? e.g. linen closet, shelf…', b.bathmatsReplaceLoc, `setBathCustom(${bathIdx},'bathmatsReplaceLoc',this.value)`, 2),
@@ -1168,6 +1170,15 @@ function bathSectionHtml(sectionId, b, bathIdx) {
 
 // ── GENERIC ROOM SCREEN ──
 // ── SHARED ROOM SECTION HELPERS ──
+
+function laundryNudge() {
+  const hasLaundry = (state.taskTimes['laundry'] || 0) > 0;
+  return `<div style="margin:6px 0 4px 0;background:var(--teal-pale);border:1px solid var(--teal-light);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--teal-dark);">
+    ${hasLaundry
+      ? '✓ Laundry is in your visit plan — add washing instructions in your Laundry section to get these washed.'
+      : 'To have these washed, add <strong>Laundry</strong> to your visit plan.'}
+  </div>`;
+}
 
 function mkWindowsSection(roomId, r) {
   return mkAccordion(`${roomId}-windows`, 'Windows', r.windows, `setRoom('${roomId}','windows',!getRoomVal('${roomId}','windows'))`,
@@ -1214,7 +1225,8 @@ function mkFurnitureSection(roomId, r, includeBeds=false) {
       mkCheckbox(`${roomId}-furn-beds-pillows`,   'Pillowcases',    r.furnBedsPillows,  `setRoom('${roomId}','furnBedsPillows',!getRoomVal('${roomId}','furnBedsPillows'))`,  3) +
       mkCheckbox(`${roomId}-furn-beds-blanket`,   'Blanket',        r.furnBedsBlanket,  `setRoom('${roomId}','furnBedsBlanket',!getRoomVal('${roomId}','furnBedsBlanket'))`,  3) +
       mkCheckbox(`${roomId}-furn-beds-duvet`,     'Duvet cover',    r.furnBedsDuvet,    `setRoom('${roomId}','furnBedsDuvet',!getRoomVal('${roomId}','furnBedsDuvet'))`,    3) +
-      mkText(`${roomId}-furn-beds-remove-loc`, 'Where should they go?', r.furnBedsRemoveLoc, `setRoom('${roomId}','furnBedsRemoveLoc',this.value)`, 3),
+      mkText(`${roomId}-furn-beds-remove-loc`, 'Where should they go?', r.furnBedsRemoveLoc, `setRoom('${roomId}','furnBedsRemoveLoc',this.value)`, 3) +
+      laundryNudge(),
     2) +
     mkAccordion(`${roomId}-furn-beds-replace`, 'Replace linens', r.furnBedsReplace, `setRoom('${roomId}','furnBedsReplace',!getRoomVal('${roomId}','furnBedsReplace'))`,
       mkText(`${roomId}-furn-beds-replace-loc`, 'Where are fresh linens?', r.furnBedsReplaceLoc, `setRoom('${roomId}','furnBedsReplaceLoc',this.value)`, 3),
@@ -1463,6 +1475,16 @@ function renderLaundryDetail(idx, total, pct) {
         <div class="cd-category-label">Laundry</div>
         <div class="cd-title">What do you need help with?</div>
 
+        <!-- QUICK OPTION -->
+        <div id="laundry-section-quick">${laundryQuickHtml(d)}</div>
+
+        ${!d.quick ? `
+        <div style="display:flex;align-items:center;gap:12px;margin:16px 0;">
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+          <div style="font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;">Or choose specific tasks</div>
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
+
         <!-- COLLECT DIRTY LAUNDRY -->
         <div id="laundry-section-collect">${laundryCollectHtml(d)}</div>
 
@@ -1478,6 +1500,11 @@ function renderLaundryDetail(idx, total, pct) {
         <!-- ADDITIONAL NOTES -->
         <div class="cd-section">Additional notes</div>
         ${mkTextarea('laundry-notes', 'Anything else your HomeDasher should know…', d.notes, "setLaundry('notes',this.value)")}
+        ` : `
+        <!-- NOTES FOR QUICK OPTION -->
+        <div class="cd-section" style="margin-top:16px;">Any notes</div>
+        ${mkTextarea('laundry-notes-quick', 'e.g. detergent is under the sink, fold and leave on the bed…', d.quickNotes, "setLaundry('quickNotes',this.value)")}
+        `}
 
         <div class="cd-nav">
           <button class="cd-back-btn" onclick="catDetailBack()">← Back</button>
@@ -1486,6 +1513,33 @@ function renderLaundryDetail(idx, total, pct) {
       </div>
     </div>`;
 }
+
+function laundryQuickHtml(d) {
+  return `
+    <div style="border:${d.quick ? '2px solid var(--teal)' : '1px solid var(--border)'};border-radius:12px;padding:16px;background:${d.quick ? 'var(--teal-pale)' : 'white'};transition:all 0.2s;cursor:pointer;" onclick="toggleLaundryQuick()">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <div class="ts-checkbox ${d.quick ? 'checked' : ''}" id="laundry-quick-cb" style="margin-top:2px;flex-shrink:0;">
+          <svg class="ts-checkmark" viewBox="0 0 11 8" fill="none"><polyline points="1,4 4,7 10,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--teal-deep);margin-bottom:4px;">Keep laundry moving</div>
+          <div style="font-size:13px;color:var(--slate);line-height:1.6;">If there's dirty laundry, start a load. If the washer is done, move to dryer. If the dryer is done, fold and leave in basket. Default settings throughout.</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5;">Your HomeDasher will use their judgment on sorting, temperature, and products. To specify <strong>temperature, hand-wash only items, color sorting, detergents, or delicates</strong> — use the detailed options below instead.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+window.toggleLaundryQuick = () => {
+  if (!state.catDetails['laundry']) state.catDetails['laundry'] = {};
+  state.catDetails['laundry'].quick = !state.catDetails['laundry'].quick;
+  // Re-render the whole laundry screen
+  const idx = state.instructionIdx;
+  const total = selectedCats().length;
+  const pct = Math.round((idx / total) * 100);
+  const app = document.getElementById('app');
+  if (app) app.innerHTML = renderLaundryDetail(idx, total, pct);
+};
 
 function laundryCollectHtml(d) {
   const c = d.collect || {};
@@ -1496,54 +1550,61 @@ function laundryCollectHtml(d) {
       ${mkCheckbox('collect-bedrooms', 'Bedrooms', c.bedrooms, "setLaundrySection('collect','bedrooms',!getLaundry('collect.bedrooms'))", 1)}
       ${mkCheckbox('collect-bathrooms', 'Bathrooms', c.bathrooms, "setLaundrySection('collect','bathrooms',!getLaundry('collect.bathrooms'))", 1)}
       ${mkCheckbox('collect-throughout', 'Throughout the house', c.throughout, "setLaundrySection('collect','throughout',!getLaundry('collect.throughout'))", 1)}
-      <div style="margin-left:20px;margin-top:4px;">
+      <div style="margin-left:20px;margin-top:8px;">
         ${mkText('collect-from-notes', 'Anything else? (e.g. gym bag in the hall, under the kids\' beds)…', c.fromNotes, "setLaundrySection('collect','fromNotes',this.value)", 0)}
         ${laundryPhotoGroupHtml('collect-photos', c.photos || [], 'collect')}
       </div>
-
       <div class="cd-section">Where to bring it</div>
-      ${mkText('collect-dest', 'e.g. laundry room hamper, in front of washer, sorting area in basement…', c.destination, "setLaundrySection('collect','destination',this.value)", 1)}
+      ${mkText('collect-dest', 'e.g. laundry room hamper, in front of washer…', c.destination, "setLaundrySection('collect','destination',this.value)", 1)}
     </div>` : ''}`;
 }
 
 function laundryStartHtml(d) {
   const s = d.start || {};
+  const showDetails = s.showDetails || false;
   return `
     ${mkCheckbox('laundry-start', 'Start a load of laundry', s.open, "setLaundrySection('start','open',!getLaundry('start.open'))")}
     ${s.open ? `<div style="padding:12px 0 4px;">
-      <div class="cd-section" style="margin-top:0;">Which clothes to wash</div>
-      ${mkCheckbox('start-all', 'Wash all dirty laundry in one load', s.washAll, "setLaundrySection('start','washAll',!getLaundry('start.washAll'))", 1)}
-      ${mkAccordion('start-sort', 'Sort laundry into multiple loads', s.sort, "setLaundrySection('start','sort',!getLaundry('start.sort'))",
-        mkText('start-sort-notes', 'Describe how to sort (e.g. darks on cold, lights on warm, delicates separate)…', s.sortNotes, "setLaundrySection('start','sortNotes',this.value)", 2) +
-        mkText('start-sort-first', 'Which load should be started first?', s.sortFirst, "setLaundrySection('start','sortFirst',this.value)", 2),
-      1)}
-      ${mkAccordion('start-handwash', 'Set aside hand-wash only items', s.handwash, "setLaundrySection('start','handwash',!getLaundry('start.handwash'))",
-        mkText('start-handwash-loc', 'Where should they go?', s.handwashLoc, "setLaundrySection('start','handwashLoc',this.value)", 2),
-      1)}
-
-      <div class="cd-section">Washer settings</div>
+      <div class="cd-section" style="margin-top:0;">Washer settings</div>
       ${mkRadio('start-default', 'Use default washer settings', s.washerMode === 'default' || !s.washerMode, "setLaundrySection('start','washerMode','default')", 1)}
       ${mkRadio('start-custom', 'Custom settings', s.washerMode === 'custom', "setLaundrySection('start','washerMode','custom')", 1)}
       ${s.washerMode === 'custom' ? mkText('start-washer-custom', 'Describe settings (e.g. delicate cycle, cold water)…', s.washerCustom, "setLaundrySection('start','washerCustom',this.value)", 2) : ''}
 
-      <div class="cd-section">Laundry products</div>
-      ${mkAccordion('start-detergent', 'Detergent', s.detergent, "setLaundrySection('start','detergent',!getLaundry('start.detergent'))",
-        mkText('start-detergent-notes', 'Where to find it, how much to use…', s.detergentNotes, "setLaundrySection('start','detergentNotes',this.value)", 2),
-      1)}
-      ${mkAccordion('start-softener', 'Fabric softener', s.softener, "setLaundrySection('start','softener',!getLaundry('start.softener'))",
-        mkText('start-softener-notes', 'Where to find it, how much to use…', s.softenerNotes, "setLaundrySection('start','softenerNotes',this.value)", 2),
-      1)}
-      ${mkAccordion('start-bleach', 'Bleach', s.bleach, "setLaundrySection('start','bleach',!getLaundry('start.bleach'))",
-        mkText('start-bleach-notes', 'Where to find it, how much to use…', s.bleachNotes, "setLaundrySection('start','bleachNotes',this.value)", 2),
-      1)}
+      ${mkText('start-notes', 'Notes (e.g. use Tide under the sink, avoid hot water)…', s.notes, "setLaundrySection('start','notes',this.value)", 1)}
 
-      <div class="cd-section">Additional notes</div>
-      ${mkText('start-notes', 'Any other instructions for this load…', s.notes, "setLaundrySection('start','notes',this.value)", 1)}
+      ${!showDetails ? `
+        <button onclick="setLaundrySection('start','showDetails',true)"
+          style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px 0 0 20px;display:block;">
+          + Add details (sorting, products, special items)
+        </button>` : `
+        <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:4px;">
+          <div class="cd-section">Which clothes to wash</div>
+          ${mkCheckbox('start-all', 'Wash all dirty laundry in one load', s.washAll, "setLaundrySection('start','washAll',!getLaundry('start.washAll'))", 1)}
+          ${mkAccordion('start-sort', 'Sort laundry into multiple loads', s.sort, "setLaundrySection('start','sort',!getLaundry('start.sort'))",
+            mkText('start-sort-notes', 'Describe how to sort (e.g. darks on cold, lights on warm, delicates separate)…', s.sortNotes, "setLaundrySection('start','sortNotes',this.value)", 2) +
+            mkText('start-sort-first', 'Which load should be started first?', s.sortFirst, "setLaundrySection('start','sortFirst',this.value)", 2),
+          1)}
+          ${mkAccordion('start-handwash', 'Set aside hand-wash only items', s.handwash, "setLaundrySection('start','handwash',!getLaundry('start.handwash'))",
+            mkText('start-handwash-loc', 'Where should they go?', s.handwashLoc, "setLaundrySection('start','handwashLoc',this.value)", 2),
+          1)}
+
+          <div class="cd-section">Laundry products</div>
+          ${mkAccordion('start-detergent', 'Detergent', s.detergent, "setLaundrySection('start','detergent',!getLaundry('start.detergent'))",
+            mkText('start-detergent-notes', 'Where to find it, how much to use…', s.detergentNotes, "setLaundrySection('start','detergentNotes',this.value)", 2),
+          1)}
+          ${mkAccordion('start-softener', 'Fabric softener', s.softener, "setLaundrySection('start','softener',!getLaundry('start.softener'))",
+            mkText('start-softener-notes', 'Where to find it, how much to use…', s.softenerNotes, "setLaundrySection('start','softenerNotes',this.value)", 2),
+          1)}
+          ${mkAccordion('start-bleach', 'Bleach', s.bleach, "setLaundrySection('start','bleach',!getLaundry('start.bleach'))",
+            mkText('start-bleach-notes', 'Where to find it, how much to use…', s.bleachNotes, "setLaundrySection('start','bleachNotes',this.value)", 2),
+          1)}
+        </div>`}
     </div>` : ''}`;
 }
 
 function laundryDryerHtml(d) {
   const dr = d.dryer || {};
+  const showDetails = dr.showDetails || false;
   return `
     ${mkCheckbox('laundry-dryer', 'Move clothes from washer to dryer', dr.open, "setLaundrySection('dryer','open',!getLaundry('dryer.open'))")}
     ${dr.open ? `<div style="padding:12px 0 4px;">
@@ -1552,42 +1613,59 @@ function laundryDryerHtml(d) {
       ${mkRadio('dryer-custom', 'Custom settings', dr.dryerMode === 'custom', "setLaundrySection('dryer','dryerMode','custom')", 1)}
       ${dr.dryerMode === 'custom' ? mkText('dryer-custom-text', 'Describe settings (e.g. low heat, timed dry 40 min)…', dr.dryerCustom, "setLaundrySection('dryer','dryerCustom',this.value)", 2) : ''}
 
-      <div class="cd-section">Dryer products</div>
-      ${mkAccordion('dryer-balls', 'Dryer balls', dr.dryerBalls, "setLaundrySection('dryer','dryerBalls',!getLaundry('dryer.dryerBalls'))",
-        mkText('dryer-balls-notes', 'Where to find them…', dr.dryerBallsNotes, "setLaundrySection('dryer','dryerBallsNotes',this.value)", 2),
-      1)}
-      ${mkAccordion('dryer-sheets', 'Dryer sheets', dr.dryerSheets, "setLaundrySection('dryer','dryerSheets',!getLaundry('dryer.dryerSheets'))",
-        mkText('dryer-sheets-notes', 'Where to find them…', dr.dryerSheetsNotes, "setLaundrySection('dryer','dryerSheetsNotes',this.value)", 2),
-      1)}
-
-      ${mkAccordion('dryer-hangdry', 'Some items should hang dry instead', dr.hangDry, "setLaundrySection('dryer','hangDry',!getLaundry('dryer.hangDry'))",
-        mkText('dryer-hangdry-items', 'Which items?', dr.hangDryItems, "setLaundrySection('dryer','hangDryItems',this.value)", 2) +
-        mkText('dryer-hangdry-loc', 'Where to hang them?', dr.hangDryLoc, "setLaundrySection('dryer','hangDryLoc',this.value)", 2),
-      1)}
+      ${!showDetails ? `
+        <button onclick="setLaundrySection('dryer','showDetails',true)"
+          style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px 0 0 20px;display:block;">
+          + Add details (dryer products, hang dry items)
+        </button>` : `
+        <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:4px;">
+          <div class="cd-section">Dryer products</div>
+          ${mkAccordion('dryer-balls', 'Dryer balls', dr.dryerBalls, "setLaundrySection('dryer','dryerBalls',!getLaundry('dryer.dryerBalls'))",
+            mkText('dryer-balls-notes', 'Where to find them…', dr.dryerBallsNotes, "setLaundrySection('dryer','dryerBallsNotes',this.value)", 2),
+          1)}
+          ${mkAccordion('dryer-sheets', 'Dryer sheets', dr.dryerSheets, "setLaundrySection('dryer','dryerSheets',!getLaundry('dryer.dryerSheets'))",
+            mkText('dryer-sheets-notes', 'Where to find them…', dr.dryerSheetsNotes, "setLaundrySection('dryer','dryerSheetsNotes',this.value)", 2),
+          1)}
+          ${mkAccordion('dryer-hangdry', 'Some items should hang dry instead', dr.hangDry, "setLaundrySection('dryer','hangDry',!getLaundry('dryer.hangDry'))",
+            mkText('dryer-hangdry-items', 'Which items? (e.g. cashmere sweaters, delicate blouses)…', dr.hangDryItems, "setLaundrySection('dryer','hangDryItems',this.value)", 2) +
+            mkText('dryer-hangdry-loc', 'Where to hang them?', dr.hangDryLoc, "setLaundrySection('dryer','hangDryLoc',this.value)", 2),
+          1)}
+        </div>`}
     </div>` : ''}`;
 }
 
 function laundryPutAwayHtml(d) {
   const p = d.putaway || {};
+  const showDetails = p.showDetails || false;
   return `
     ${mkCheckbox('laundry-putaway', 'Fold or put clean clothes away', p.open, "setLaundrySection('putaway','open',!getLaundry('putaway.open'))")}
     ${p.open ? `<div style="padding:12px 0 4px;">
       ${mkCheckbox('putaway-fold', 'Fold and leave in basket or on bed', p.fold, "setLaundrySection('putaway','fold',!getLaundry('putaway.fold'))", 1)}
+      ${mkCheckbox('putaway-away', 'Put away in drawers / closet', p.away, "setLaundrySection('putaway','away',!getLaundry('putaway.away'))", 1)}
+      ${mkCheckbox('putaway-hang', 'Hang items', p.hang, "setLaundrySection('putaway','hang',!getLaundry('putaway.hang'))", 1)}
+      ${mkCheckbox('putaway-iron', 'Set aside items that need ironing', p.iron, "setLaundrySection('putaway','iron',!getLaundry('putaway.iron'))", 1)}
 
-      ${mkAccordion('putaway-away', 'Put away in drawers / closet', p.away, "setLaundrySection('putaway','away',!getLaundry('putaway.away'))",
-        mkText('putaway-away-where', 'Where should things go? (e.g. master bedroom dresser, kids\' closet)…', p.awayWhere, "setLaundrySection('putaway','awayWhere',this.value)", 2) +
-        laundryPhotoGroupHtml('putaway-away-photos', p.awayPhotos || [], 'putaway-away'),
-      1)}
+      ${mkText('putaway-notes', 'Notes (e.g. clothes go in the master bedroom)…', p.notes, "setLaundrySection('putaway','notes',this.value)", 1)}
 
-      ${mkAccordion('putaway-hang', 'Hang items', p.hang, "setLaundrySection('putaway','hang',!getLaundry('putaway.hang'))",
-        mkText('putaway-hang-which', 'Which items should be hung?', p.hangWhich, "setLaundrySection('putaway','hangWhich',this.value)", 2) +
-        mkText('putaway-hang-where', 'Where? (e.g. master closet, hall closet)…', p.hangWhere, "setLaundrySection('putaway','hangWhere',this.value)", 2) +
-        laundryPhotoGroupHtml('putaway-hang-photos', p.hangPhotos || [], 'putaway-hang'),
-      1)}
-
-      ${mkAccordion('putaway-iron', 'Set aside items that need ironing', p.iron, "setLaundrySection('putaway','iron',!getLaundry('putaway.iron'))",
-        mkText('putaway-iron-where', 'Where should they go?', p.ironWhere, "setLaundrySection('putaway','ironWhere',this.value)", 2),
-      1)}
+      ${!showDetails ? `
+        <button onclick="setLaundrySection('putaway','showDetails',true)"
+          style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px 0 0 20px;display:block;">
+          + Add details (where things go, photos)
+        </button>` : `
+        <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:4px;">
+          ${p.away ? `
+            <div class="cd-section">Where to put things away</div>
+            ${mkText('putaway-away-where', 'e.g. master bedroom dresser, kids\' closet…', p.awayWhere, "setLaundrySection('putaway','awayWhere',this.value)", 1)}
+            ${laundryPhotoGroupHtml('putaway-away-photos', p.awayPhotos || [], 'putaway-away')}` : ''}
+          ${p.hang ? `
+            <div class="cd-section">Hang items</div>
+            ${mkText('putaway-hang-which', 'Which items should be hung?', p.hangWhich, "setLaundrySection('putaway','hangWhich',this.value)", 1)}
+            ${mkText('putaway-hang-where', 'Where? (e.g. master closet, hall closet)…', p.hangWhere, "setLaundrySection('putaway','hangWhere',this.value)", 1)}
+            ${laundryPhotoGroupHtml('putaway-hang-photos', p.hangPhotos || [], 'putaway-hang')}` : ''}
+          ${p.iron ? `
+            <div class="cd-section">Ironing pile</div>
+            ${mkText('putaway-iron-where', 'Where should ironing items go?', p.ironWhere, "setLaundrySection('putaway','ironWhere',this.value)", 1)}` : ''}
+        </div>`}
     </div>` : ''}`;
 }
 
