@@ -67,8 +67,48 @@
       .nav-hamburger { display: flex; }
     }
 
+    /* RIBBON DIVIDERS */
+    .ribbon-wrap { line-height: 0; margin: 0; padding: 0; overflow: hidden; }
+    .ribbon-wrap svg { width: 100%; height: 80px; display: block; }
+    .ribbon-flip { transform: scaleX(-1); }
+    @media (max-width: 600px) { .ribbon-wrap svg { height: 50px; } }
+
+    /* GRADIENT TEXT */
+    .gradient-title {
+      background: linear-gradient(120deg, var(--teal-deep) 0%, var(--teal) 55%, #2a8a7a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* GRADIENT CARDS */
+    .gradient-card { background: linear-gradient(135deg, var(--white) 0%, var(--teal-pale) 100%) !important; border: 1px solid var(--teal-light) !important; }
+    .gradient-card:hover { border-color: var(--teal) !important; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(58,112,127,0.12); }
+
+    /* HERO MESH */
+    .hero-mesh { position: absolute; inset: 0; z-index: 0; background:
+      radial-gradient(ellipse 60% 50% at 15% 60%, rgba(58,112,127,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 30%, rgba(168,212,220,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 50% 100%, rgba(212,234,238,0.20) 0%, transparent 60%),
+      var(--cream); }
+
+    /* SECTION BACKGROUNDS */
+    .problem-section { background: white; }
+    .how-section { background: white; }
+    .services-section { background: var(--stone); }
+    .pricing-section { background: white; }
+
+    /* TRUST CHECKS */
+    .trust-check { color: var(--teal); font-weight: 700; font-size: 14px; }
+
+    /* FOOTER GRADIENT */
+    footer { background: linear-gradient(135deg, var(--teal-deep) 0%, #152d33 100%); color: rgba(255,255,255,0.6); padding: 40px 32px; text-align: center; font-size: 13px; line-height: 2; }
+    footer a { color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 12px; }
+    footer a:hover { color: white; }
+    .footer-logo { font-family: var(--display); font-size: 22px; letter-spacing: 2px; color: white; margin-bottom: 12px; display: block; }
+
     /* HERO */
-    .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 24px 60px; position: relative; overflow: hidden; }
+    .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 24px 40px; position: relative; overflow: hidden; }
     .hero-bg { position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(58,112,127,0.10) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 90% 80%, rgba(58,112,127,0.06) 0%, transparent 60%), var(--cream); }
     .hero-content { position: relative; z-index: 1; text-align: center; max-width: 680px; }
     .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: var(--teal-pale); border: 1px solid var(--teal-light); color: var(--teal-dark); font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 100px; margin-bottom: 28px; letter-spacing: 0.08em; text-transform: uppercase; font-family: var(--sans); }
@@ -282,10 +322,6 @@
     .no-slots { font-size: 14px; color: var(--muted); padding: 12px 0; }
 
     /* FOOTER */
-    footer { background: var(--teal-deep); color: rgba(255,255,255,0.6); padding: 40px 32px; text-align: center; font-size: 13px; line-height: 2; }
-    footer a { color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 12px; }
-    footer a:hover { color: white; }
-    .footer-logo { font-family: var(--display); font-size: 22px; letter-spacing: 2px; color: white; margin-bottom: 12px; display: block; }
 
     @media (max-width: 600px) {
       .form-grid { grid-template-columns: 1fr; }
@@ -416,49 +452,116 @@ function render() {
 // ── HERO ──
 function renderHero() {
   return `
+    <!-- HERO -->
     <section class="hero">
-      <div class="hero-bg"></div>
+      <div class="hero-mesh"></div>
       <div class="hero-content">
-        <div class="hero-eyebrow">On-Demand Household Help</div>
+        <div class="hero-eyebrow">On-Demand Household Help · Kirkland / Eastside Seattle</div>
         <h1>Tired of raiding the<br><em>clean laundry pile?</em></h1>
         <p class="hero-sub">On-demand household help that works from your to-do list, not ours. Book a HomeDasher in minutes — come home ready to reclaim your evenings, not catch up on housework.</p>
         <button class="hero-cta" onclick="startBooking()">Build my to-do list <span class="hero-cta-arrow">→</span></button>
         <div class="trust-row">
-          <div class="trust-item"><span class="trust-icon">✓</span> Fully insured &amp; licensed</div>
-          <div class="trust-item"><span class="trust-icon">✓</span> Background-checked HomeDashers</div>
-          <div class="trust-item"><span class="trust-icon">✓</span> $50/hr · No hidden fees</div>
-          <div class="trust-item"><span class="trust-icon">✓</span> Free cancellation</div>
+          <div class="trust-item"><span class="trust-check">✓</span> Fully insured &amp; licensed</div>
+          <div class="trust-item"><span class="trust-check">✓</span> Background-checked HomeDashers</div>
+          <div class="trust-item"><span class="trust-check">✓</span> $50/hr · No hidden fees</div>
+          <div class="trust-item"><span class="trust-check">✓</span> Free cancellation</div>
         </div>
       </div>
     </section>
-    <section class="content-section alt-bg">
+
+    <!-- RIBBON 1 -->
+    <div class="ribbon-wrap" aria-hidden="true">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="r1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#d4eaee"/>
+            <stop offset="50%" stop-color="#a8d4dc"/>
+            <stop offset="100%" stop-color="#3A707F" stop-opacity="0.4"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,40 C240,100 480,0 720,60 C960,120 1200,20 1440,70 L1440,120 L0,120 Z" fill="url(#r1)"/>
+      </svg>
+    </div>
+
+    <!-- PROBLEM SECTION -->
+    <section class="content-section problem-section">
       <div class="section-inner">
         <div class="section-eyebrow">The problem we solve</div>
-        <h2 class="section-title">Your household runs on a different list every day. Standard cleaning services don't.</h2>
+        <h2 class="section-title gradient-title">Your household runs on a different list every day.<br>Standard cleaning services don't.</h2>
         <p class="section-body">A great housekeeper or household manager is invaluable — but training one takes months. You have to teach them where everything lives, how you like things done, your family's routines, your pets' needs. That investment only makes sense at 40 hours a week. It's why truly personalized household help has always been out of reach for most people.</p>
         <p class="section-body">HomeDasher changes that. The HomeDasher Planner — our proprietary task intake system — captures everything about your home and delivers a fully custom to-do list to your HomeDasher before they arrive. No training period. No explaining. No wasted time on the first visit.</p>
         <div class="callout-row">
-          <div class="callout-item"><div class="callout-text"><strong>Offload the mental load.</strong> Every task that lives in your head gets documented, prioritized, and delegated — in minutes.</div></div>
-          <div class="callout-item"><div class="callout-text"><strong>HomeDashers arrive briefed.</strong> No orientation, no questions, no half-finished tasks because they didn't know where the vacuum was.</div></div>
-          <div class="callout-item"><div class="callout-text"><strong>Distribute work fairly.</strong> Assign tasks to your HomeDasher, yourself, and other household members — all in one organized plan.</div></div>
+          <div class="callout-item gradient-card"><div class="callout-text"><strong>Offload the mental load.</strong> Every task that lives in your head gets documented, prioritized, and delegated — in minutes.</div></div>
+          <div class="callout-item gradient-card"><div class="callout-text"><strong>HomeDashers arrive briefed.</strong> No orientation, no questions, no half-finished tasks because they didn't know where the vacuum was.</div></div>
+          <div class="callout-item gradient-card"><div class="callout-text"><strong>Distribute work fairly.</strong> Assign tasks to your HomeDasher, yourself, and other household members — all in one organized plan.</div></div>
         </div>
       </div>
     </section>
-    <section class="content-section">
+
+    <!-- RIBBON 2 -->
+    <div class="ribbon-wrap ribbon-flip" aria-hidden="true">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="r2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#3A707F" stop-opacity="0.5"/>
+            <stop offset="40%" stop-color="#a8d4dc"/>
+            <stop offset="100%" stop-color="#d4eaee"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,80 C360,10 720,110 1080,40 C1260,10 1380,70 1440,50 L1440,0 L0,0 Z" fill="url(#r2)"/>
+      </svg>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <section class="content-section how-section">
       <div class="section-inner">
         <div class="section-eyebrow">How it works</div>
-        <h2 class="section-title">Three steps to a household that runs itself</h2>
+        <h2 class="section-title gradient-title">Three steps to a household that runs itself</h2>
         <div class="steps-list">
-          <div class="step-item"><div class="step-num">1</div><div class="step-content"><div class="step-heading">Build your custom to-do list in minutes</div><div class="step-desc">The HomeDasher Planner walks you through what needs doing — cleaning, laundry, meal prep, research tasks, pet care, organizing, whatever's piling up.</div></div></div>
-          <div class="step-item"><div class="step-num">2</div><div class="step-content"><div class="step-heading">Book your appointment</div><div class="step-desc">Choose a time that works. Pay securely upfront — cancel anytime before your appointment for a full refund.</div></div></div>
-          <div class="step-item"><div class="step-num">3</div><div class="step-content"><div class="step-heading">Your HomeDasher arrives ready</div><div class="step-desc">Your HomeDasher has your complete custom to-do list before they walk in the door. No orientation. Just results.</div></div></div>
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-heading">Build your custom to-do list in minutes</div>
+              <div class="step-desc">The HomeDasher Planner walks you through what needs doing — cleaning, laundry, meal prep, research tasks, pet care, organizing, whatever's piling up.</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-heading">Book your appointment</div>
+              <div class="step-desc">Choose a time that works. Pay securely upfront — cancel anytime before your appointment for a full refund.</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-heading">Your HomeDasher arrives ready</div>
+              <div class="step-desc">Your HomeDasher has your complete custom to-do list before they walk in the door. No orientation. Just results.</div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
-    <section class="content-section alt-bg" id="services">
+
+    <!-- RIBBON 3 -->
+    <div class="ribbon-wrap" aria-hidden="true">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="r3" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#d4eaee"/>
+            <stop offset="60%" stop-color="#a8d4dc"/>
+            <stop offset="100%" stop-color="#2d5a67" stop-opacity="0.3"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,60 C200,110 500,10 800,80 C1100,140 1300,30 1440,60 L1440,120 L0,120 Z" fill="url(#r3)"/>
+      </svg>
+    </div>
+
+    <!-- SERVICES -->
+    <section class="content-section services-section" id="services">
       <div class="section-inner">
         <div class="section-eyebrow">What we do</div>
-        <h2 class="section-title">One hourly rate. Everything your household needs.</h2>
+        <h2 class="section-title gradient-title">One hourly rate. Everything your household needs.</h2>
         <div class="services-grid">
           <div class="service-card"><div class="service-name">Light Housekeeping</div><div class="service-desc">Surface sanitizing, mirrors, toilet, dishes, fridge cleanout, trash &amp; recycling, sweep/vacuum</div></div>
           <div class="service-card"><div class="service-name">Laundry &amp; Linens</div><div class="service-desc">Wash, dry, fold, put away. Change and make beds. Organize the linen closet.</div></div>
@@ -472,10 +575,26 @@ function renderHero() {
         <div class="specialty-note"><strong>Need something more intensive?</strong> We can dispatch specialist HomeDashers for deep cleans, carpet cleaning, junk hauling, and more. <a href="#" onclick="startBooking()">Ask us when building your to-do list →</a></div>
       </div>
     </section>
-    <section class="content-section" id="pricing">
+
+    <!-- RIBBON 4 -->
+    <div class="ribbon-wrap ribbon-flip" aria-hidden="true">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="r4" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#1e3d45" stop-opacity="0.15"/>
+            <stop offset="50%" stop-color="#3A707F" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#d4eaee"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,90 C400,20 800,110 1200,40 C1320,20 1400,60 1440,80 L1440,0 L0,0 Z" fill="url(#r4)"/>
+      </svg>
+    </div>
+
+    <!-- PRICING -->
+    <section class="content-section pricing-section" id="pricing">
       <div class="section-inner center-text">
         <div class="section-eyebrow">Pricing</div>
-        <h2 class="section-title">Simple, transparent pricing</h2>
+        <h2 class="section-title gradient-title">Simple, transparent pricing</h2>
         <div class="pricing-card">
           <div class="price-amount">$50<span class="price-unit">/hr</span></div>
           <div class="price-desc">One rate. Everything included. No hidden fees, no add-ons, no surprises.</div>
@@ -484,7 +603,7 @@ function renderHero() {
             <div class="price-feature">✓ HomeDasher Planner — custom to-do list included</div>
             <div class="price-feature">✓ Background-checked, insured HomeDashers</div>
             <div class="price-feature">✓ Free cancellation before your appointment</div>
-            <div class="price-feature">✓ 1-hour minimum booking</div>
+            <div class="price-feature">✓ 30-minute minimum booking</div>
           </div>
           <button class="hero-cta" onclick="startBooking()" style="margin-top:24px">Build my to-do list →</button>
         </div>
