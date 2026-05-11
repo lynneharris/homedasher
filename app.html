@@ -2761,7 +2761,14 @@ function saveAndRender() {
 window.startBooking  = () => { state.screen = 'task-select'; render(); };
 window.showMagicLink = () => { state.screen = 'magic'; render(); };
 window.goToBook      = () => { state.screen = 'book'; render(); };
-window.setPref       = (p) => { state.contactPref = p; if (state.screen === 'book') saveAndRender(); else render(); };
+window.togglePref = (p) => {
+  if (!Array.isArray(state.contactPref)) state.contactPref = [state.contactPref];
+  const idx = state.contactPref.indexOf(p);
+  if (idx === -1) state.contactPref.push(p);
+  else if (state.contactPref.length > 1) state.contactPref.splice(idx, 1);
+  document.getElementById('pref-email')?.classList.toggle('active', state.contactPref.includes('email'));
+  document.getElementById('pref-sms')?.classList.toggle('active', state.contactPref.includes('sms'));
+};
 window.setDuration   = (d) => { state.duration = d; if (state.screen === 'book') saveAndRender(); else render(); };
 window.setRating     = (r) => { state.rating = r; render(); };
 window.setAccess     = (m) => { state.accessMethod = m; state.arrivalPreference = null; saveAndRender(); };
