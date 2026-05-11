@@ -2176,8 +2176,8 @@ function renderBook() {
           <div class="field span2">
             <label>Preferred contact method</label>
             <div class="pref-toggle">
-              <button class="pref-btn ${state.contactPref === 'email' ? 'active' : ''}" onclick="setPref('email')">Email</button>
-              <button class="pref-btn ${state.contactPref === 'sms' ? 'active' : ''}" onclick="setPref('sms')">Text message</button>
+              <button class="pref-btn ${state.contactPref === 'email' ? 'active' : ''}" id="pref-email" onclick="togglePref('email')">Email</button>
+              <button class="pref-btn ${state.contactPref === 'sms' ? 'active' : ''}" id="pref-sms" onclick="togglePref('sms')">Text message</button>
             </div>
           </div>
           <div class="field span2"><label>Date</label><div id="calendar-widget">${renderCalendar()}</div></div>
