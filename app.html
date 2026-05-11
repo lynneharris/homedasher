@@ -2155,7 +2155,7 @@ window.editCat = (catIdx) => {
 
 // ── BOOKING DETAILS ──
 function renderBook() {
-  const price = state.duration * 50;
+  const price = state.duration * HOURLY_RATE;
   return `
     <div class="steps">
       <div class="step done"><div class="step-dot">✓</div><div class="step-label">Plan</div></div>
@@ -2226,7 +2226,7 @@ function renderBook() {
         </div>
         <div style="background:var(--teal-pale);border:1px solid var(--teal-light);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
           <div>
-            <div style="font-size:15px;font-weight:600;color:var(--teal-deep);">${fmtDuration(state.duration)} &middot; $${state.duration * 50}</div>
+            <div style="font-size:15px;font-weight:600;color:var(--teal-deep);">${fmtDuration(state.duration)} &middot; $${state.duration * HOURLY_RATE}</div>
             <div style="font-size:12px;color:var(--teal);margin-top:3px;">Free cancellation anytime before your appointment</div>
           </div>
           <button onclick="startBooking()" style="background:none;border:none;color:var(--teal);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px;flex-shrink:0;margin-left:16px;">Edit</button>
@@ -2239,7 +2239,7 @@ function renderBook() {
 
 // ── PAYMENT ──
 function renderPayment() {
-  const price = state.duration * 50;
+  const price = state.duration * HOURLY_RATE;
   return `
     <div class="steps">
       <div class="step done"><div class="step-dot">✓</div><div class="step-label">Plan</div></div>
@@ -2313,7 +2313,7 @@ function renderSuccess() {
           <div class="success-row"><span class="success-row-label">Date</span><span class="success-row-val">${formatDate(state.date, state.time)}</span></div>
           <div class="success-row"><span class="success-row-label">Duration</span><span class="success-row-val">${fmtDuration(state.duration)}</span></div>
           <div class="success-row"><span class="success-row-label">Address</span><span class="success-row-val">${state.bookingDetails?.address || ''}</span></div>
-          <div class="success-row"><span class="success-row-label">Total charged</span><span class="success-row-val">$${(b.amountCharged / 100 || state.duration * 50).toFixed(2)}</span></div>
+          <div class="success-row"><span class="success-row-label">Total charged</span><span class="success-row-val">$${(b.amountCharged / 100 || state.duration * HOURLY_RATE).toFixed(2)}</span></div>
         </div>
         <button class="proceed-btn" onclick="goToRate()">How did we do? Leave a rating</button>
         <p style="font-size:13px;color:var(--muted);margin-top:12px">Or <button style="background:none;border:none;color:var(--teal);cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;text-decoration:underline" onclick="startBooking()">book again</button></p>
@@ -2802,7 +2802,7 @@ window.submitPayment = async () => {
       document.getElementById('stripe-error').textContent = error.message;
       document.getElementById('stripe-error').style.display = 'block';
       btn.disabled = false;
-      btnText.textContent = `Pay $${state.duration * 50} & confirm booking`;
+      btnText.textContent = `Pay $${state.duration * HOURLY_RATE} & confirm booking`;
       return;
     }
     const res = await fetch('/api/submit', {
@@ -2811,14 +2811,14 @@ window.submitPayment = async () => {
       body: JSON.stringify({ ...state.bookingDetails, taskTimes: state.taskTimes, catDetails: state.catDetails, contactPreference: state.contactPref, duration: state.duration, paymentMethodId: paymentMethod.id, promoCode: state.promoCode || null, referralCode: state.referralCode || null, accessMethod: state.accessMethod || null, arrivalPreference: state.arrivalPreference || null, accessDetails: state.accessDetails || null, hasPets: state.hasPets || false, petNotes: state.petNotes || null }),
     });
     const data = await res.json();
-    if (!res.ok) { errEl.innerHTML = `<div class="error-msg">${data.error || 'Payment failed. Please try again.'}</div>`; btn.disabled = false; btnText.textContent = `Pay $${state.duration * 50} & confirm booking`; return; }
+    if (!res.ok) { errEl.innerHTML = `<div class="error-msg">${data.error || 'Payment failed. Please try again.'}</div>`; btn.disabled = false; btnText.textContent = `Pay $${state.duration * HOURLY_RATE} & confirm booking`; return; }
     state.booking = data;
     state.screen = 'success';
     render();
   } catch (err) {
     errEl.innerHTML = '<div class="error-msg">Something went wrong. Please try again.</div>';
     btn.disabled = false;
-    btnText.textContent = `Pay $${state.duration * 50} & confirm booking`;
+    btnText.textContent = `Pay $${state.duration * HOURLY_RATE} & confirm booking`;
   }
 };
 
