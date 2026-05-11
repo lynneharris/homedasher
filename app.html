@@ -2346,8 +2346,8 @@ function renderMagicLink() {
         <p style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:16px">or</p>
         <div class="field" style="margin-bottom:20px"><label>Phone number</label><input type="tel" id="magic-phone" placeholder="(555) 000-0000" /></div>
         <div class="pref-toggle" style="margin-bottom:20px">
-          <button class="pref-btn ${state.contactPref === 'email' ? 'active' : ''}" id="pref-email" onclick="togglePref('email')">Email</button>
-          <button class="pref-btn ${state.contactPref === 'sms' ? 'active' : ''}" id="pref-sms" onclick="togglePref('sms')">Text message</button>
+          <button class="pref-btn ${state.contactPref.includes('email') ? 'active' : ''}" id="pref-email" onclick="togglePref('email')">Email</button>
+          <button class="pref-btn ${state.contactPref.includes('sms') ? 'active' : ''}" id="pref-sms" onclick="togglePref('sms')">Text message</button>
         </div>
         <button class="submit-btn" onclick="sendMagicLink()">Send my login link</button>
         <div id="magic-msg"></div>
