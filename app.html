@@ -2308,7 +2308,7 @@ function renderSuccess() {
       <div class="card success-card">
         <div class="success-icon">✓</div>
         <div class="success-title">You're all set!</div>
-        <p class="success-sub">Your booking is confirmed. We'll ${state.contactPref.includes('sms') && contactPref.includes('email') ? 'text and email' : contactPref.includes('sms') ? 'text' : 'email'} you when your HomeDasher is assigned.</p>
+        <p class="success-sub">Your booking is confirmed. We'll ${state.contactPref.includes('sms') && state.contactPref.includes('email') ? 'text and email' : state.contactPref.includes('sms') ? 'text' : 'email'} you when your HomeDasher is assigned.</p>
         <div class="success-detail">
           <div class="success-row"><span class="success-row-label">Date</span><span class="success-row-val">${formatDate(state.date, state.time)}</span></div>
           <div class="success-row"><span class="success-row-label">Duration</span><span class="success-row-val">${fmtDuration(state.duration)}</span></div>
