@@ -84,7 +84,6 @@
 
     /* GRADIENT CARDS */
     .gradient-card { background: linear-gradient(135deg, var(--white) 0%, var(--teal-pale) 100%) !important; border: 1px solid var(--teal-light) !important; }
-    .gradient-card:hover { border-color: var(--teal) !important; box-shadow: 0 4px 16px rgba(58,112,127,0.08); }
 
     /* HERO MESH */
     .hero-mesh { position: absolute; inset: 0; z-index: 0; background:
@@ -94,7 +93,7 @@
       var(--cream); }
 
     /* SECTION BACKGROUNDS */
-    .problem-section { background: linear-gradient(135deg, #c8e8ee 0%, #e8f5f8 100%); }
+    .problem-section { background: linear-gradient(180deg, #c8e8ee 0%, #e8f5f8 100%); }
     .how-section { background: white; }
     .services-section { background: var(--stone); }
     .pricing-section { background: white; }
@@ -216,8 +215,7 @@
     .step-heading { font-size: 18px; font-weight: 700; color: var(--teal-deep); margin-bottom: 8px; }
     .step-desc { font-size: 15px; color: var(--slate); line-height: 1.65; }
     .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 32px; }
-    .service-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 20px; transition: all 0.2s; }
-    .service-card:hover { border-color: var(--teal); box-shadow: 0 4px 16px rgba(58,112,127,0.08); }
+    .service-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
     .service-icon { font-size: 24px; margin-bottom: 10px; }
     .service-name { font-size: 15px; font-weight: 700; color: var(--teal-deep); margin-bottom: 6px; }
     .service-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
@@ -457,7 +455,7 @@ function renderHero() {
     <section class="hero">
       <div class="hero-mesh"></div>
       <div class="hero-content">
-        <div class="hero-eyebrow">On-Demand Household Help · Eastside Seattle</div>
+        <div class="hero-eyebrow">2026 City of Kirkland Start-Up Business Winner</div>
         <h1>Tired of raiding the<br><em>clean laundry pile?</em></h1>
         <p class="hero-sub">On-demand household help that works from your to-do list, not ours. Book a HomeDasher in minutes — come home ready to reclaim your evenings, not catch up on housework.</p>
         <button class="hero-cta" onclick="startBooking()">Build my to-do list <span class="hero-cta-arrow">→</span></button>
@@ -473,14 +471,7 @@ function renderHero() {
     <!-- RIBBON 1 -->
     <div class="ribbon-wrap" aria-hidden="true">
       <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="r1" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#d4eaee"/>
-            <stop offset="50%" stop-color="#a8d4dc"/>
-            <stop offset="100%" stop-color="#3A707F" stop-opacity="0.4"/>
-          </linearGradient>
-        </defs>
-        <path d="M0,40 C240,100 480,0 720,60 C960,120 1200,20 1440,70 L1440,120 L0,120 Z" fill="url(#r1)"/>
+        <path d="M0,40 C240,100 480,0 720,60 C960,120 1200,20 1440,70 L1440,120 L0,120 Z" fill="#c8e8ee"/>
       </svg>
     </div>
 
@@ -502,14 +493,7 @@ function renderHero() {
     <!-- RIBBON 2 -->
     <div class="ribbon-wrap ribbon-flip" aria-hidden="true">
       <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="r2" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#3A707F" stop-opacity="0.5"/>
-            <stop offset="40%" stop-color="#a8d4dc"/>
-            <stop offset="100%" stop-color="#d4eaee"/>
-          </linearGradient>
-        </defs>
-        <path d="M0,80 C360,10 720,110 1080,40 C1260,10 1380,70 1440,50 L1440,0 L0,0 Z" fill="url(#r2)"/>
+        <path d="M0,80 C360,10 720,110 1080,40 C1260,10 1380,70 1440,50 L1440,0 L0,0 Z" fill="#e8f5f8"/>
       </svg>
     </div>
 
@@ -547,14 +531,7 @@ function renderHero() {
     <!-- RIBBON 3 -->
     <div class="ribbon-wrap" aria-hidden="true">
       <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="r3" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#d4eaee"/>
-            <stop offset="60%" stop-color="#a8d4dc"/>
-            <stop offset="100%" stop-color="#2d5a67" stop-opacity="0.3"/>
-          </linearGradient>
-        </defs>
-        <path d="M0,60 C200,110 500,10 800,80 C1100,140 1300,30 1440,60 L1440,120 L0,120 Z" fill="url(#r3)"/>
+        <path d="M0,60 C200,110 500,10 800,80 C1100,140 1300,30 1440,60 L1440,120 L0,120 Z" fill="#f7f8f6"/>
       </svg>
     </div>
 
@@ -580,14 +557,7 @@ function renderHero() {
     <!-- RIBBON 4 -->
     <div class="ribbon-wrap ribbon-flip" aria-hidden="true">
       <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="r4" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#1e3d45" stop-opacity="0.15"/>
-            <stop offset="50%" stop-color="#3A707F" stop-opacity="0.25"/>
-            <stop offset="100%" stop-color="#d4eaee"/>
-          </linearGradient>
-        </defs>
-        <path d="M0,90 C400,20 800,110 1200,40 C1320,20 1400,60 1440,80 L1440,0 L0,0 Z" fill="url(#r4)"/>
+        <path d="M0,90 C400,20 800,110 1200,40 C1320,20 1400,60 1440,80 L1440,0 L0,0 Z" fill="#f7f8f6"/>
       </svg>
     </div>
 
