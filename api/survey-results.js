@@ -2,7 +2,7 @@
 // Returns: { ok, rows: [ { id, status, answers, contact_email, contact_phone, created_at } ] }
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SERVICE_KEY  = process.env.SUPABASE_SERVICE_KEY;
 
 function json(res, code, obj){ res.status(code).setHeader("Content-Type","application/json"); res.end(JSON.stringify(obj)); }
 

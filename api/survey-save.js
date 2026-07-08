@@ -6,7 +6,7 @@
 // Returns: { ok: true, token }
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SERVICE_KEY  = process.env.SUPABASE_SERVICE_KEY;
 
 function json(res, code, obj){ res.status(code).setHeader("Content-Type","application/json"); res.end(JSON.stringify(obj)); }
 
@@ -33,7 +33,7 @@ function newToken(){
 
 async function sendEmail(to, link){
   if (!process.env.RESEND_API_KEY) return;
-  const from = process.env.RESEND_FROM || "HomeDasher <hello@homedasher.net>";
+  const from = process.env.FROM_EMAIL || "HomeDasher <hello@homedasher.net>";
   await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: "Bearer " + process.env.RESEND_API_KEY, "Content-Type": "application/json" },
