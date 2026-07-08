@@ -204,6 +204,19 @@
   var token  = params.get("token");
   var surveyId = params.get("survey");
 
+  // Pretty URLs (/intake, /s/:id) are Vercel rewrites — the browser URL stays
+  // as-is, so the destination's ?survey=... never reaches client JS. Derive the
+  // survey id from the path when it isn't in the query and there's no token.
+  if (!surveyId && !token) {
+    var path = location.pathname.replace(/\/+$/, "");
+    if (path === "/intake") {
+      surveyId = "covid-intake";
+    } else {
+      var m = path.match(/^\/s\/([^\/]+)$/);
+      if (m) surveyId = decodeURIComponent(m[1]);
+    }
+  }
+
   var SURVEYS = window.SURVEYS || {};
   var survey = null;
   var answers = {};          // { qid: value }  (matrix value = { rowId: "Yes"|"No" })
