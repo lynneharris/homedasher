@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HomeDasher — Survey Results</title>
+<style>
+  :root{ --teal:#3A707F; --teal-deep:#2B5561; --stone:#F5F3EF; --ink:#1F2A2E; --muted:#6B7B80; --border:#E3DFD6; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--stone)}
+  header{background:var(--teal);color:#fff;padding:16px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  header b{font-size:17px}
+  .bar{display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap}
+  .bar input,.bar select{padding:8px 10px;border-radius:8px;border:1px solid #cfe0e2;font:inherit}
+  .bar button{padding:8px 14px;border-radius:8px;border:none;background:#fff;color:var(--teal-deep);font-weight:600;cursor:pointer}
+  .wrap{padding:18px 20px 60px}
+  .meta{color:var(--muted);font-size:13px;margin:8px 0 14px}
+  .tablecard{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:auto}
+  table{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap}
+  th,td{padding:9px 12px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+  th{background:#F0EEE8;position:sticky;top:0;font-weight:600}
+  tr:hover td{background:#FAFAF7}
+  .pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px}
+  .pill.complete{background:#E3F0EA;color:#2E6B4F}
+  .pill.draft{background:#FBEEE9;color:#8A4034}
+  .empty{padding:40px;text-align:center;color:var(--muted)}
+  .gate{max-width:360px;margin:60px auto;background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px}
+  .gate h1{font-size:18px;margin:0 0 12px}
+  .gate input{width:100%;padding:11px;border:1px solid #cfd8da;border-radius:9px;font:inherit;margin-bottom:10px}
+  .gate button{width:100%;padding:11px;border:none;border-radius:9px;background:var(--teal);color:#fff;font-weight:600;cursor:pointer}
+  .err{color:#B4483C;font-size:13px;margin-top:8px;min-height:16px}
+</style>
+</head>
+<body>
+<div id="gate" class="gate">
+  <h1>Survey results</h1>
+  <input id="keyInput" type="password" placeholder="Admin key" />
+  <input id="surveyInput" type="text" placeholder="Survey id (e.g. covid-intake)" value="covid-intake" />
+  <button id="loadBtn">View results</button>
+  <div class="err" id="gateErr"></div>
+</div>
+
+<div id="app" style="display:none">
+  <header>
+    <b>HomeDasher · Results</b>
+    <span id="surveyName" style="opacity:.85;font-size:14px"></span>
+    <div class="bar">
+      <button id="refreshBtn">Refresh</button>
+      <button id="csvBtn">Export CSV</button>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="meta" id="count"></div>
+    <div class="tablecard"><table id="table"><thead></thead><tbody></tbody></table></div>
+  </div>
+</div>
+
+<script src="surveys.js"></script>
+<script>
+(function(){
+  "use strict";
+  var SURVEYS = window.SURVEYS || {};
+  var state = { key:"", survey:"", cols:[], rows:[] };
+
+  function $(id){ return document.getElementById(id); }
+
+  // Build flat column definitions from the survey config.
+  function buildCols(surveyId){
+    var s = SURVEYS[surveyId];
+    var cols = [
+      { key:"_date",   label:"Submitted", get:function(r){ return new Date(r.created_at).toLocaleString(); } },
+      { key:"_status", label:"Status",    get:function(r){ return r.status; }, status:true },
+      { key:"_email",  label:"Email",     get:function(r){ return r.contact_email || ""; } },
+      { key:"_phone",  label:"Phone",     get:function(r){ return r.contact_phone || ""; } }
+    ];
+    if (!s) return cols;
+    s.questions.forEach(function(q){
+      if (q.type === "matrix") {
+        (q.rows||[]).forEach(function(rw){
+          cols.push({ label: stem(q.label) + " — " + rw.label,
+            get:function(r){ var a=r.answers&&r.answers[q.id]; return a ? (a[rw.id]||"") : ""; } });
+        });
+      } else {
+        cols.push({ label: stem(q.label || q.id),
+          get:function(r){
+            var v = r.answers ? r.answers[q.id] : "";
+            if (Array.isArray(v)) return v.join("; ");
+            return v == null ? "" : v;
+          } });
+      }
+    });
+    return cols;
+  }
+  function stem(t){ return String(t).replace(/\s+/g," ").trim(); }
+
+  function load(){
+    var url = "/api/survey-results?key=" + encodeURIComponent(state.key) +
+              "&survey=" + encodeURIComponent(state.survey);
+    return fetch(url).then(function(r){
+      if (r.status === 401) throw new Error("unauthorized");
+      return r.json();
+    }).then(function(d){
+      if (!d.ok) throw new Error("failed");
+      state.rows = d.rows || [];
+      render();
+    });
+  }
+
+  function render(){
+    $("gate").style.display="none"; $("app").style.display="block";
+    $("surveyName").textContent = (SURVEYS[state.survey] && SURVEYS[state.survey].title) || state.survey;
+    state.cols = buildCols(state.survey);
+
+    var thead=$("table").querySelector("thead");
+    var tbody=$("table").querySelector("tbody");
+    thead.innerHTML = "<tr>" + state.cols.map(function(c){ return "<th>"+esc(c.label)+"</th>"; }).join("") + "</tr>";
+
+    if (state.rows.length === 0){
+      tbody.innerHTML = "<tr><td colspan='"+state.cols.length+"'><div class='empty'>No responses yet. Share your survey link to start collecting.</div></td></tr>";
+    } else {
+      tbody.innerHTML = state.rows.map(function(r){
+        return "<tr>" + state.cols.map(function(c){
+          var v = c.get(r);
+          if (c.status) return "<td><span class='pill "+esc(r.status)+"'>"+esc(v)+"</span></td>";
+          return "<td>"+esc(v)+"</td>";
+        }).join("") + "</tr>";
+      }).join("");
+    }
+    var complete = state.rows.filter(function(r){return r.status==="complete";}).length;
+    $("count").textContent = state.rows.length + " response" + (state.rows.length===1?"":"s") +
+      " · " + complete + " completed · " + (state.rows.length-complete) + " draft";
+  }
+
+  function exportCsv(){
+    var lines = [ state.cols.map(function(c){ return csv(c.label); }).join(",") ];
+    state.rows.forEach(function(r){
+      lines.push(state.cols.map(function(c){ return csv(c.get(r)); }).join(","));
+    });
+    var blob = new Blob([lines.join("\r\n")], {type:"text/csv"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = state.survey + "-responses.csv";
+    a.click();
+  }
+  function csv(v){ v = v==null?"":String(v); return '"' + v.replace(/"/g,'""') + '"'; }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];}); }
+
+  $("loadBtn").addEventListener("click", function(){
+    state.key = $("keyInput").value.trim();
+    state.survey = $("surveyInput").value.trim() || "covid-intake";
+    if(!state.key){ $("gateErr").textContent="Enter your admin key."; return; }
+    load().catch(function(e){
+      $("gateErr").textContent = e.message==="unauthorized" ? "That key was rejected." : "Couldn’t load results.";
+    });
+  });
+  $("refreshBtn").addEventListener("click", function(){ load().catch(function(){}); });
+  $("csvBtn").addEventListener("click", exportCsv);
+})();
+</script>
+</body>
+</html>

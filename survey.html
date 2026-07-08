@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HomeDasher — Care Preferences</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal:#3A707F; --teal-deep:#2B5561; --teal-pale:#E8F0F1;
+    --stone:#F5F3EF; --card:#FFFFFF; --ink:#1F2A2E; --muted:#6B7B80;
+    --border:#E3DFD6; --border-strong:#CBD6D8;
+    --danger:#B4483C; --ok:#3A707F;
+    --radius:14px; --shadow:0 10px 40px rgba(43,85,97,.09);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"Montserrat",system-ui,-apple-system,sans-serif;
+    color:var(--ink); background:var(--stone);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:660px; margin:0 auto; padding:28px 18px 72px}
+  .brand{
+    font-family:"Bangers",cursive; letter-spacing:.5px;
+    color:var(--teal); font-size:30px; line-height:1; margin-bottom:22px;
+  }
+  .brand span{color:var(--teal-deep)}
+  .card{
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:26px 22px;
+  }
+  h1{font-size:23px; line-height:1.2; margin:2px 0 12px; letter-spacing:-.2px}
+  .intro{color:var(--muted); font-size:14.5px; margin:0 0 8px}
+  .divider{height:1px; background:var(--border); margin:24px 0}
+
+  .q{margin:22px 0}
+  .q-label{font-weight:600; font-size:15.5px; display:block; margin-bottom:6px}
+  .q-req{color:var(--danger); margin-left:3px}
+  .q-help{color:var(--muted); font-size:13.5px; margin:0 0 12px}
+
+  input[type=text], input[type=email], input[type=tel], input[type=number], textarea, select{
+    width:100%; font:inherit; color:var(--ink);
+    padding:12px 13px; border:1px solid var(--border-strong);
+    border-radius:10px; background:#fff; transition:border-color .15s, box-shadow .15s;
+  }
+  textarea{min-height:96px; resize:vertical}
+  input:focus, textarea:focus, select:focus{
+    outline:none; border-color:var(--teal);
+    box-shadow:0 0 0 3px var(--teal-pale);
+  }
+
+  /* radio / checkbox lists */
+  .opts{display:flex; flex-direction:column; gap:9px; margin-top:4px}
+  .opt{
+    display:flex; align-items:center; gap:11px; cursor:pointer;
+    border:1px solid var(--border-strong); border-radius:11px;
+    padding:12px 14px; font-size:14.5px; transition:.15s; background:#fff;
+  }
+  .opt:hover{border-color:var(--teal)}
+  .opt.sel{border-color:var(--teal); background:var(--teal-pale)}
+  .opt input{position:absolute; opacity:0; pointer-events:none}
+  .mark{
+    width:20px; height:20px; flex:0 0 20px; border:1.6px solid var(--border-strong);
+    display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px;
+    transition:.15s;
+  }
+  .mark.radio{border-radius:50%}
+  .mark.check{border-radius:6px}
+  .opt.sel .mark{background:var(--teal); border-color:var(--teal)}
+
+  /* yes/no + matrix */
+  .matrix-stem{font-weight:600; font-size:15.5px; margin-bottom:12px}
+  .mrow{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:11px 0; border-top:1px solid var(--border);
+  }
+  .mrow:first-of-type{border-top:none}
+  .mrow-label{font-size:14.5px}
+  .toggle{display:flex; gap:6px; flex:0 0 auto}
+  .toggle button{
+    font:inherit; font-size:13.5px; font-weight:600; cursor:pointer;
+    border:1px solid var(--border-strong); background:#fff; color:var(--muted);
+    padding:7px 16px; border-radius:999px; transition:.15s; min-width:58px;
+  }
+  .toggle button:hover{border-color:var(--teal)}
+  .toggle button.on{background:var(--teal); border-color:var(--teal); color:#fff}
+
+  /* stars */
+  .stars{display:flex; gap:6px; font-size:30px; line-height:1; color:var(--border-strong)}
+  .stars span{cursor:pointer; transition:.12s}
+  .stars span.on{color:#E8B04B}
+
+  .err{color:var(--danger); font-size:13px; margin-top:6px; display:none}
+  .q.invalid .err{display:block}
+  .q.invalid input, .q.invalid textarea, .q.invalid select{border-color:var(--danger)}
+
+  /* actions */
+  .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:28px}
+  .btn{
+    font:inherit; font-weight:600; font-size:15px; cursor:pointer;
+    border-radius:11px; padding:13px 20px; border:1px solid transparent; transition:.15s;
+  }
+  .btn-primary{background:var(--teal); color:#fff; flex:1 1 auto}
+  .btn-primary:hover{background:var(--teal-deep)}
+  .btn-ghost{background:#fff; color:var(--teal); border-color:var(--border-strong)}
+  .btn-ghost:hover{border-color:var(--teal)}
+  .btn:disabled{opacity:.55; cursor:default}
+
+  /* save-later panel */
+  .savebox{
+    margin-top:16px; border:1px dashed var(--border-strong); border-radius:12px;
+    padding:16px; background:#fff; display:none;
+  }
+  .savebox.open{display:block}
+  .savebox h3{margin:0 0 4px; font-size:15px}
+  .savebox p{margin:0 0 12px; color:var(--muted); font-size:13.5px}
+  .seg{display:flex; gap:8px; margin-bottom:12px}
+  .seg button{
+    flex:1; font:inherit; font-weight:600; font-size:13.5px; cursor:pointer;
+    border:1px solid var(--border-strong); background:#fff; color:var(--muted);
+    padding:9px; border-radius:9px; transition:.15s;
+  }
+  .seg button.on{background:var(--teal-pale); border-color:var(--teal); color:var(--teal-deep)}
+
+  .banner{
+    padding:14px 16px; border-radius:11px; font-size:14px; margin-bottom:18px; display:none;
+  }
+  .banner.show{display:block}
+  .banner.info{background:var(--teal-pale); color:var(--teal-deep)}
+  .banner.warn{background:#FBEEE9; color:#8A4034}
+
+  .done{text-align:center; padding:14px 4px}
+  .done .big{font-family:"Bangers",cursive; color:var(--teal); font-size:34px; letter-spacing:.5px; margin:6px 0}
+  .done p{color:var(--muted); font-size:14.5px}
+  .foot{color:var(--muted); font-size:12px; text-align:center; margin-top:22px}
+  .review-tag{
+    display:inline-block; background:var(--teal-pale); color:var(--teal-deep);
+    font-size:12px; font-weight:600; padding:4px 10px; border-radius:999px; margin-bottom:10px;
+  }
+  @media (prefers-reduced-motion: reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Home<span>Dasher</span></div>
+
+  <div class="banner" id="banner"></div>
+
+  <div class="card" id="card">
+    <div id="loading" style="color:var(--muted);font-size:14px">Loading…</div>
+    <form id="form" style="display:none" novalidate>
+      <span class="review-tag" id="reviewTag" style="display:none">Your submitted preferences</span>
+      <h1 id="title"></h1>
+      <p class="intro" id="intro"></p>
+      <div class="divider"></div>
+      <div id="questions"></div>
+
+      <div class="actions" id="actions">
+        <button type="button" class="btn btn-primary" id="submitBtn"></button>
+        <button type="button" class="btn btn-ghost" id="saveBtn">Save &amp; finish later</button>
+      </div>
+
+      <div class="savebox" id="savebox">
+        <h3>Get a link to finish later</h3>
+        <p>We’ll save your answers and send you a private link to pick up right where you left off — on any device.</p>
+        <div class="seg">
+          <button type="button" id="segEmail" class="on">Email</button>
+          <button type="button" id="segPhone">Text message</button>
+        </div>
+        <input type="email" id="contactInput" placeholder="you@example.com" />
+        <div class="err" id="contactErr" style="display:none">Please enter a valid email.</div>
+        <div class="actions" style="margin-top:14px">
+          <button type="button" class="btn btn-primary" id="sendLinkBtn">Send my link</button>
+        </div>
+      </div>
+    </form>
+
+    <div class="done" id="doneComplete" style="display:none">
+      <div class="big">All set!</div>
+      <p id="doneText">Thanks — your preferences are saved. Your HomeDasher will follow them at every visit.</p>
+    </div>
+  </div>
+
+  <div class="foot">HomeDasher · Kirkland &amp; the Eastside</div>
+</div>
+
+<script src="surveys.js"></script>
+<script>
+(function(){
+  "use strict";
+  var params = new URLSearchParams(location.search);
+  var token  = params.get("token");
+  var surveyId = params.get("survey");
+
+  var SURVEYS = window.SURVEYS || {};
+  var survey = null;
+  var answers = {};          // { qid: value }  (matrix value = { rowId: "Yes"|"No" })
+  var readOnly = false;
+  var contactMode = "email"; // 'email' | 'phone'
+
+  var el = function(id){ return document.getElementById(id); };
+  var banner = el("banner");
+  function showBanner(kind, msg){
+    banner.className = "banner show " + kind;
+    banner.textContent = msg;
+  }
+
+  // ---------- boot ----------
+  function boot(){
+    if (token) {
+      loadDraft(token);
+    } else if (surveyId && SURVEYS[surveyId]) {
+      survey = SURVEYS[surveyId];
+      restoreLocal();
+      render();
+    } else {
+      el("loading").textContent =
+        "We couldn’t find that survey. Please check the link and try again.";
+    }
+  }
+
+  function loadDraft(tok){
+    fetch("/api/survey-load?token=" + encodeURIComponent(tok))
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (data && data.survey_id && SURVEYS[data.survey_id]) {
+          surveyId = data.survey_id;
+          survey = SURVEYS[surveyId];
+          answers = data.answers || {};
+          readOnly = data.status === "complete";
+          if (readOnly) showBanner("info", "This shows the preferences you submitted. Contact us if anything needs to change.");
+          else showBanner("info", "Welcome back — we’ve loaded your saved answers.");
+          render();
+        } else {
+          el("loading").textContent = "That link has expired or is no longer valid.";
+        }
+      })
+      .catch(function(){
+        el("loading").textContent = "Something went wrong loading your saved answers. Please try the link again.";
+      });
+  }
+
+  // ---------- rendering ----------
+  function render(){
+    el("loading").style.display = "none";
+    el("form").style.display = "block";
+    el("title").textContent = survey.title;
+    if (survey.intro) el("intro").textContent = survey.intro; else el("intro").style.display = "none";
+    el("submitBtn").textContent = survey.submitLabel || "Submit";
+
+    var host = el("questions");
+    host.innerHTML = "";
+    survey.questions.forEach(function(q){ host.appendChild(renderQuestion(q)); });
+
+    if (readOnly) {
+      el("reviewTag").style.display = "inline-block";
+      el("actions").style.display = "none";
+      // disable all inputs
+      host.querySelectorAll("input,textarea,select,button").forEach(function(n){ n.disabled = true; n.style.cursor="default"; });
+      host.querySelectorAll(".opt,.toggle button,.stars span").forEach(function(n){ n.style.pointerEvents="none"; });
+    }
+    wireActions();
+  }
+
+  function qShell(q){
+    var d = document.createElement("div");
+    d.className = "q"; d.dataset.qid = q.id;
+    if (q.type !== "matrix") {
+      var lab = document.createElement("label");
+      lab.className = "q-label";
+      lab.innerHTML = esc(q.label) + (q.required ? '<span class="q-req">*</span>' : "");
+      d.appendChild(lab);
+    }
+    if (q.help) {
+      var h = document.createElement("p"); h.className="q-help"; h.textContent = q.help; d.appendChild(h);
+    }
+    return d;
+  }
+
+  function renderQuestion(q){
+    var d = qShell(q);
+    var t = q.type;
+
+    if (t === "text" || t === "email" || t === "tel" || t === "number") {
+      var inp = document.createElement("input");
+      inp.type = (t === "text") ? "text" : t;
+      if (answers[q.id] != null) inp.value = answers[q.id];
+      inp.addEventListener("input", function(){ answers[q.id] = inp.value; clearErr(d); saveLocal(); });
+      d.appendChild(inp);
+
+    } else if (t === "textarea") {
+      var ta = document.createElement("textarea");
+      if (answers[q.id] != null) ta.value = answers[q.id];
+      ta.addEventListener("input", function(){ answers[q.id] = ta.value; clearErr(d); saveLocal(); });
+      d.appendChild(ta);
+
+    } else if (t === "select") {
+      var sel = document.createElement("select");
+      var ph = document.createElement("option"); ph.value=""; ph.textContent="Choose one…"; sel.appendChild(ph);
+      (q.options||[]).forEach(function(o){
+        var op=document.createElement("option"); op.value=o; op.textContent=o;
+        if (answers[q.id]===o) op.selected=true; sel.appendChild(op);
+      });
+      sel.addEventListener("change", function(){ answers[q.id]=sel.value; clearErr(d); saveLocal(); });
+      d.appendChild(sel);
+
+    } else if (t === "radio" || t === "checkbox") {
+      var many = (t === "checkbox");
+      if (many && !Array.isArray(answers[q.id])) answers[q.id] = answers[q.id] ? [answers[q.id]] : [];
+      var box = document.createElement("div"); box.className="opts";
+      (q.options||[]).forEach(function(o){
+        var row=document.createElement("label"); row.className="opt";
+        var mk=document.createElement("span"); mk.className="mark "+(many?"check":"radio"); mk.textContent = many?"✓":"●";
+        var txt=document.createElement("span"); txt.textContent=o;
+        row.appendChild(mk); row.appendChild(txt);
+        function selected(){ return many ? answers[q.id].indexOf(o)>-1 : answers[q.id]===o; }
+        function paint(){ row.classList.toggle("sel", selected()); }
+        row.addEventListener("click", function(){
+          if (readOnly) return;
+          if (many){
+            var i=answers[q.id].indexOf(o);
+            if (i>-1) answers[q.id].splice(i,1); else answers[q.id].push(o);
+            paint();
+          } else {
+            answers[q.id]=o;
+            box.querySelectorAll(".opt").forEach(function(n){ n.classList.remove("sel"); });
+            row.classList.add("sel");
+          }
+          clearErr(d); saveLocal();
+        });
+        paint();
+        box.appendChild(row);
+      });
+      d.appendChild(box);
+
+    } else if (t === "yesno") {
+      d.appendChild(buildToggleRow(q.id, null, ["Yes","No"], function(v){ answers[q.id]=v; clearErr(d); saveLocal(); },
+                    function(){ return answers[q.id]; }));
+
+    } else if (t === "matrix") {
+      var stem=document.createElement("div"); stem.className="matrix-stem";
+      stem.innerHTML = esc(q.label) + (q.required ? '<span class="q-req">*</span>' : "");
+      d.appendChild(stem);
+      var scale = q.scale || ["Yes","No"];
+      if (typeof answers[q.id] !== "object" || answers[q.id]===null) answers[q.id] = answers[q.id] || {};
+      (q.rows||[]).forEach(function(rw){
+        d.appendChild(buildToggleRow(q.id, rw,  scale,
+          function(v){ answers[q.id][rw.id]=v; clearErr(d); saveLocal(); },
+          function(){ return answers[q.id][rw.id]; }));
+      });
+
+    } else if (t === "star") {
+      var stars=document.createElement("div"); stars.className="stars";
+      for (var i=1;i<=5;i++){ (function(n){
+        var s=document.createElement("span"); s.textContent="★";
+        s.addEventListener("click", function(){ if(readOnly) return; answers[q.id]=n; paintStars(); clearErr(d); saveLocal(); });
+        stars.appendChild(s);
+      })(i); }
+      function paintStars(){ Array.prototype.forEach.call(stars.children,function(s,idx){ s.classList.toggle("on", idx < (answers[q.id]||0)); }); }
+      paintStars();
+      d.appendChild(stars);
+    }
+    return d;
+  }
+
+  // a labelled Yes/No (or custom scale) toggle row; row=null renders a bare toggle for yesno
+  function buildToggleRow(qid, row, scale, onset, getval){
+    var wrap=document.createElement("div"); wrap.className="mrow";
+    var lab=document.createElement("div"); lab.className="mrow-label";
+    lab.textContent = row ? row.label : "";
+    if (!row) lab.style.display="none";
+    var tg=document.createElement("div"); tg.className="toggle";
+    scale.forEach(function(choice){
+      var b=document.createElement("button"); b.type="button"; b.textContent=choice;
+      b.addEventListener("click", function(){
+        if (readOnly) return;
+        onset(choice);
+        Array.prototype.forEach.call(tg.children,function(c){ c.classList.toggle("on", c.textContent===choice); });
+      });
+      if (getval()===choice) b.classList.add("on");
+      tg.appendChild(b);
+    });
+    wrap.appendChild(lab); wrap.appendChild(tg);
+    return wrap;
+  }
+
+  // ---------- validation ----------
+  function clearErr(d){ d.classList.remove("invalid"); }
+  function markErr(d, msg){
+    d.classList.add("invalid");
+    var e=d.querySelector(".err");
+    if(!e){ e=document.createElement("div"); e.className="err"; d.appendChild(e); }
+    e.textContent = msg || "This field is required."; e.style.display="block";
+  }
+  function validate(){
+    var ok=true, first=null;
+    survey.questions.forEach(function(q){
+      if(!q.required) return;
+      var d=document.querySelector('.q[data-qid="'+q.id+'"]');
+      var v=answers[q.id], bad=false;
+      if (q.type==="checkbox") bad = !Array.isArray(v)||v.length===0;
+      else if (q.type==="matrix") bad = !v || Object.keys(v).length < (q.rows||[]).length;
+      else bad = (v==null || v==="" );
+      if (bad){ ok=false; markErr(d); if(!first) first=d; }
+    });
+    if(first) first.scrollIntoView({behavior:"smooth", block:"center"});
+    return ok;
+  }
+
+  // ---------- persistence ----------
+  function localKey(){ return "hd_survey_" + surveyId; }
+  function saveLocal(){ try{ if(!token) localStorage.setItem(localKey(), JSON.stringify(answers)); }catch(e){} }
+  function restoreLocal(){ try{ var s=localStorage.getItem(localKey()); if(s) answers=JSON.parse(s); }catch(e){} }
+  function clearLocal(){ try{ localStorage.removeItem(localKey()); }catch(e){} }
+
+  function post(status, contact){
+    var body={ survey: surveyId, answers: answers, status: status };
+    if (token) body.token = token;
+    if (contact) body.contact = contact;
+    return fetch("/api/survey-save", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)
+    }).then(function(r){ return r.json(); });
+  }
+
+  // ---------- actions ----------
+  function wireActions(){
+    el("submitBtn").addEventListener("click", onSubmit);
+    el("saveBtn").addEventListener("click", function(){ el("savebox").classList.toggle("open"); });
+    el("segEmail").addEventListener("click", function(){ setMode("email"); });
+    el("segPhone").addEventListener("click", function(){ setMode("phone"); });
+    el("sendLinkBtn").addEventListener("click", onSendLink);
+  }
+  function setMode(m){
+    contactMode=m;
+    el("segEmail").classList.toggle("on", m==="email");
+    el("segPhone").classList.toggle("on", m==="phone");
+    var inp=el("contactInput");
+    if(m==="email"){ inp.type="email"; inp.placeholder="you@example.com"; }
+    else { inp.type="tel"; inp.placeholder="(555) 123-4567"; }
+    el("contactErr").style.display="none";
+  }
+
+  function onSubmit(){
+    if(!validate()) return;
+    var btn=el("submitBtn"); btn.disabled=true; btn.textContent="Saving…";
+    post("complete").then(function(res){
+      if(res && res.ok){
+        clearLocal();
+        el("form").style.display="none";
+        el("doneComplete").style.display="block";
+        banner.className="banner";
+        window.scrollTo({top:0,behavior:"smooth"});
+      } else { throw new Error(); }
+    }).catch(function(){
+      btn.disabled=false; btn.textContent=survey.submitLabel||"Submit";
+      showBanner("warn","We couldn’t save that just now. Please check your connection and try again.");
+    });
+  }
+
+  function onSendLink(){
+    var val=el("contactInput").value.trim();
+    var valid = contactMode==="email"
+      ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)
+      : val.replace(/[^\d]/g,"").length >= 10;
+    if(!valid){
+      el("contactErr").textContent = contactMode==="email" ? "Please enter a valid email." : "Please enter a valid phone number.";
+      el("contactErr").style.display="block"; return;
+    }
+    var btn=el("sendLinkBtn"); btn.disabled=true; btn.textContent="Sending…";
+    var contact = contactMode==="email" ? { email: val } : { phone: val };
+    post("draft", contact).then(function(res){
+      if(res && res.ok){
+        el("savebox").innerHTML =
+          '<h3>Link sent</h3><p>Check your ' + (contactMode==="email"?"email":"messages") +
+          ' for a private link to finish this survey whenever you’re ready.</p>';
+      } else { throw new Error(); }
+    }).catch(function(){
+      btn.disabled=false; btn.textContent="Send my link";
+      el("contactErr").textContent="We couldn’t send that link. Please try again.";
+      el("contactErr").style.display="block";
+    });
+  }
+
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  boot();
+})();
+</script>
+</body>
+</html>
