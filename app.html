@@ -2156,6 +2156,9 @@ function renderBook() {
               <button class="pref-btn ${state.contactPref.includes('email') ? 'active' : ''}" id="pref-email" onclick="togglePref('email')">Email</button>
               <button class="pref-btn ${state.contactPref.includes('sms') ? 'active' : ''}" id="pref-sms" onclick="togglePref('sms')">Text message</button>
             </div>
+            <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px;">
+              By providing your number, you agree to receive transactional texts from HomeDasher about your booking. Msg &amp; data rates may apply. Reply STOP to opt out. See our <a href="/terms" target="_blank" style="color:var(--teal);text-decoration:underline;">Terms</a> &amp; <a href="/privacy" target="_blank" style="color:var(--teal);text-decoration:underline;">Privacy Policy</a>.
+            </p>
           </div>
           <div class="field span2"><label>Date</label><div id="calendar-widget">${renderCalendar()}</div></div>
           <div class="field span2" id="time-slots-field" style="${state.date ? '' : 'display:none'}">
