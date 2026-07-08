@@ -8,6 +8,8 @@
     { "source": "/apply", "destination": "/apply.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/terms", "destination": "/terms.html" },
-    { "source": "/visit/:token", "destination": "/visit.html" }
+    { "source": "/visit/:token", "destination": "/visit.html" },
+    { "source": "/intake", "destination": "/survey.html?survey=covid-intake" },
+    { "source": "/s/:id", "destination": "/survey.html?survey=:id" }
   ]
 }
