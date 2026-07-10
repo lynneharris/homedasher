@@ -33,12 +33,12 @@ window.SURVEYS = {
     title: "New Client Health and Illness Prevention Policies",
     intro:
       "HomeDasher is proud to support your health. A clean home should never come at " +
-      "the expense of getting sick, so we take our safety protocols seriously and are " +
-      "glad to accommodate your needs. " +
-      "Your health and safety come first. We always reschedule your visit if your " +
-      "HomeDasher has been ill or experienced any symptoms of illness within the past 7 days, " +
-      "and all of our cleaning products are fragrance-free as standard. Our standard light " +
-      "cleaning kit contains hypochlorous acid for hard surfaces and disinfection. " +
+      "the expense of getting sick." +
+     
+      "We always reschedule your visit if your " +
+      "HomeDasher has been ill or experienced any symptoms of illness within the past 7 days. " +
+      "Our standard light " +
+      "cleaning kit contains a fragrance-free hypochlorous acid spray for surface cleaning and disinfection of high-touch surfaces. " +
       "Please share your preferences below so we can " +
       "tailor each visit to your needs.",
     submitLabel: "Submit my preferences",
@@ -115,9 +115,8 @@ window.SURVEYS = {
           "in and we will follow up with details.",
         options: [
           "Pantry reorganization",
-          "Identify and set aside expired or soon-to-expire items so they can be used first",
-          "Refrigerator deep cleaning",
-          "Refrigerator organization",
+          "Set aside expired or soon-to-expire pantry items",
+          "Refrigerator cleanout and reorganization",
           "Bathroom cabinet and drawer organization"
         ]
       },
@@ -129,9 +128,9 @@ window.SURVEYS = {
           "Your HomeDasher can bring organizing supplies, charged at cost. Check any " +
           "you would be interested in — we will confirm with you before buying anything.",
         options: [
-          "Large zip-top bags — under $1 each",
-          "Clear storage bins — about $2–8 each, depending on size",
-          "Decorative baskets — higher-end, price varies"
+          "Zip-loc bags of assorted sizes (complimentary)",
+          "Clear storage bins — approx $2–8 each, depending on size",
+          "Decorative baskets and storage bins — prices vary"
         ]
       }
     ]
