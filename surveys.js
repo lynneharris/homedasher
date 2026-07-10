@@ -30,15 +30,15 @@
 window.SURVEYS = {
 
   "covid-intake": {
-    title: "New Client Health and Illness Prevention Policies",
+    title: "New Client Intake and Illness Prevention Policies",
     intro:
       "HomeDasher is proud to support your health. A clean home should never come at " +
-      "the expense of getting sick." +
+      "the expense of getting sick. " +
      
       "We always reschedule your visit if your " +
       "HomeDasher has been ill or experienced any symptoms of illness within the past 7 days. " +
       "Our standard light " +
-      "cleaning kit contains a fragrance-free hypochlorous acid spray for surface cleaning and disinfection of high-touch surfaces. " +
+      "cleaning kit includes a fragrance-free hypochlorous acid spray for surface cleaning and disinfection of high-touch surfaces. " +
       "Please share your preferences below so we can " +
       "tailor each visit to your needs.",
     submitLabel: "Submit my preferences",
@@ -71,8 +71,8 @@ window.SURVEYS = {
         label: "I would like my HomeDasher to bring the following equipment:",
         scale: ["Yes", "No"],
         rows: [
-          { id: "aerosol_filter",  label: "Filter for infectious aerosols" },
-          { id: "carbon_canister", label: "Carbon canister for VOCs and odors" }
+          { id: "aerosol_filter",  label: "Filter for infectious aerosols and particulates (Clean Air Kits Luggable XL" },
+          { id: "carbon_canister", label: "Carbon canister for VOCs and odors (AC Infinity Air Carbon Filter)" }
         ]
       },
       {
