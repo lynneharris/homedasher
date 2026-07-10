@@ -111,11 +111,16 @@ window.SURVEYS = {
         type: "checkbox",
         label: "Optional organizing help",
         help:
-          "Check any organizing tasks you would be interested " +
-          "in and we will follow up with details.",
+          "In addition to standard cleaning, which cleaning and organizing tasks you would be interested " +
+          "in.",
         options: [
-          "Pantry reorganization",
+          "Collect dishes, load dishwasher",
+           "Handwash any items in sink",
+           "Unload dishwasher and put away",
+           "Pantry reorganization",
           "Set aside expired or soon-to-expire pantry items",
+            "Organize items on countertops or tables by category",
+           "Deep cleaning of oven or other appliances",
           "Refrigerator cleanout and reorganization",
           "Bathroom cabinet and drawer organization"
         ]
