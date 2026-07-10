@@ -30,13 +30,18 @@
 window.SURVEYS = {
 
   "covid-intake": {
-    title: "COVID-Conscious Care Preferences",
+    title: "New Client Health and Illness Prevention Policies",
     intro:
+      "HomeDasher is proud to support families who want to steer clear of illness — " +
+      "new parents, immunocompromised or chronically ill household members, and anyone " +
+      "who simply cannot afford to get sick. Getting help with your home should never " +
+      "come at the cost of your health, so we take our safety protocols seriously and " +
+      "are glad to accommodate your needs. " +
       "Your health and safety come first. We always reschedule your visit if your " +
       "HomeDasher has been ill or experienced any symptoms of illness within the past 7 days, " +
       "and all of our cleaning products are fragrance-free as standard. Our standard light " +
-      "cleaning kit contains hypochlorous acid for hard surfaces and disinfection, and a " +
-      "vinegar-based glass and window cleaner. Please share your preferences below so we can " +
+      "cleaning kit contains hypochlorous acid for hard surfaces and disinfection. " +
+      "Please share your preferences below so we can " +
       "tailor each visit to your needs.",
     submitLabel: "Submit my preferences",
     questions: [
@@ -73,6 +78,17 @@ window.SURVEYS = {
         ]
       },
       {
+        id: "surface_cleaning",
+        type: "checkbox",
+        label: "Surface cleaning — countertops and tables",
+        help: "Select any that apply.",
+        options: [
+          "Leave items where they are and clean around them",
+          "Remove items, clean underneath, and replace them",
+          "Organize and/or put items away"
+        ]
+      },
+      {
         id: "product_preference",
         type: "radio",
         label: "Specialized products for deep cleaning",
@@ -91,6 +107,34 @@ window.SURVEYS = {
         type: "textarea",
         label: "Describe any specific product preferences",
         help: "We are always happy to use your own products if you prefer."
+      },
+      {
+        id: "organizing_services",
+        type: "checkbox",
+        label: "Kitchen and bathroom organizing services",
+        help:
+          "We also offer add-on organizing help. Check any you would be interested " +
+          "in and we will follow up with details.",
+        options: [
+          "Pantry reorganization",
+          "Identify and set aside expired or soon-to-expire items so they can be used first",
+          "Refrigerator deep cleaning",
+          "Refrigerator organization",
+          "Bathroom cabinet and drawer organization"
+        ]
+      },
+      {
+        id: "organizing_supplies",
+        type: "checkbox",
+        label: "Organizing supplies",
+        help:
+          "Your HomeDasher can bring organizing supplies, charged at cost. Check any " +
+          "you would be interested in — we will confirm with you before buying anything.",
+        options: [
+          "Large zip-top bags — under $1 each",
+          "Clear storage bins — about $2–8 each, depending on size",
+          "Decorative baskets — higher-end, price varies"
+        ]
       }
     ]
   }
