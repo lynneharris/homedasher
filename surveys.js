@@ -32,11 +32,9 @@ window.SURVEYS = {
   "covid-intake": {
     title: "New Client Health and Illness Prevention Policies",
     intro:
-      "HomeDasher is proud to support families who want to steer clear of illness — " +
-      "new parents, immunocompromised or chronically ill household members, and anyone " +
-      "who simply cannot afford to get sick. Getting help with your home should never " +
-      "come at the cost of your health, so we take our safety protocols seriously and " +
-      "are glad to accommodate your needs. " +
+      "HomeDasher is proud to support your health. A clean home should never come at " +
+      "the expense of getting sick, so we take our safety protocols seriously and are " +
+      "glad to accommodate your needs. " +
       "Your health and safety come first. We always reschedule your visit if your " +
       "HomeDasher has been ill or experienced any symptoms of illness within the past 7 days, " +
       "and all of our cleaning products are fragrance-free as standard. Our standard light " +
@@ -54,7 +52,7 @@ window.SURVEYS = {
       {
         id: "rapid_test",
         type: "yesno",
-        label: "I would like my HomeDasher to test on the day of the visit with a rapid antigen test."
+        label: "I would like my HomeDasher to test on the day of the visit with a COVID and flu A/B rapid antigen test."
       },
       {
         id: "ppe",
