@@ -136,7 +136,7 @@ window.SURVEYS = {
           "Clear storage bins — approx $2–8 each, depending on size",
           "Decorative baskets and storage bins — prices vary"
         ]
-      }
+      },
       {
         id: "final_notes",
         type: "textarea",
