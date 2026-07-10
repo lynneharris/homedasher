@@ -76,17 +76,6 @@ window.SURVEYS = {
         ]
       },
       {
-        id: "surface_cleaning",
-        type: "checkbox",
-        label: "Surface cleaning — countertops and tables",
-        help: "Select any that apply.",
-        options: [
-          "Leave items where they are and clean around them",
-          "Remove items, clean underneath, and replace them",
-          "Organize and/or put items away"
-        ]
-      },
-      {
         id: "product_preference",
         type: "radio",
         label: "Specialized products for deep cleaning",
@@ -107,11 +96,22 @@ window.SURVEYS = {
         help: "We are always happy to use your own products if you prefer."
       },
       {
+        id: "surface_cleaning",
+        type: "checkbox",
+        label: "Approach to Stuff on Surfaces (Counters, Tables, Vanities)",
+        help: "Select any that apply.",
+        options: [
+          "Leave items undisturbed, clean around",
+          "Remove items, clean underneath, and replace",
+          "Organize and/or put items away (see organizing options below)"
+        ]
+      },
+      {
         id: "organizing_services",
         type: "checkbox",
-        label: "Kitchen and bathroom organizing services",
+        label: "Optional organizing help",
         help:
-          "We also offer add-on organizing help. Check any you would be interested " +
+          "Check any organizing tasks you would be interested " +
           "in and we will follow up with details.",
         options: [
           "Pantry reorganization",
