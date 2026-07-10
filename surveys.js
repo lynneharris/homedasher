@@ -71,7 +71,7 @@ window.SURVEYS = {
         label: "I would like my HomeDasher to bring the following equipment:",
         scale: ["Yes", "No"],
         rows: [
-          { id: "aerosol_filter",  label: "Filter for infectious aerosols and particulates (Clean Air Kits Luggable XL" },
+          { id: "aerosol_filter",  label: "Filter for infectious aerosols and particulates (Clean Air Kits Luggable XL)" },
           { id: "carbon_canister", label: "Carbon canister for VOCs and odors (AC Infinity Air Carbon Filter)" }
         ]
       },
@@ -81,7 +81,7 @@ window.SURVEYS = {
         label: "Specialized products for deep cleaning",
         help:
           "Certain cleaning tasks sometimes require specialized products — for example, " +
-          "degreasers for oven cleaning, or the removal of hard-water deposits, rust, or soap " +
+          "deep oven cleaning, removal of hard-water deposits, rust, or heavy soap " +
           "scum. For these types of jobs, please tell us more about your product preferences.",
         options: [
           "Standard products are fine",
@@ -98,8 +98,7 @@ window.SURVEYS = {
       {
         id: "surface_cleaning",
         type: "checkbox",
-        label: "Approach to Stuff on Surfaces (Counters, Tables, Vanities)",
-        help: "Select any that apply.",
+        label: "Approach to Items on Surfaces (Counters, Tables, Vanities)",
         options: [
           "Leave items undisturbed, clean around",
           "Remove items, clean underneath, and replace",
