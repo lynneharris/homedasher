@@ -40,7 +40,7 @@ window.SURVEYS = {
       "Our standard light " +
       "cleaning kit includes a fragrance-free hypochlorous acid spray for surface cleaning and disinfection of high-touch surfaces. " +
       "Please share your preferences below so we can " +
-      "tailor each visit to your needs.",
+      "tailor each visit to your needs. This is optional - if you are not a survey person we can easily coordinate in person upon arrival!",
     submitLabel: "Submit my preferences",
     questions: [
       {
@@ -137,6 +137,12 @@ window.SURVEYS = {
           "Decorative baskets and storage bins — prices vary"
         ]
       }
+      {
+        id: "final_notes",
+        type: "textarea",
+        label: "Describe any additional cleaning tasks or organizing notes",
+        help: "We are always happy to coordinate in person at the time of visit."
+      },
     ]
   }
 
